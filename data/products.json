@@ -1,0 +1,34 @@
+[
+  {
+    "id": "bot-r3x",
+    "title": "Beok BOT-R3X RF Wireless WiFi Thermostat",
+    "image": "/images/products/bot-r3x.jpg",
+    "url": "/products/bot-r3x-wifi-radio-frequency-wifi-thermostat",
+    "category": "gas-boiler-heating-thermostat",
+    "description": "RF Wireless WiFi Thermostat for gas boiler heating."
+  },
+  {
+    "id": "rf-wireless",
+    "title": "New wireless gas boiler heating thermostat",
+    "image": "/images/products/rf-wireless.jpg",
+    "url": "/products/rf-wireless-gas-boiler-heating-thermostat-bot",
+    "category": "gas-boiler-heating-thermostat",
+    "description": "Wireless thermostat for gas boiler heating."
+  },
+  {
+    "id": "wifi-wireless",
+    "title": "WiFi wireless gas boiler heating thermostat",
+    "image": "/images/products/wifi-wireless.jpg",
+    "url": "/products/rf-wireless-wifi-gas-boiler-heating",
+    "category": "gas-boiler-heating-thermostat",
+    "description": "WiFi enabled wireless thermostat for gas boiler heating."
+  },
+  {
+    "id": "bot-r15x",
+    "title": "Battery power supply wireless WiFi gas boiler heating room thermostat",
+    "image": "/images/products/bot-r15x.jpg",
+    "url": "/products/bot-r15x-wifi-wireless-digital-room",
+    "category": "gas-boiler-heating-thermostat",
+    "description": "Battery powered wireless WiFi thermostat for gas boiler heating rooms."
+  }
+]
