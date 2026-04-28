@@ -46,5 +46,5 @@ Deployment is automated via GitHub Actions and Railway. Push to `main` to trigge
 ## Contributing
 Pull requests are welcome! Please follow the code style and add tests for new features.
 
-## License
-This project is for educational and demonstration purposes. Use images and content only if you have rights or permission.
+## License & Usage
+This project is intended for business/commercial use. Ensure you have the legal rights or permission to use all images and content included in the project. Do not use copyrighted materials without proper authorization.
