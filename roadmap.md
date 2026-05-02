@@ -34,9 +34,9 @@ https://bg.beok-controls.com
 - ✅ `locales/bg.json` + `locales/en.json` — translation dictionaries
 - ✅ App Router pages use `getDictionary` for server-side translations
 - ✅ Pages Router uses Next.js built-in `i18n` config
-- ⬜ Language switcher UI component
-- ⬜ Locale-aware `<html lang>` in App Router layout
-- ⬜ i18n all hardcoded Bulgarian strings in Pages Router components
+- ✅ Language switcher UI component (`components/LanguageSwitcher.tsx`)
+- ⬜ Locale-aware `<html lang>` in App Router layout (requires moving html/body to `[locale]` layout — Next.js constraint)
+- ✅ i18n hardcoded strings in Header and ProductCard (dict prop + fallbacks)
 
 ## 5. Static Data ✅
 - ✅ Product data sourced from `extracted/products-extracted.json`
@@ -85,9 +85,10 @@ https://bg.beok-controls.com
   }
   ```
 
-## 10. Image Optimization ⬜
-- ⬜ Replace `<img>` tags in `ProductCard` with `next/image`
-- ⬜ Add `remotePatterns` in `next.config.js` for external image domains
+## 10. Image Optimization ✅
+- ✅ Replace `<img>` tags in `ProductCard` with `next/image`
+- ⬜ Add real image URLs to product data (currently placeholder strings)
+- ⬜ Add `remotePatterns` in `next.config.js` if images are hosted externally
 
 ## 11. Validation & Error Handling ⬜
 - ⬜ Input validation on all API routes and forms

@@ -10,7 +10,7 @@ export default async function Page({ params }: { params: { locale: string } }) {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Hero title={dict["welcome"]} />
       <main className="flex-1 max-w-6xl mx-auto px-4 py-8">
-        <CategoryGrid products={products} />
+        <CategoryGrid products={products} viewProduct={dict["view_product"]} />
       </main>
       <Footer dict={dict} />
     </div>

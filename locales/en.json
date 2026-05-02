@@ -6,5 +6,8 @@
   "contact": "Contact",
   "all_products": "All Products",
   "category": "Category",
-  "not_found": "Product not found"
+  "not_found": "Product not found",
+  "thermostats": "Thermostats",
+  "radiator_valves": "Radiator Valves",
+  "view_product": "View product"
 }

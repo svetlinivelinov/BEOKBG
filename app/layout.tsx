@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "BEOKBG",
@@ -12,12 +11,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // lang is set per-locale in app/[locale]/layout.tsx via the Header dict
+  // suppressHydrationWarning prevents mismatch warnings if client-side locale differs
   return (
-    <html lang="bg">
-      <body>
-        <Header />
-        {children}
-      </body>
+    <html lang="bg" suppressHydrationWarning>
+      <body>{children}</body>
     </html>
   );
 }
