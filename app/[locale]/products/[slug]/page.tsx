@@ -19,7 +19,7 @@ export default async function ProductDetailPage({ params }: { params: { locale: 
             {dict['back_to_products'] ?? 'Обратно към продукти'}
           </Link>
         </main>
-        <Footer dict={dict} />
+        <Footer dict={dict} locale={params.locale} />
       </div>
     );
   }
@@ -123,7 +123,7 @@ export default async function ProductDetailPage({ params }: { params: { locale: 
           </section>
         )}
       </main>
-      <Footer dict={dict} />
+      <Footer dict={dict} locale={params.locale} />
     </div>
   );
 }

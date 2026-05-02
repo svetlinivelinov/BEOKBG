@@ -3,9 +3,10 @@ import Link from 'next/link';
 
 type FooterProps = {
   dict?: Record<string, string>;
+  locale?: string;
 };
 
-const Footer: React.FC<FooterProps> = ({ dict }) => (
+const Footer: React.FC<FooterProps> = ({ dict, locale = 'bg' }) => (
   <footer className="bg-slate-950 text-slate-100 mt-14">
     <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
       <section>
@@ -21,20 +22,20 @@ const Footer: React.FC<FooterProps> = ({ dict }) => (
       <section>
         <h3 className="text-base font-semibold mb-3">{dict?.quick_navigation ?? 'Бърза навигация'}</h3>
         <ul className="space-y-2 text-sm text-slate-300">
-          <li><Link href="/" className="hover:text-white">{dict?.home ?? 'Начало'}</Link></li>
-          <li><Link href="/products" className="hover:text-white">{dict?.products ?? 'Продукти'}</Link></li>
-          <li><Link href="/about-us" className="hover:text-white">{dict?.about ?? 'За нас'}</Link></li>
-          <li><Link href="/contact-us" className="hover:text-white">{dict?.contact ?? 'Контакти'}</Link></li>
+          <li><Link href={`/${locale}`} className="hover:text-white">{dict?.home ?? 'Начало'}</Link></li>
+          <li><Link href={`/${locale}/products`} className="hover:text-white">{dict?.products ?? 'Продукти'}</Link></li>
+          <li><Link href={`/${locale}/about-us`} className="hover:text-white">{dict?.about ?? 'За нас'}</Link></li>
+          <li><Link href={`/${locale}/contact-us`} className="hover:text-white">{dict?.contact ?? 'Контакти'}</Link></li>
         </ul>
       </section>
 
       <section>
         <h3 className="text-base font-semibold mb-3">{dict?.product_category ?? 'Продуктова категория'}</h3>
         <ul className="space-y-2 text-sm text-slate-300">
-          <li><Link href="/products?category=room-thermostat" className="hover:text-white">{dict?.thermostats ?? 'Термостати'}</Link></li>
-          <li><Link href="/products?category=underfloor-heating-controller" className="hover:text-white">{dict?.ufh_controllers ?? 'Контролери за подово'}</Link></li>
-          <li><Link href="/products?category=radiator-actuator" className="hover:text-white">{dict?.radiator_valves ?? 'Радиаторни вентили'}</Link></li>
-          <li><Link href="/products?category=actuator" className="hover:text-white">{dict?.actuators ?? 'Термични задвижки'}</Link></li>
+          <li><Link href={`/${locale}/products?category=room-thermostat`} className="hover:text-white">{dict?.thermostats ?? 'Термостати'}</Link></li>
+          <li><Link href={`/${locale}/products?category=underfloor-heating-controller`} className="hover:text-white">{dict?.ufh_controllers ?? 'Контролери за подово'}</Link></li>
+          <li><Link href={`/${locale}/products?category=radiator-actuator`} className="hover:text-white">{dict?.radiator_valves ?? 'Радиаторни вентили'}</Link></li>
+          <li><Link href={`/${locale}/products?category=actuator`} className="hover:text-white">{dict?.actuators ?? 'Термични задвижки'}</Link></li>
         </ul>
       </section>
 

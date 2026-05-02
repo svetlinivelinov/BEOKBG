@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: { locale: string } }) {
       <main className="flex-1 max-w-6xl mx-auto px-4 py-8">
         <CategoryGrid products={localizedProducts} viewProduct={dict["view_product"]} locale={params.locale} />
       </main>
-      <Footer dict={dict} />
+      <Footer dict={dict} locale={params.locale} />
     </div>
   );
 }

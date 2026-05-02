@@ -14,7 +14,7 @@ export default async function CategoriesPage({ params }: { params: { locale: str
         <h1 className="text-3xl font-bold mb-6">{dict["categories"]}</h1>
         <CategoryGrid products={localizedProducts} viewProduct={dict["view_product"]} locale={params.locale} />
       </main>
-      <Footer dict={dict} />
+      <Footer dict={dict} locale={params.locale} />
     </div>
   );
 }

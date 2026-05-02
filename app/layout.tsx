@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,10 +12,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // lang is set per-locale in app/[locale]/layout.tsx via the Header dict
-  // suppressHydrationWarning prevents mismatch warnings if client-side locale differs
+  // Middleware sets x-locale based on the URL; use it to keep <html lang> accurate.
+  const locale = headers().get("x-locale") ?? "bg";
   return (
-    <html lang="bg" suppressHydrationWarning>
+    <html lang={locale}>
       <body>{children}</body>
     </html>
   );
