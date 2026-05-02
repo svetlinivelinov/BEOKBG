@@ -4,100 +4,113 @@
 **Reference site for structure and content inspiration:**
 https://bg.beok-controls.com
 
-## 1. Project Setup
-- Initialize a git repository (if not already done)
-- Initialize Next.js app with TypeScript
-- Install and configure Tailwind CSS
-- Set up clean architecture: `/components`, `/lib`, `/app/api`
-- Document required environment variables (e.g., database URL, pick & pack API keys)
+## 1. Project Setup ✅
+- ✅ Initialize Next.js app with TypeScript
+- ✅ Install and configure Tailwind CSS + PostCSS
+- ✅ Clean architecture: `/components`, `/lib`, `/app`, `/pages`
+- ✅ `tsconfig.json` with strict mode and `@/` path alias
+- ✅ ESLint configured (`next/core-web-vitals`)
+- ✅ `.gitignore` with standard Next.js ignores
+- ✅ Document required environment variables
 
-- Note: Use only images you have rights to (e.g., your own or with permission from BEOK). Otherwise, use placeholders.
+## 2. UI Component Development ✅
+- ✅ `Header` — sticky nav with product/category links
+- ✅ `Hero` — banner with CTA button (scrolls to `#products`)
+- ✅ `ProductCard` — image, title, description, external link
+- ✅ `CategoryGrid` — responsive grid with optional category filter
+- ✅ `Footer` — links with optional i18n dictionary prop
+- ✅ All components use TypeScript prop interfaces
 
-## 2. Database (Railway PostgreSQL)
-- Set up Railway PostgreSQL
-- Create tables:
-  - products
-  - categories
-  - orders
-  - order_items
-  - pickpack_logs
-  - users (for admin/customer roles)
-- Define schema with field types, relations, and indexes
-- Plan for file storage (e.g., product images)
+## 3. Page & Routing Structure ✅
+- ✅ Pages Router: `/`, `/products`, `/products/[id]`, `/category`
+- ✅ Pages Router: `/about-us`, `/contact-us` (stub pages)
+- ✅ App Router: `/[locale]/`, `/[locale]/categories`, `/[locale]/products`, `/[locale]/products/[slug]`
+- ✅ `pages/_app.tsx` — correct Next.js App wrapper with global CSS
+- ⬜ Consolidate to a single router (App Router preferred long-term)
 
-## 3. Authentication & Admin Panel
-- Implement authentication (admin/customer roles)
-- Create admin dashboard for managing products, categories, and orders
+## 4. Internationalization (i18n) ✅
+- ✅ `lib/i18n/config.ts` — locale list (`bg`, `en`)
+- ✅ `lib/i18n/getDictionary.ts` — async locale loader with guard
+- ✅ `locales/bg.json` + `locales/en.json` — translation dictionaries
+- ✅ App Router pages use `getDictionary` for server-side translations
+- ✅ Pages Router uses Next.js built-in `i18n` config
+- ⬜ Language switcher UI component
+- ⬜ Locale-aware `<html lang>` in App Router layout
+- ⬜ i18n all hardcoded Bulgarian strings in Pages Router components
 
-## 4. UI Component Development
-- Create reusable components:
-  - Hero
-  - ProductCard
-  - CategoryGrid
-  - Footer
-- Ensure all components are responsive and use Tailwind for styling
+## 5. Static Data ✅
+- ✅ Product data sourced from `extracted/products-extracted.json`
+- ⬜ Migrate to PostgreSQL (Railway)
 
-## 5. Page & Routing Structure
-- Analyze bg.beok-controls.com for page/content structure
-- Implement dynamic routes for products and categories under `/app`
+## 6. Database (Railway PostgreSQL) ⬜
+- ⬜ Set up Railway PostgreSQL
+- ⬜ Create tables: `products`, `categories`, `orders`, `order_items`, `pickpack_logs`, `users`
+- ⬜ Define schema with field types, relations, and indexes
+- ⬜ Plan file storage for product images
 
-## 6. CRUD Operations & Order Management
-- Add CRUD endpoints and UI for products and categories
-- Implement order status tracking (pending, shipped, completed)
+## 7. Authentication & Admin Panel ⬜
+- ⬜ Authentication (admin/customer roles)
+- ⬜ Admin dashboard for managing products, categories, and orders
 
-## 7. API Integration
-- Create API routes under `/app/api`:
-  - `/api/orders` for order handling
-  - `/api/pickpack` for pick & pack integration
-- Use fetch() with POST for sending orders to the external API
-- Example for pick & pack integration:
+## 8. CRUD Operations & Order Management ⬜
+- ⬜ CRUD endpoints and UI for products and categories
+- ⬜ Order status tracking (pending, shipped, completed)
 
-```ts
-import { NextResponse } from "next/server";
+## 9. API Integration ⬜
+- ⬜ `/api/orders` — order handling
+- ⬜ `/api/pickpack` — pick & pack integration
 
-export async function POST(req: Request) {
-  const body = await req.json();
+  ```ts
+  import { NextResponse } from "next/server";
 
-  const pickPackResponse = await fetch(process.env.PICKPACK_ENDPOINT!, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.PICKPACK_API_KEY}`
-    },
-    body: JSON.stringify({
-      orderId: body.orderId,
-      customer: body.customer,
-      items: body.items,
-      address: body.address
-    })
-  });
+  export async function POST(req: Request) {
+    const body = await req.json();
 
-  const result = await pickPackResponse.json();
+    const pickPackResponse = await fetch(process.env.PICKPACK_ENDPOINT!, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.PICKPACK_API_KEY}`
+      },
+      body: JSON.stringify({
+        orderId: body.orderId,
+        customer: body.customer,
+        items: body.items,
+        address: body.address
+      })
+    });
 
-  return NextResponse.json({
-    status: "ok",
-    pickPackStatus: result
-  });
-}
-```
+    const result = await pickPackResponse.json();
+    return NextResponse.json({ status: "ok", pickPackStatus: result });
+  }
+  ```
 
-## 8. Helpers & Utilities
-- Place helper functions in `/lib` as needed
+## 10. Image Optimization ⬜
+- ⬜ Replace `<img>` tags in `ProductCard` with `next/image`
+- ⬜ Add `remotePatterns` in `next.config.js` for external image domains
 
-## 9. Validation & Error Handling
-- Add input validation and error handling for all API routes and forms
+## 11. Validation & Error Handling ⬜
+- ⬜ Input validation on all API routes and forms
+- ⬜ Consistent error response format: `{ success: boolean, data?, error? }`
 
-## 10. Testing & QA
-- Add unit and integration tests for API routes and components (Jest, React Testing Library)
-- Test all components and API routes
-- Ensure mobile responsiveness and accessibility
+## 12. Testing & QA ⬜
+- ⬜ Unit tests for components (Jest, React Testing Library)
+- ⬜ Integration tests for API routes
+- ⬜ Mobile responsiveness and accessibility audit
 
-## 11. Internationalization (i18n)
-- Add i18n support if needed for multiple languages
+## 13. Performance & SEO ⬜
+- ⬜ `next/image` for all product images (lazy load, sizing)
+- ⬜ Per-page `<meta>` tags and Open Graph
+- ⬜ Sitemap generation
 
-## 12. Performance & SEO
-- Optimize performance (image optimization, code splitting)
-- Add SEO improvements (meta tags, sitemap)
+## 14. Security ⬜
+- ⬜ Upgrade Next.js to v15+ (resolves remaining high CVEs in v14)
+- ⬜ Protect admin API routes (auth middleware)
+- ⬜ Sanitize all user input server-side
+
+## 15. Deployment ⬜
+- ⬜ GitHub Actions CI pipeline (lint → test → build)
+- ⬜ Railway deployment on push to `main`
 
 ## 13. Security
 - Secure API endpoints and sensitive data

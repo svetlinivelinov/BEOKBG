@@ -1,32 +1,33 @@
-Пълна i18n структура за Next.js (App Router)
-📁 1. Файлова структура
-/app
-  /[locale]
-    /layout.tsx
-    /page.tsx
-    /products
-      /page.tsx
-      /[slug]
-        /page.tsx
-    /categories
-      /page.tsx
-      /[slug]
-        /page.tsx
-    /api
-      /orders
-      /pickpack
-/locales
-  /bg.json
-  /en.json
-/lib
-  /i18n
-    /config.ts
-    /getDictionary.ts
-    /types.ts
+﻿# i18n Architecture Reference
 
+This document describes the bilingual (bg/en) i18n structure as implemented in this project.
 
+## File Structure
 
-📌 2. next.config.js – активиране на i18n
+```
+app/
+  layout.tsx              # Root layout — Header + global CSS
+  [locale]/
+    layout.tsx            # (planned) locale-specific layout for <html lang>
+    page.tsx              # Home page — uses getDictionary
+    products/
+      page.tsx
+      [slug]/page.tsx
+    categories/
+      page.tsx
+locales/
+  bg.json                 # Bulgarian translations (default locale)
+  en.json                 # English translations
+lib/
+  i18n/
+    config.ts             # Locale list and type
+    getDictionary.ts      # Async loader for locale dictionaries
+    types.ts              # Dictionary interface
+```
+
+## next.config.js — i18n for Pages Router
+
+```js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   i18n: {
@@ -36,188 +37,93 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+```
 
+## lib/i18n/config.ts
 
+```ts
+export const locales = ["bg", "en"] as const;
+export type Locale = (typeof locales)[number];
+```
 
-📌 3. /lib/i18n/config.ts
-export const i18n = {
-  defaultLocale: "bg",
-  locales: ["bg", "en"],
-} as const;
+## lib/i18n/getDictionary.ts
 
-export type Locale = (typeof i18n)["locales"][number];
+```ts
+import { locales } from "./config";
 
-
-
-📌 4. /lib/i18n/getDictionary.ts
-import "server-only";
-import { Locale } from "./config";
-
-const dictionaries = {
-  bg: () => import("../../locales/bg.json").then((m) => m.default),
-  en: () => import("../../locales/en.json").then((m) => m.default),
-};
-
-export async function getDictionary(locale: Locale) {
-  return dictionaries[locale]();
+export async function getDictionary(locale: string) {
+  if (!locales.includes(locale as never)) throw new Error("Invalid locale");
+  return import(`../../locales/${locale}.json`).then(mod => mod.default);
 }
+```
 
+## lib/i18n/types.ts
 
-
-📌 5. /lib/i18n/types.ts
+```ts
 export interface Dictionary {
-  hero_title: string;
-  hero_subtitle: string;
+  welcome: string;
   products: string;
   categories: string;
+  about: string;
   contact: string;
-  // добавяй ключове според нуждите
+  all_products: string;
+  category: string;
+  not_found: string;
 }
+```
 
+## locales/bg.json (current)
 
-
-📌 6. /locales/bg.json
+```json
 {
-  "hero_title": "Умни термостати за всеки дом",
-  "hero_subtitle": "Контролирай отоплението лесно и удобно",
+  "welcome": "Добре дошли в BEOKBG",
   "products": "Продукти",
   "categories": "Категории",
-  "contact": "Контакти"
+  "about": "За нас",
+  "contact": "Контакти",
+  "all_products": "Всички продукти",
+  "category": "Категория",
+  "not_found": "Продуктът не е намерен"
 }
+```
 
+## locales/en.json (current)
 
-
-📌 7. /locales/en.json
+```json
 {
-  "hero_title": "Smart thermostats for every home",
-  "hero_subtitle": "Control your heating easily and conveniently",
+  "welcome": "Welcome to BEOKBG",
   "products": "Products",
   "categories": "Categories",
-  "contact": "Contact"
+  "about": "About Us",
+  "contact": "Contact",
+  "all_products": "All Products",
+  "category": "Category",
+  "not_found": "Product not found"
 }
+```
 
+## Usage in App Router Pages
 
-
-📌 8. /app/[locale]/layout.tsx
-import { ReactNode } from "react";
-import { i18n, Locale } from "@/lib/i18n/config";
-
-export function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ locale }));
-}
-
-export default function LocaleLayout({
-  children,
-  params,
-}: {
-  children: ReactNode;
-  params: { locale: Locale };
-}) {
-  return (
-    <html lang={params.locale}>
-      <body>{children}</body>
-    </html>
-  );
-}
-
-
-
-📌 9. /app/[locale]/page.tsx (пример за Home)
+```tsx
+// app/[locale]/page.tsx
 import { getDictionary } from "@/lib/i18n/getDictionary";
-import { Locale } from "@/lib/i18n/config";
-import Hero from "@/components/Hero";
 
-export default async function HomePage({
-  params,
-}: {
-  params: { locale: Locale };
-}) {
+export default async function Page({ params }: { params: { locale: string } }) {
   const dict = await getDictionary(params.locale);
-
-  return (
-    <main>
-      <Hero
-        title={dict.hero_title}
-        subtitle={dict.hero_subtitle}
-        locale={params.locale}
-      />
-    </main>
-  );
+  return <Hero title={dict.welcome} />;
 }
+```
 
+## Planned: Language Switcher
 
+A `LanguageSwitcher` component should:
+- Read the current locale from `useParams()` or `useRouter()`
+- Render links to the same page in the other locale (e.g. `/bg/products` ↔ `/en/products`)
+- Be placed in the `Header` component
 
-📌 10. Пример компонент: Hero.tsx
-interface HeroProps {
-  title: string;
-  subtitle: string;
-  locale: string;
-}
+## Adding a New Language
 
-export default function Hero({ title, subtitle }: HeroProps) {
-  return (
-    <section className="py-20 text-center bg-gray-100">
-      <h1 className="text-4xl font-bold">{title}</h1>
-      <p className="text-lg mt-4 text-gray-600">{subtitle}</p>
-    </section>
-  );
-}
-
-
-
-📌 11. Динамични маршрути за продукти
-/app/[locale]/products/[slug]/page.tsx
-import { getDictionary } from "@/lib/i18n/getDictionary";
-import { Locale } from "@/lib/i18n/config";
-
-export default async function ProductPage({
-  params,
-}: {
-  params: { locale: Locale; slug: string };
-}) {
-  const dict = await getDictionary(params.locale);
-
-  // TODO: fetch product from DB
-  // const product = await getProduct(params.slug);
-
-  return (
-    <div>
-      <h1>{/* product.name */}</h1>
-      <p>{/* product.description */}</p>
-    </div>
-  );
-}
-
-
-
-📌 12. Language Switcher компонент
-"use client";
-
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-
-export default function LanguageSwitcher() {
-  const pathname = usePathname();
-
-  const pathWithoutLocale = pathname.replace(/^\/(bg|en)/, "");
-
-  return (
-    <div className="flex gap-4">
-      <Link href={`/bg${pathWithoutLocale}`}>BG</Link>
-      <Link href={`/en${pathWithoutLocale}`}>EN</Link>
-    </div>
-  );
-}
-
-
-
-🎯 Финален резултат
-С тази структура получаваш:
-- истинска i18n система
-- динамични продукти и категории
-- SEO‑friendly URL-и
-- лесно разширяване
-- лесна интеграция с админ панел
-- лесна интеграция с база данни
-- лесна интеграция с API
-Това е enterprise ниво, много по‑добро от Beok.
+1. Add the locale code to `locales` array in `lib/i18n/config.ts`
+2. Add it to the `locales` array in `next.config.js`
+3. Create `locales/<code>.json` with all required keys
+4. No other code changes needed — `getDictionary` handles it dynamically
