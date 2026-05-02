@@ -1,103 +1,84 @@
 # Copilot Instructions
 
-You are assisting in building a Next.js 14 + TypeScript + Tailwind CSS website for a hardware distributor (smart thermostats & radiator actuators).
+You are assisting in building a high-fidelity BEOKBG website clone with Next.js 14 + TypeScript + Tailwind CSS.
 
-## Project State
+## Primary Goal
 
-The frontend is functional and builds cleanly. Current focus areas are:
-- Language switcher UI
-- Migrating static product data to a PostgreSQL database (Railway)
-- Backend API routes for orders and pick & pack integration
-- Consolidating the dual-router setup into App Router only
+Replicate the reference site's information architecture and page composition as closely as possible:
+- hero/banner areas
+- breadcrumb patterns
+- category/sidebar navigation
+- product listing density and pagination blocks
+- supporting sections like catalog download, "why choose us", and factory content
 
-## Core Guidelines
+Do this without copying copyrighted text/assets verbatim unless the project owner has rights to them.
 
-- Generate clean, modular React components.
-- Follow the structure of https://bg.beok-controls.com but do NOT copy CSS or text literally.
-- Use Tailwind CSS for all styling — no inline styles, no CSS modules.
-- Use TypeScript everywhere. Define explicit `interface` or `type` for every component's props.
-- Always generate responsive layouts (mobile-first).
-- Use `next/image` for all images; never bare `<img>` tags.
-- Use `next/link` for all internal navigation.
+## Non-Negotiables
+
+- Use App Router (`app/[locale]/`) as the canonical routing layer.
+- Keep full bilingual support (`bg`, `en`) via dictionary keys in `locales/bg.json` and `locales/en.json`.
+- No hardcoded user-facing text in components/pages when a dictionary key is feasible.
+- Use TypeScript types for all props and data structures.
+- Use Tailwind CSS only.
+- Use `next/image` for image rendering.
+
+## Fidelity Rules
+
+- Match section order and hierarchy first.
+- Match spacing rhythm and visual grouping second.
+- Match wording and media only when legally permitted.
+- If source content is unavailable, use placeholders that preserve layout proportions.
 
 ## Architecture
 
 ```
 app/
-  layout.tsx              # Root layout — Header + Tailwind globals
-  [locale]/               # App Router locale pages (server components)
-components/               # Shared UI components
-lib/
-  i18n/                   # getDictionary, config, types
-pages/                    # Pages Router (legacy — planned removal)
-locales/                  # bg.json, en.json
-extracted/
-  products-extracted.json # Current product data source
+  layout.tsx
+  [locale]/
+    layout.tsx
+    page.tsx
+    products/page.tsx
+    products/[slug]/page.tsx
+components/
+lib/i18n/
+locales/
+extracted/products-extracted.json
 ```
 
-- **App Router** (`app/[locale]/`) is the primary routing layer.
-- **Pages Router** (`pages/`) is legacy and will be removed once App Router reaches feature parity.
-- All App Router imports use the `@/` alias (maps to repo root).
-- i18n: default locale `bg`, also supports `en`. Dictionary loaded via `getDictionary(locale)`.
+## Data Model Direction
 
-## Existing Components
+Product data should evolve toward:
+- id
+- slug
+- title.bg / title.en
+- description.bg / description.en
+- category
+- subcategory
+- image (absolute URL or `/public` path)
+- spec summary
 
-| Component | Location | Notes |
-|---|---|---|
-| `Header` | `components/Header.tsx` | Sticky nav; nav labels are hardcoded BG — needs i18n |
-| `Hero` | `components/Hero.tsx` | Accepts optional `title?: string` prop |
-| `CategoryGrid` | `components/CategoryGrid.tsx` | Accepts `products` array + optional `category` filter |
-| `ProductCard` | `components/ProductCard.tsx` | Uses `<img>` — replace with `next/image` |
-| `Footer` | `components/Footer.tsx` | Accepts optional `dict?: Record<string, string>` |
+## Component Priorities
 
-## API & Integration
+1. Product listing page composition parity
+2. Sidebar category navigation and active state
+3. Product card visual density and CTA parity
+4. Footer information depth parity
 
-- Create API routes under `app/api/`:
-  - `app/api/orders/route.ts` for order handling
-  - `app/api/pickpack/route.ts` for pick & pack integration
-- Use `fetch()` with `POST` for external APIs.
-- Required environment variables (in `.env.local`):
-  - `DATABASE_URL`
-  - `PICKPACK_ENDPOINT`
-  - `PICKPACK_API_KEY`
-- Return consistent JSON: `{ success: boolean, data?: unknown, error?: string }`
-- Never log secrets or credentials.
+## i18n Rules
 
-## i18n
+- Every new label must be added to both locale files in the same change.
+- Use dictionary lookup in server components and pass labels via props.
+- Keep fallback text only as a safety net, not as primary content.
 
-- Locale config: `lib/i18n/config.ts`
-- Dictionary loader: `lib/i18n/getDictionary.ts`
-- Translation files: `locales/bg.json`, `locales/en.json`
-- When adding translated text to a component, add the key to both JSON files.
-- A language switcher component is not yet built — it should use `useRouter` from `next/navigation`.
+## Quality Gates Before Commit
 
-## Code Quality
+- `npm run build` passes
+- No TypeScript errors
+- EN and BG render without mixed-language strings
+- No broken internal links
 
-- Keep components small and focused; extract subcomponents when needed.
-- Prefer functional components and React hooks.
-- No `any` unless explicitly justified with a comment.
-- ESLint ruleset: `next/core-web-vitals` (configured in `.eslintrc.json`).
+## Security and Legal
 
-## Testing
-
-- Write unit tests with Jest + React Testing Library.
-- Cover: rendering, basic interactions, API success/error paths.
-
-## Accessibility
-
-- Semantic HTML elements throughout.
-- All interactive elements must be keyboard-navigable.
-- Images must have meaningful `alt` text.
-- Forms must have associated `<label>` elements.
-
-## Security
-
-- Validate and sanitize all user input server-side.
-- Protect admin routes with authentication middleware.
-- Never expose `DATABASE_URL` or API keys to the client.
-
-## Performance
-
-- Use `next/image` with explicit `width`/`height` or `fill` for all product images.
-- Avoid unnecessary re-renders — memoize only when profiling shows a need.
-- Keep server components as the default in App Router; use `"use client"` only when required.
+- Do not include copyrighted images/text from third-party sources without permission.
+- Do not expose secrets.
+- Validate external URLs before rendering.
