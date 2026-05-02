@@ -22,11 +22,11 @@ https://bg.beok-controls.com
 - ✅ All components use TypeScript prop interfaces
 
 ## 3. Page & Routing Structure ✅
-- ✅ Pages Router: `/`, `/products`, `/products/[id]`, `/category`
-- ✅ Pages Router: `/about-us`, `/contact-us` (stub pages)
 - ✅ App Router: `/[locale]/`, `/[locale]/categories`, `/[locale]/products`, `/[locale]/products/[slug]`
-- ✅ `pages/_app.tsx` — correct Next.js App wrapper with global CSS
-- ⬜ Consolidate to a single router (App Router preferred long-term)
+- ✅ App Router: `/[locale]/about-us`, `/[locale]/contact-us`
+- ✅ `generateStaticParams` in `[locale]` layout for both locales
+- ✅ Consolidated to App Router only (Pages Router removed)
+- ✅ Middleware redirects bare `/` → `/bg` (default locale)
 
 ## 4. Internationalization (i18n) ✅
 - ✅ `lib/i18n/config.ts` — locale list (`bg`, `en`)
@@ -35,7 +35,7 @@ https://bg.beok-controls.com
 - ✅ App Router pages use `getDictionary` for server-side translations
 - ✅ Pages Router uses Next.js built-in `i18n` config
 - ✅ Language switcher UI component (`components/LanguageSwitcher.tsx`)
-- ⬜ Locale-aware `<html lang>` in App Router layout (requires moving html/body to `[locale]` layout — Next.js constraint)
+- ✅ Locale-aware `<html lang>` via middleware (`x-locale` header → root layout)
 - ✅ i18n hardcoded strings in Header and ProductCard (dict prop + fallbacks)
 
 ## 5. Static Data ✅
