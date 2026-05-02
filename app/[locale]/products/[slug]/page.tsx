@@ -1,6 +1,6 @@
-import { getDictionary } from '../../../../../lib/i18n/getDictionary';
-import Footer from '../../../../../components/Footer';
-import products from '../../../../../extracted/products-extracted.json';
+import { getDictionary } from '@/lib/i18n/getDictionary';
+import Footer from '@/components/Footer';
+import products from '@/extracted/products-extracted.json';
 
 export default async function ProductDetailPage({ params }: { params: { locale: string; slug: string } }) {
   const dict = await getDictionary(params.locale);

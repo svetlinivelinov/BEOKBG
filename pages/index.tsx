@@ -10,7 +10,7 @@ const HomePage: React.FC = () => (
   <div className="min-h-screen flex flex-col bg-gray-50">
     <Header />
     <Hero />
-    <main className="flex-1 max-w-6xl mx-auto px-4 py-8">
+    <main id="products" className="flex-1 max-w-6xl mx-auto px-4 py-8">
       <CategoryGrid products={products} />
     </main>
     <Footer />
