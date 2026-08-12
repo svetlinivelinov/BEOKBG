@@ -74,6 +74,29 @@ Production note:
 - npm run host:stop - stop host process from .host.pid
 - npm run prices:import -- --file "<path-to-excel.xlsx>" - import EUR prices/margins into /data/products/products.json
 
+## Environment Variables
+Create local or platform environment values from .env.example:
+- NEXT_PUBLIC_SITE_URL - required in production (example: https://beoksmart.com)
+- FACTORY_ORDER_EMAIL - optional, used for factory reorder mailto links
+
+For Railway production:
+1. Open project Variables.
+2. Add NEXT_PUBLIC_SITE_URL=https://beoksmart.com
+3. Optionally add FACTORY_ORDER_EMAIL.
+4. Redeploy after saving variables.
+
+## Domain Go-Live (Railway + Porkbun)
+1. In Railway, add both domains:
+	- beoksmart.com
+	- www.beoksmart.com
+2. In Porkbun DNS, create exactly the records Railway shows.
+3. Keep one canonical host via NEXT_PUBLIC_SITE_URL.
+4. Wait for certificate issuance and DNS propagation.
+
+Notes:
+- Production requests to the alternate host (www or apex) are redirected with HTTP 308 to the canonical host using middleware.
+- Preview and provider domains are left unchanged.
+
 ## Price Update Workflow (Excel -> Metadata)
 Use this whenever you receive a new pricing Excel.
 
