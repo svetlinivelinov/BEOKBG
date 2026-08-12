@@ -1,55 +1,72 @@
 # BEOKBG
 
-This project is a modern, modular, and responsive web application for a hardware distributor, inspired by [bg.beok-controls.com](https://bg.beok-controls.com). Built with Next.js, TypeScript, and Tailwind CSS.
+BEOKBG is a bilingual (BG/EN) product catalog site for thermostat and heating-control products, built with Next.js App Router, TypeScript, and Tailwind CSS.
 
-## Features
-- Clean, modular React components
-- Responsive design (mobile-first)
-- Tailwind CSS for all styling
-- TypeScript everywhere
-- Dynamic routes for products and categories
-- API routes for orders and pick & pack integration
-- PostgreSQL database (Railway)
-- Admin panel for product/category/order management
-- Automated deployment via GitHub Actions & Railway
+## Current Scope
+- App Router architecture with locale segment routing under /app/[locale]
+- Bulgarian and English UI dictionaries under /locales
+- Product catalog rendered from JSON data under /data/products
+- Product detail pages with localized descriptions and technical data
+- Category filter and application filter (electric, water, gas-boiler)
+- Query-preserving language switcher (keeps active filters on locale change)
+- Local host lifecycle scripts (start/stop with PID tracking)
+
+## What Is Implemented
+- Routing
+	- /bg, /en
+	- /[locale]/products
+	- /[locale]/products/[id]
+	- /[locale]/categories
+- Localization
+	- Dictionary loading from /locales/bg.json and /locales/en.json
+	- Locale-aware category labels
+	- Product content overlay by locale with English fallback
+- Product UX
+	- Category sidebar filtering
+	- Application sub-filter for thermostat categories
+	- Single-open description accordion in product cards
+	- Shared layout container and improved accessibility attributes
+
+## Data Model
+- Base product metadata: /data/products/products.json
+	- id, model, category, application, image, sourceUrls, sourceNote
+- Localized overlays:
+	- /data/products/content.en.json
+	- /data/products/content.bg.json
+- Merge behavior
+	- English overlay is the fallback source of truth
+	- Missing localized fields fall back to English automatically
 
 ## Project Structure
-- `/components` – UI components
-- `/lib` – Helpers and utilities
-- `/app` – Pages and API routes
-- `/data/products.json` – Product data (sample)
+- /app - App Router pages and layouts
+- /components - reusable UI components
+- /lib/i18n - locale config, dictionary loader, dictionary types
+- /lib/products - product loaders, types, application helpers
+- /data/products - product metadata and localized content
+- /archive/pages-legacy-2026-08-05 - archived Pages Router files
+- /scripts - local host start/stop PowerShell scripts
 
-## Migration Note
-- The project now uses the App Router under `/app` as the active routing system.
-- Legacy Pages Router files were archived to `/archive/pages-legacy-2026-08-05` for rollback/reference.
-- The root `/pages` directory is intentionally removed to prevent routing conflicts.
+## Local Development
+1. Clone and install
+	 - git clone https://github.com/svetlinivelinov/BEOKBG.git
+	 - cd BEOKBG
+	 - npm install
+2. Start dev server
+	 - npm run dev
+3. Optional host scripts
+	 - npm run host:start
+	 - npm run host:stop
 
-## Getting Started
-1. Clone the repository:
-	```
-	git clone https://github.com/svetlinivelinov/BEOKBG.git
-	cd BEOKBG
-	```
-2. Install dependencies:
-	```
-	npm install
-	```
-3. Set up environment variables in a `.env.local` file:
-	```
-	DATABASE_URL=your_postgres_url
-	PICKPACK_ENDPOINT=your_pickpack_endpoint
-	PICKPACK_API_KEY=your_pickpack_api_key
-	```
-4. Run the development server:
-	```
-	npm run dev
-	```
+## Scripts
+- npm run dev - start Next.js dev server
+- npm run build - create production build
+- npm run start - run production server
+- npm run host:start - start host in background and save PID to .host.pid
+- npm run host:stop - stop host process from .host.pid
 
-## Deployment
-Deployment is automated via GitHub Actions and Railway. Push to `main` to trigger deployment.
-
-## Contributing
-Pull requests are welcome! Please follow the code style and add tests for new features.
+## Notes
+- The previous /pages router implementation is archived, not active.
+- There is currently no backend order API, admin panel, or database integration in the active codebase.
 
 ## License & Usage
-This project is intended for business/commercial use. Ensure you have the legal rights or permission to use all images and content included in the project. Do not use copyrighted materials without proper authorization.
+Use only content and images you are authorized to publish.

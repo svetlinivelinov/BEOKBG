@@ -1,125 +1,72 @@
 
 # Project Roadmap
 
-**Reference site for structure and content inspiration:**
-https://bg.beok-controls.com
+This roadmap is updated to match the current codebase after the App Router migration and i18n/product refactor.
 
-## 1. Project Setup
-- Initialize a git repository (if not already done)
-- Initialize Next.js app with TypeScript
-- Install and configure Tailwind CSS
-- Set up clean architecture: `/components`, `/lib`, `/app/api`
-- Document required environment variables (e.g., database URL, pick & pack API keys)
+## Completed
 
-- Note: Use only images you have rights to (e.g., your own or with permission from BEOK). Otherwise, use placeholders.
+### Architecture and Routing
+- Migrated active site to Next.js App Router
+- Archived legacy Pages Router files to /archive/pages-legacy-2026-08-05
+- Implemented locale-first routing under /app/[locale]
 
-## 2. Database (Railway PostgreSQL)
-- Set up Railway PostgreSQL
-- Create tables:
-  - products
-  - categories
-  - orders
-  - order_items
-  - pickpack_logs
-  - users (for admin/customer roles)
-- Define schema with field types, relations, and indexes
-- Plan for file storage (e.g., product images)
+### Localization
+- Added BG/EN dictionaries in /locales
+- Implemented dynamic dictionary loading from /lib/i18n/getDictionary.ts
+- Added locale-aware category label formatting
+- Added query-preserving language switcher
 
-## 3. Authentication & Admin Panel
-- Implement authentication (admin/customer roles)
-- Create admin dashboard for managing products, categories, and orders
+### Product Data and Rendering
+- Split product data into:
+  - /data/products/products.json (base metadata)
+  - /data/products/content.en.json (English content)
+  - /data/products/content.bg.json (Bulgarian content)
+- Implemented localized content merge with English fallback
+- Added product application classification (electric, water, gas-boiler)
 
-## 4. UI Component Development
-- Create reusable components:
-  - Hero
-  - ProductCard
-  - CategoryGrid
-  - Footer
-- Ensure all components are responsive and use Tailwind for styling
+### Product Page UX
+- Category filtering in products page
+- Application sub-filter for thermostat categories
+- Controlled single-open description accordion in product cards
+- Shared Container component for consistent layout width/padding
+- Header language switcher wrapped for safe rendering behavior
 
-## 5. Page & Routing Structure
-- Analyze bg.beok-controls.com for page/content structure
-- Implement dynamic routes for products and categories under `/app`
+### Operations
+- Added local host scripts:
+  - npm run host:start
+  - npm run host:stop
 
-## 6. CRUD Operations & Order Management
-- Add CRUD endpoints and UI for products and categories
-- Implement order status tracking (pending, shipped, completed)
+## In Progress / Near-Term
 
-## 7. API Integration
-- Create API routes under `/app/api`:
-  - `/api/orders` for order handling
-  - `/api/pickpack` for pick & pack integration
-- Use fetch() with POST for sending orders to the external API
-- Example for pick & pack integration:
+### Content and Catalog Quality
+- Expand and verify localized product content accuracy
+- Standardize product imagery and alt text quality
+- Audit category taxonomy for naming consistency
 
-```ts
-import { NextResponse } from "next/server";
+### QA and Testing
+- Add component tests for filter and accordion behavior
+- Add route-level smoke tests for BG and EN pages
+- Add regression checks for locale-switch query preservation
 
-export async function POST(req: Request) {
-  const body = await req.json();
+### SEO and Performance
+- Add richer page metadata for SEO
+- Add sitemap/robots if deployment strategy requires it
+- Continue optimizing image sizes and loading priorities
 
-  const pickPackResponse = await fetch(process.env.PICKPACK_ENDPOINT!, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.PICKPACK_API_KEY}`
-    },
-    body: JSON.stringify({
-      orderId: body.orderId,
-      customer: body.customer,
-      items: body.items,
-      address: body.address
-    })
-  });
+## Future (Optional Expansion)
 
-  const result = await pickPackResponse.json();
+### Backend and Commerce
+- Order APIs and checkout flow
+- Admin/content management interface
+- Database-backed catalog and content editing
+- Optionally introduce backend APIs/admin only if business scope requires it
 
-  return NextResponse.json({
-    status: "ok",
-    pickPackStatus: result
-  });
-}
-```
+### Platform
+- CI checks for lint/build/test gates
+- Error monitoring and uptime checks
 
-## 8. Helpers & Utilities
-- Place helper functions in `/lib` as needed
-
-## 9. Validation & Error Handling
-- Add input validation and error handling for all API routes and forms
-
-## 10. Testing & QA
-- Add unit and integration tests for API routes and components (Jest, React Testing Library)
-- Test all components and API routes
-- Ensure mobile responsiveness and accessibility
-
-## 11. Internationalization (i18n)
-- Add i18n support if needed for multiple languages
-
-## 12. Performance & SEO
-- Optimize performance (image optimization, code splitting)
-- Add SEO improvements (meta tags, sitemap)
-
-## 13. Security
-- Secure API endpoints and sensitive data
-
-## 14. Logging & Monitoring
-- Add logging and monitoring for production
-
-## 15. Documentation
-- Write README with setup, environment, and deployment instructions
-
-## 16. Deployment
-- Set up GitHub Actions for CI/CD
-- Deploy to Railway using the workflow
-
----
-
-## Final Deliverables
-- Professional site 1:1 like Beok
-- Backend API on Railway
-- Automatic deploy from GitHub
-- Copilot writing 80% of the code
-- Automatic order sending to pick & pack
-- Database for orders and logs
-- Admin panel for management
-- Secure, tested, and documented codebase
+## Release Criteria for Current Catalog Version
+- Build passes in CI and locally
+- BG and EN parity for core catalog paths
+- Filters and language switching behave consistently
+- Documentation remains aligned with implementation
