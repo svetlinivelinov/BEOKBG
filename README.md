@@ -94,7 +94,7 @@ For Railway production:
 4. Wait for certificate issuance and DNS propagation.
 
 Notes:
-- Production requests to the alternate host (www or apex) are redirected with HTTP 308 to the canonical host using middleware.
+- Production requests to the alternate host (www or apex) are redirected with HTTP 308 to the canonical host using proxy.ts.
 - Preview and provider domains are left unchanged.
 
 ## Price Update Workflow (Excel -> Metadata)

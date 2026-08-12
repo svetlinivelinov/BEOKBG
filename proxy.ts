@@ -26,7 +26,7 @@ function getAlternateHost(canonicalHost: string): string | null {
   return `www.${canonicalHost}`;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (process.env.NODE_ENV !== 'production') {
     return NextResponse.next();
   }
@@ -57,7 +57,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)'
-  ]
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)']
 };
