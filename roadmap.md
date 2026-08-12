@@ -36,6 +36,20 @@ This roadmap is updated to match the current codebase after the App Router migra
   - npm run host:start
   - npm run host:stop
 
+### SEO Metadata
+- Added richer page metadata for SEO on:
+  - /[locale]
+  - /[locale]/categories
+  - /[locale]/products
+  - /[locale]/products/[id]
+- Added canonical and language alternates for BG/EN routes
+
+### QA Checklist (Executed)
+- Build verification completed successfully
+- BG and EN route smoke checks passed
+- Product detail metadata title rendering verified
+- Query-preserving locale switch verified with category/application filters
+
 ## In Progress / Near-Term
 
 ### Content and Catalog Quality
@@ -49,7 +63,6 @@ This roadmap is updated to match the current codebase after the App Router migra
 - Add regression checks for locale-switch query preservation
 
 ### SEO and Performance
-- Add richer page metadata for SEO
 - Add sitemap/robots if deployment strategy requires it
 - Continue optimizing image sizes and loading priorities
 

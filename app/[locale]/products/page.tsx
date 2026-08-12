@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { getDictionary } from '../../../lib/i18n/getDictionary';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
@@ -11,6 +12,34 @@ import { locales } from '../../../lib/i18n/config';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+
+  return {
+    title: dict.all_products,
+    description:
+      locale === 'bg'
+        ? 'Прегледайте всички термостати и контролери в продуктовия каталог на BEOKBG.'
+        : 'Browse all thermostats and controllers in the BEOKBG product catalog.',
+    alternates: {
+      canonical: `/${locale}/products`,
+      languages: {
+        bg: '/bg/products',
+        en: '/en/products'
+      }
+    },
+    openGraph: {
+      title: `${dict.all_products} | BEOKBG`,
+      description:
+        locale === 'bg'
+          ? 'Прегледайте всички термостати и контролери в продуктовия каталог на BEOKBG.'
+          : 'Browse all thermostats and controllers in the BEOKBG product catalog.',
+      url: `/${locale}/products`
+    }
+  };
 }
 
 export default async function ProductsPage({

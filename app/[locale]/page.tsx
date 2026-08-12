@@ -1,4 +1,5 @@
 import { getDictionary } from '../../lib/i18n/getDictionary';
+import type { Metadata } from 'next';
 import Header from '../../components/Header';
 import Hero from '../../components/Hero';
 import Footer from '../../components/Footer';
@@ -9,6 +10,29 @@ import { locales } from '../../lib/i18n/config';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+  const title = locale === 'bg' ? 'Начало' : 'Home';
+
+  return {
+    title,
+    description: dict.hero_subtitle,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        bg: '/bg',
+        en: '/en'
+      }
+    },
+    openGraph: {
+      title: `${title} | BEOKBG`,
+      description: dict.hero_subtitle,
+      url: `/${locale}`
+    }
+  };
 }
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {

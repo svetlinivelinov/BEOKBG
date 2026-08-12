@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { getDictionary } from '../../../../lib/i18n/getDictionary';
 import Header from '../../../../components/Header';
 import Footer from '../../../../components/Footer';
@@ -13,6 +14,43 @@ export function generateStaticParams() {
   return locales.flatMap((locale) =>
     getProducts(locale).map((p) => ({ locale, id: p.id }))
   );
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  const dict = await getDictionary(locale);
+  const product = getProducts(locale).find((p) => p.id === decodeURIComponent(id));
+
+  if (!product) {
+    return {
+      title: dict.not_found,
+      robots: {
+        index: false,
+        follow: true
+      }
+    };
+  }
+
+  return {
+    title: product.name,
+    description: product.description,
+    alternates: {
+      canonical: `/${locale}/products/${product.id}`,
+      languages: {
+        bg: `/bg/products/${product.id}`,
+        en: `/en/products/${product.id}`
+      }
+    },
+    openGraph: {
+      title: `${product.name} | BEOKBG`,
+      description: product.description,
+      url: `/${locale}/products/${product.id}`
+    }
+  };
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ locale: string; id: string }> }) {

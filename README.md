@@ -26,6 +26,9 @@ BEOKBG is a bilingual (BG/EN) product catalog site for thermostat and heating-co
 	- Application sub-filter for thermostat categories
 	- Single-open description accordion in product cards
 	- Shared layout container and improved accessibility attributes
+- SEO metadata
+	- Rich page metadata for locale home, categories, products list, and product detail pages
+	- Canonical and language alternates for BG/EN catalog routes
 
 ## Data Model
 - Base product metadata: /data/products/products.json
@@ -67,6 +70,12 @@ BEOKBG is a bilingual (BG/EN) product catalog site for thermostat and heating-co
 ## Notes
 - The previous /pages router implementation is archived, not active.
 - There is currently no backend order API, admin panel, or database integration in the active codebase.
+
+## QA Snapshot (2026-08-12)
+- Production build passes successfully.
+- BG and EN routes return HTTP 200.
+- Product detail pages render metadata title tags.
+- Language switcher preserves category/application query filters.
 
 ## License & Usage
 Use only content and images you are authorized to publish.

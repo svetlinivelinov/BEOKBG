@@ -1,4 +1,5 @@
 import { getDictionary } from '../../../lib/i18n/getDictionary';
+import type { Metadata } from 'next';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import CategoryCard from '../../../components/CategoryCard';
@@ -8,6 +9,34 @@ import { locales } from '../../../lib/i18n/config';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+
+  return {
+    title: dict.categories,
+    description:
+      locale === 'bg'
+        ? 'Разгледайте всички продуктови категории в каталога на BEOKBG.'
+        : 'Browse all product categories in the BEOKBG catalog.',
+    alternates: {
+      canonical: `/${locale}/categories`,
+      languages: {
+        bg: '/bg/categories',
+        en: '/en/categories'
+      }
+    },
+    openGraph: {
+      title: `${dict.categories} | BEOKBG`,
+      description:
+        locale === 'bg'
+          ? 'Разгледайте всички продуктови категории в каталога на BEOKBG.'
+          : 'Browse all product categories in the BEOKBG catalog.',
+      url: `/${locale}/categories`
+    }
+  };
 }
 
 export default async function CategoriesPage({ params }: { params: Promise<{ locale: string }> }) {
