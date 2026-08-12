@@ -11,6 +11,7 @@ import ProductStructuredData from '../../../../components/ProductStructuredData'
 import ProductLeadActions from '../../../../components/ProductLeadActions';
 import { getProducts } from '../../../../lib/products/getProducts';
 import { formatCategoryLabel } from '../../../../lib/formatCategoryLabel';
+import { formatEurPrice } from '../../../../lib/products/formatEurPrice';
 import { locales } from '../../../../lib/i18n/config';
 
 export function generateStaticParams() {
@@ -81,6 +82,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const galleryImages = Array.from(
     new Set([...(product.images ?? []), ...(product.image ? [product.image] : [])].filter(Boolean))
   );
+  const hasPrice = typeof product.finalPriceEur === 'number' && Number.isFinite(product.finalPriceEur);
+  const priceDisplayValue = hasPrice ? Number(product.finalPriceEur) : null;
+  const priceLabel = locale === 'bg' ? 'Цена (с ДДС)' : 'Price (incl. VAT)';
 
   return (
     <>
@@ -119,19 +123,27 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="flex-1">
               <h1 className="text-3xl font-bold mb-1">{product.name}</h1>
               <div className="text-sm text-gray-400 mb-4">{product.model}</div>
+              {priceDisplayValue !== null && (
+                <div className="mb-4 rounded border border-brand-orange/30 bg-orange-50 px-3 py-2 inline-block">
+                  <div className="text-xs uppercase tracking-wide text-gray-500">{priceLabel}</div>
+                  <div className="text-2xl font-bold text-brand-orange leading-tight">{formatEurPrice(priceDisplayValue, locale)}</div>
+                </div>
+              )}
               <div className="text-sm text-gray-500 mb-6">{dict.category}: {formatCategoryLabel(product.category, locale)}</div>
 
               <div className="rounded-lg border border-brand-orange/20 bg-orange-50 p-4 mb-6">
-                <p className="text-sm text-gray-700 mb-3">{dict.contact_for_availability}</p>
+                <p className="text-sm text-gray-700 mb-3">{dict.product_actions_hint}</p>
                 <ProductLeadActions
                   productId={product.id}
                   productName={product.name}
+                  productModel={product.model}
                   locale={locale}
-                  requestQuoteLabel={dict.request_quote}
-                  askAvailabilityLabel={dict.ask_availability}
+                  addToCartLabel={dict.add_to_cart}
                   downloadManualLabel={dict.download_manual}
-                  quoteSubject={`${dict.request_quote_cta}: ${product.name}`}
-                  availabilitySubject={`${dict.ask_availability}: ${product.name}`}
+                  quantityLabel={dict.quantity}
+                  addedToCartLabel={dict.added_to_cart}
+                  continueShoppingLabel={dict.continue_shopping}
+                  goToCartLabel={dict.go_to_cart}
                   manualUrl={product.sourceUrls[0]}
                 />
               </div>

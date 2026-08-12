@@ -5,6 +5,7 @@ import Container from './Container';
 import { Dictionary } from '../lib/i18n/types';
 import { formatCategoryLabel } from '../lib/formatCategoryLabel';
 import { getCategories } from '../lib/products/getProducts';
+import CartButton from './cart/CartButton';
 
 export interface HeaderProps {
   locale?: string;
@@ -31,6 +32,32 @@ const fallbackDict: Dictionary = {
   key_features: 'Основни характеристики',
   technical_data: 'Технически данни',
   documentation: 'Официална документация',
+  cart: 'Количка',
+  add_to_cart: 'Добави в количката',
+  product_actions_hint: 'Имате нужда от този продукт? Добавете го в количката или изтеглете ръководството.',
+  quantity: 'Количество',
+  unit_price: 'Ед. цена',
+  line_total: 'Стойност',
+  subtotal: 'Общо',
+  added_to_cart: 'Продуктът е добавен в количката.',
+  continue_shopping: 'Продължи пазаруването',
+  go_to_cart: 'Към количката',
+  cart_empty: 'Количката е празна.',
+  remove: 'Премахни',
+  clear_cart: 'Изчисти количката',
+  order_request_title: 'Заявка за поръчка',
+  customer_name: 'Име',
+  customer_email: 'Имейл',
+  customer_phone: 'Телефон',
+  customer_note: 'Бележка',
+  send_order_request: 'Изпрати заявка за поръчка',
+  order_request_subject: 'Заявка за поръчка от BEOKBG',
+  order_request_intro: 'Попълнете данните си и изпратете заявката. Ще се свържем с вас възможно най-скоро.',
+  please_fill_required: 'Моля, попълнете име и имейл.',
+  order_request_success: 'Заявката за поръчка е изпратена успешно.',
+  order_request_error: 'Заявката не можа да бъде изпратена. Моля, опитайте отново.',
+  low_stock_alert_title: 'Предупреждение за ниска наличност',
+  send_factory_reorder_email: 'Изпрати имейл за заявка към фабриката',
   request_quote: 'Заявка за оферта',
   ask_availability: 'Питай за наличност',
   download_manual: 'Изтегли ръководство',
@@ -45,6 +72,7 @@ const withLocale = (locale: string | undefined, path: string) => {
 
 const Header: React.FC<HeaderProps> = ({ locale, dict }) => {
   const t = dict || fallbackDict;
+  const activeLocale = locale || 'en';
   const categories = getCategories();
 
   return (
@@ -91,6 +119,7 @@ const Header: React.FC<HeaderProps> = ({ locale, dict }) => {
         <Suspense fallback={<div className="h-7 w-16" aria-hidden="true" />}>
           <LanguageSwitcher currentLocale={locale} />
         </Suspense>
+        <CartButton locale={activeLocale} label={t.cart} />
       </div>
     </Container>
   </header>

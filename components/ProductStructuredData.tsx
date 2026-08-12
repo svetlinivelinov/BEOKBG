@@ -1,3 +1,5 @@
+import { getSiteUrl } from '../lib/seo/siteUrl';
+
 type ProductStructuredDataProps = {
   name: string;
   model: string;
@@ -17,7 +19,7 @@ export default function ProductStructuredData({
   locale,
   productId
 }: ProductStructuredDataProps) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const siteUrl = getSiteUrl();
   const productUrl = `${siteUrl}/${locale}/products/${productId}`;
   const productImageUrl = imageUrl
     ? (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') ? imageUrl : `${siteUrl}${imageUrl}`)

@@ -3,6 +3,12 @@ export interface ProductBase {
   model: string;
   category: string;
   application: 'electric' | 'water' | 'gas-boiler';
+  currency?: 'EUR';
+  priceQty?: number | null;
+  competitorAmazonPriceInclVatEur?: number | null;
+  marginEur?: number | null;
+  finalPriceEur?: number | null;
+  priceUpdatedAt?: string;
   image: string | null;
   images?: string[];
   sourceUrls: string[];

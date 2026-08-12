@@ -1,11 +1,13 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import React from 'react';
+import { getSiteMetadataBase, getSiteUrl } from '../lib/seo/siteUrl';
+import CartProvider from '../components/cart/CartProvider';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: getSiteMetadataBase(),
   title: {
     default: 'BEOKBG | Thermostat Catalog',
     template: '%s | BEOKBG'
@@ -31,7 +33,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }

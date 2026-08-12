@@ -54,11 +54,17 @@ BEOKBG is a bilingual (BG/EN) product catalog site for thermostat and heating-co
 	 - git clone https://github.com/svetlinivelinov/BEOKBG.git
 	 - cd BEOKBG
 	 - npm install
-2. Start dev server
+2. Configure site URL
+	 - Set NEXT_PUBLIC_SITE_URL to your public site origin.
+	 - Example (PowerShell): $env:NEXT_PUBLIC_SITE_URL="https://your-domain.example"
+3. Start dev server
 	 - npm run dev
-3. Optional host scripts
+4. Optional host scripts
 	 - npm run host:start
 	 - npm run host:stop
+
+Production note:
+- NEXT_PUBLIC_SITE_URL is required in production. Build/runtime will throw if it is missing or invalid to prevent incorrect SEO URLs (for example localhost canonicals or sitemap links).
 
 ## Scripts
 - npm run dev - start Next.js dev server
@@ -66,6 +72,27 @@ BEOKBG is a bilingual (BG/EN) product catalog site for thermostat and heating-co
 - npm run start - run production server
 - npm run host:start - start host in background and save PID to .host.pid
 - npm run host:stop - stop host process from .host.pid
+- npm run prices:import -- --file "<path-to-excel.xlsx>" - import EUR prices/margins into /data/products/products.json
+
+## Price Update Workflow (Excel -> Metadata)
+Use this whenever you receive a new pricing Excel.
+
+Expected Excel columns (header names are flexible):
+- Identifier: one of id/model/sku/code (matching product id or model)
+- Qty (optional): Qty / Quantity / Количество
+- Final price (EUR): Competitor Amazon Price (incl. VAT) / final price / price / final price eur / EUR / крайна цена
+- Margin (optional): margin / margin eur / надценка / марж
+
+Command examples:
+- Dry run (no file changes):
+	- npm run prices:import -- --file "./data/prices/latest-prices.xlsx" --dry-run
+- Apply update:
+	- npm run prices:import -- --file "./data/prices/latest-prices.xlsx"
+
+Importer behavior:
+- Matches rows by product id first, then by model.
+- Writes `currency: "EUR"`, `priceQty`, `competitorAmazonPriceInclVatEur`, `finalPriceEur`, `marginEur`, and `priceUpdatedAt` in /data/products/products.json.
+- Prints summary with matched/updated/unknown identifiers so you can quickly fix mismatches in the sheet.
 
 ## Notes
 - The previous /pages router implementation is archived, not active.

@@ -2,6 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatEurPrice } from '../lib/products/formatEurPrice';
 
 export interface ProductCardProps {
   id: string;
@@ -9,6 +10,9 @@ export interface ProductCardProps {
   description: string;
   category?: string;
   application?: 'electric' | 'water' | 'gas-boiler';
+  currency?: 'EUR';
+  finalPriceEur?: number | null;
+  priceQty?: number | null;
   image?: string | null;
   locale?: string;
   viewProductLabel?: string;
@@ -21,6 +25,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   id,
   name,
   description,
+  finalPriceEur,
+  priceQty,
   image,
   locale,
   viewProductLabel = 'Виж продукта',
@@ -29,7 +35,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const href = locale ? `/${locale}/products/${id}` : `/products/${id}`;
   const descriptionLabel = locale === 'bg' ? 'Описание' : 'Description';
+  const priceLabel = locale === 'bg' ? 'Цена (с ДДС)' : 'Price (incl. VAT)';
   const detailsRegionId = `product-description-${id}`;
+  const hasPrice = typeof finalPriceEur === 'number' && Number.isFinite(finalPriceEur);
+  const priceText = hasPrice ? formatEurPrice(finalPriceEur, locale) : null;
+
   return (
     <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center self-start">
       {image ? (
@@ -50,6 +60,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       )}
       <h3 className="text-lg font-semibold mb-2">{name}</h3>
+      {priceText && (
+        <div className="mb-3">
+          <p className="text-xs uppercase tracking-wide text-gray-500">{priceLabel}</p>
+          <p className="text-xl font-bold text-brand-orange leading-tight">{priceText}</p>
+        </div>
+      )}
       <details className="w-full text-left mb-4 group" open={isDescriptionOpen}>
         <summary
           className="cursor-pointer list-none text-sm font-medium text-gray-700 flex items-center justify-between"

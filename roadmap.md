@@ -52,6 +52,16 @@ This roadmap is updated to match the current codebase after the App Router migra
 
 ## In Progress / Near-Term
 
+### Payment Enablement (Checkout MVP)
+- Select payment provider and complete account setup (recommended: Stripe; alternatives: local BG/EU providers)
+- Add server-side checkout session API that validates cart items from server product data
+- Add hosted checkout redirect from cart page (replace request-only flow with pay-now flow)
+- Add success and cancel return routes
+- Add webhook endpoint with signature verification to confirm paid status
+- Persist order records with lifecycle states (pending, paid, failed, fulfilled)
+- Add environment setup for payment keys and webhook secret
+- Add operational logging and retry-safe webhook handling
+
 ### Content and Catalog Quality
 - Expand and verify localized product content accuracy
 - Standardize product imagery and alt text quality
@@ -70,7 +80,7 @@ This roadmap is updated to match the current codebase after the App Router migra
 ## Future (Optional Expansion)
 
 ### Backend and Commerce
-- Order APIs and checkout flow
+- Extend checkout into full commerce operations (inventory sync, fulfillment workflow, order history)
 - Admin/content management interface
 - Database-backed catalog and content editing
 - Optionally introduce backend APIs/admin only if business scope requires it

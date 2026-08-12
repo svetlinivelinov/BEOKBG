@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { locales } from '../lib/i18n/config';
 import { getProducts } from '../lib/products/getProducts';
+import { getSiteUrl } from '../lib/seo/siteUrl';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const siteUrl = getSiteUrl();
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries = new Set<string>();
