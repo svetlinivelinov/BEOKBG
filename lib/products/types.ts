@@ -4,6 +4,7 @@ export interface ProductBase {
   category: string;
   application: 'electric' | 'water' | 'gas-boiler';
   image: string | null;
+  images?: string[];
   sourceUrls: string[];
   sourceNote: string;
 }

@@ -17,5 +17,10 @@
   "all_categories": "All Categories",
   "key_features": "Key Features",
   "technical_data": "Technical Data",
-  "documentation": "Official Documentation"
+  "documentation": "Official Documentation",
+  "request_quote": "Request quote",
+  "ask_availability": "Ask availability",
+  "download_manual": "Download manual",
+  "contact_for_availability": "Need availability or a quote? Contact us and we’ll help quickly.",
+  "request_quote_cta": "Request a quote for this product"
 }

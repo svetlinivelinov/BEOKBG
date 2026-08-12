@@ -27,7 +27,12 @@ const fallbackDict: Dictionary = {
   all_categories: 'Всички категории',
   key_features: 'Основни характеристики',
   technical_data: 'Технически данни',
-  documentation: 'Официална документация'
+  documentation: 'Официална документация',
+  request_quote: 'Заявка за оферта',
+  ask_availability: 'Питай за наличност',
+  download_manual: 'Изтегли ръководство',
+  contact_for_availability: 'Нуждаете се от наличност или оферта? Свържете се с нас и ще ви помогнем бързо.',
+  request_quote_cta: 'Заявете оферта за този продукт'
 };
 
 const withLocale = (locale: string | undefined, path: string) => {

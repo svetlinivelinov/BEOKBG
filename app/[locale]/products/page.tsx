@@ -8,6 +8,7 @@ import CategorySidebar from '../../../components/CategorySidebar';
 import Container from '../../../components/Container';
 import { getProducts, getCategories } from '../../../lib/products/getProducts';
 import { APPLICATIONS, getApplicationLabels, isProductApplication, ProductApplication } from '../../../lib/products/application';
+import { formatCategoryLabel } from '../../../lib/formatCategoryLabel';
 import { locales } from '../../../lib/i18n/config';
 
 export function generateStaticParams() {
@@ -81,6 +82,10 @@ export default async function ProductsPage({
     return `/${locale}/products${query ? `?${query}` : ''}`;
   };
 
+  const hasActiveFilters = Boolean(category || selectedApplication);
+  const activeFilterLabel = locale === 'bg' ? 'Активни филтри' : 'Active filters';
+  const clearAllLabel = locale === 'bg' ? 'Изчисти всички' : 'Clear all';
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header locale={locale} dict={dict} />
@@ -99,6 +104,40 @@ export default async function ProductsPage({
         />
         <div className="flex-1">
           <h1 className="text-3xl font-bold mb-6">{dict.all_products}</h1>
+
+          {hasActiveFilters && (
+            <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-live="polite">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-sm font-semibold text-gray-700">{activeFilterLabel}</p>
+                <Link
+                  href={`/${locale}/products`}
+                  className="text-sm font-medium text-brand-orange hover:text-brand-orange/80"
+                >
+                  {clearAllLabel}
+                </Link>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {category && (
+                  <Link
+                    href={makeFilterHref(selectedApplication)}
+                    className="inline-flex items-center rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700 hover:border-brand-orange hover:text-brand-orange"
+                  >
+                    {formatCategoryLabel(category, locale)}
+                  </Link>
+                )}
+                {selectedApplication && (
+                  <Link
+                    href={category ? `/${locale}/products?category=${encodeURIComponent(category)}` : `/${locale}/products`}
+                    className="inline-flex items-center rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700 hover:border-brand-orange hover:text-brand-orange"
+                  >
+                    {appLabels[selectedApplication]}
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+
           {showApplicationFilter && (
             <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4">
               <p className="text-sm font-semibold text-gray-700 mb-3">{appFilterTitle}</p>
@@ -137,6 +176,8 @@ export default async function ProductsPage({
             application={selectedApplication}
             locale={locale}
             viewProductLabel={dict.view_product}
+            emptyStateResetHref={`/${locale}/products`}
+            emptyStateResetLabel={clearAllLabel}
           />
         </div>
       </Container>

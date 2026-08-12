@@ -18,4 +18,9 @@ export interface Dictionary {
 	key_features: string;
 	technical_data: string;
 	documentation: string;
+	request_quote: string;
+	ask_availability: string;
+	download_manual: string;
+	contact_for_availability: string;
+	request_quote_cta: string;
 }

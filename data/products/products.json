@@ -7,7 +7,7 @@
       "https://www.beok-controls.com/uploads/34945/files/TGM50-B-WIFI-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Exact PDF model from invoice; manual/source covers TGM50 EP/WP/WPB family.",
-    "image": "/images/products/tgm50-wifi-ep.jpg",
+    "image": "/images/products/tgm50-wifi-ep.webp",
     "application": "electric"
   },
   {
@@ -18,7 +18,7 @@
       "https://www.beok-controls.com/uploads/34945/files/TGM50-B-WIFI-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Exact PDF model from invoice; manual/source covers TGM50 EP/WP/WPB family.",
-    "image": "/images/products/tgm50-wifi-wp.jpg",
+    "image": "/images/products/tgm50-wifi-wp.webp",
     "application": "water"
   },
   {
@@ -75,7 +75,7 @@
       "https://www.beok-controls.com/Content/upload/PDF/2021837153/TGR85WIFI-Heating-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Manual covers TGR85 EP/WP/WPB, including WPB gas boiler dry contact.",
-    "image": null,
+    "image": "/images/products/TGR85-WPB.webp",
     "application": "gas-boiler"
   },
   {
@@ -98,7 +98,7 @@
       "https://www.beok-controls.com/Content/upload/pdf/202334945/Manual-of-BOT-R7X.pdf"
     ],
     "sourceNote": "Exact invoice model is BOT-R7W-X-WIFI; available Beok manual/source is BOT-R7X-WIFI family/manual. PDF invoice provides exact model specs.",
-    "image": "/images/products/bot-r7w-x-wifi.jpg",
+    "image": "/images/products/bot-r7w-x-wifi.webp",
     "application": "gas-boiler"
   },
   {
@@ -110,7 +110,7 @@
       "https://www.beok-controls.com/Content/upload/pdf/202334945/Manual-of-BOT-R7X.pdf"
     ],
     "sourceNote": "Exact invoice model is BOT-R7B-X-WIFI; available Beok manual/source is BOT-R7X-WIFI family/manual. PDF invoice provides exact model specs.",
-    "image": "/images/products/bot-r7b-x-wifi.jpg",
+    "image": "/images/products/bot-r7b-x-wifi.webp",
     "application": "gas-boiler"
   },
   {
@@ -122,7 +122,7 @@
       "https://device.report/manual/17872093"
     ],
     "sourceNote": "Manual covers BOT-R5X/R8X WiFi wireless boiler thermostat. PDF invoice provides exact BOT-R8X-WIFI line specs.",
-    "image": "/images/products/bot-r8x-wifi.jpg",
+    "image": "/images/products/bot-r8x-wifi.webp",
     "application": "gas-boiler"
   },
   {
@@ -133,7 +133,7 @@
       "https://www.beok-controls.com/uploads/34945/files/OLED-Screen-Display-Wi-Fi-Radiator-Actuator-TRV-604.pdf"
     ],
     "sourceNote": "Exact TRV-604 manual/source found.",
-    "image": "/images/products/trv-604.jpg",
+    "image": "/images/products/trv-604.webp",
     "application": "gas-boiler"
   },
   {
@@ -169,7 +169,7 @@
       "https://www.beok-controls.com/Content/upload/pdf/202334945/Manual-of-BOT-R7X.pdf"
     ],
     "sourceNote": "Exact invoice model includes NR/no receiver; available Beok manual/source is BOT-R7X-WIFI family/manual. No receiver and CCT-28-X compatibility are from invoice PDF.",
-    "image": "/images/products/bot-r7x-wifi-nr.jpg",
+    "image": "/images/products/bot-r7x-wifi-nr.webp",
     "application": "gas-boiler"
   },
   {
@@ -182,7 +182,11 @@
       "https://www.beok-controls.com/uploads/34945/files/Catalog-Thermal-Actuator.pdf"
     ],
     "sourceNote": "Exact product page/source found as RZ-D01-230NC/RZ-D01-230-NC. Invoice uses RZ-D01.230-NC punctuation.",
-    "image": "/images/products/rz-d01-230-nc.jpg",
+    "image": "/images/products/rz-d01-230-nc.webp",
+    "images": [
+      "/images/products/rz-d01-230-nc.webp",
+      "/images/products/rz-d01-230-nc-side.webp"
+    ],
     "application": "gas-boiler"
   }
 ]

@@ -63,6 +63,7 @@ This roadmap is updated to match the current codebase after the App Router migra
 - Add regression checks for locale-switch query preservation
 
 ### SEO and Performance
+- Add Product structured data (JSON-LD) on product detail pages
 - Add sitemap/robots if deployment strategy requires it
 - Continue optimizing image sizes and loading priorities
 

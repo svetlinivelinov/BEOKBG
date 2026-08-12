@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { locales, defaultLocale } from '../lib/i18n/config';
+import { trackEvent } from '../lib/analytics';
 
 function switchLocalePath(pathname: string, targetLocale: string, searchParams?: URLSearchParams) {
   const parts = pathname.split('/').filter(Boolean);
@@ -46,6 +47,11 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLocale }) =>
                 : 'bg-white text-blue-700 border-blue-200 hover:border-blue-500'
             ].join(' ')}
             aria-current={isActive ? 'page' : undefined}
+            onClick={() => {
+              if (!isActive) {
+                trackEvent('language_switch', { from: activeLocale, to: locale, path: pathname });
+              }
+            }}
           >
             {locale.toUpperCase()}
           </Link>
