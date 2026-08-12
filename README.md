@@ -19,6 +19,11 @@ This project is a modern, modular, and responsive web application for a hardware
 - `/app` – Pages and API routes
 - `/data/products.json` – Product data (sample)
 
+## Migration Note
+- The project now uses the App Router under `/app` as the active routing system.
+- Legacy Pages Router files were archived to `/archive/pages-legacy-2026-08-05` for rollback/reference.
+- The root `/pages` directory is intentionally removed to prevent routing conflicts.
+
 ## Getting Started
 1. Clone the repository:
 	```

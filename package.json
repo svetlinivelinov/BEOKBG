@@ -1,0 +1,34 @@
+{
+  "name": "beokbg",
+  "version": "1.0.0",
+  "private": true,
+  "description": "This project is a modern, modular, and responsive web application for a hardware distributor, inspired by [bg.beok-controls.com](https://bg.beok-controls.com). Built with Next.js, TypeScript, and Tailwind CSS.",
+  "main": "next.config.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "host:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-host.ps1",
+    "host:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-host.ps1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^16.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.18",
+    "postcss": "^8.5.25",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
+  }
+}

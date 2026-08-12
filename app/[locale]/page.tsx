@@ -1,18 +1,32 @@
-import { getDictionary } from '../../../lib/i18n/getDictionary';
-import Hero from '../../../components/Hero';
-import Footer from '../../../components/Footer';
-import CategoryGrid from '../../../components/CategoryGrid';
-import products from '../../../extracted/products-extracted.json';
+import { getDictionary } from '../../lib/i18n/getDictionary';
+import Header from '../../components/Header';
+import Hero from '../../components/Hero';
+import Footer from '../../components/Footer';
+import CategoryGrid from '../../components/CategoryGrid';
+import Container from '../../components/Container';
+import { getProducts } from '../../lib/products/getProducts';
+import { locales } from '../../lib/i18n/config';
 
-export default async function Page({ params }: { params: { locale: string } }) {
-  const dict = await getDictionary(params.locale);
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+  const products = getProducts(locale);
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Hero title={dict["welcome"]} />
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-8">
-        <CategoryGrid products={products} />
-      </main>
-      <Footer dict={dict} />
+      <Header locale={locale} dict={dict} />
+      <Hero title={dict.welcome} subtitle={dict.hero_subtitle} ctaLabel={dict.browse_products} />
+      <Container id="products" className="flex-1 py-8">
+        <CategoryGrid
+          products={products}
+          locale={locale}
+          viewProductLabel={dict.view_product}
+        />
+      </Container>
+      <Footer locale={locale} dict={dict} />
     </div>
   );
 }
