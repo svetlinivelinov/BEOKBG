@@ -218,8 +218,8 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">{labels.cart}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">{labels.cart}</h1>
         <button
           type="button"
           onClick={clear}
@@ -253,7 +253,7 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:justify-end">
                   <label className="text-sm text-gray-600" htmlFor={`qty-${item.id}`}>{labels.quantity}</label>
                   <input
                     id={`qty-${item.id}`}
@@ -277,7 +277,7 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
         })}
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-4 flex items-center justify-between">
+      <div className="rounded-lg border border-gray-200 bg-white p-4 flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm text-gray-600 uppercase tracking-wide">{labels.subtotal}</span>
         <span className="text-2xl font-bold text-brand-orange">{formatEurPrice(subtotal, locale)}</span>
       </div>
@@ -296,7 +296,7 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
             type="button"
             onClick={handleCheckout}
             disabled={isCheckingOut}
-            className={`inline-flex items-center rounded px-4 py-2 text-sm font-medium text-white ${
+            className={`inline-flex w-full justify-center sm:w-auto items-center rounded px-4 py-2 text-sm font-medium text-white ${
               isCheckingOut ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'
             }`}
           >
@@ -314,7 +314,7 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
       <div className="pt-2">
         <Link
           href={`/${locale}/products`}
-          className="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-brand-orange hover:text-brand-orange"
+          className="inline-flex w-full justify-center sm:w-auto items-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-brand-orange hover:text-brand-orange"
         >
           {labels.continueShopping}
         </Link>
