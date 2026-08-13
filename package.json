@@ -2,6 +2,10 @@
   "name": "beokbg",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "npm@10.9.0",
+  "engines": {
+    "node": ">=20 <25"
+  },
   "description": "This project is a modern, modular, and responsive web application for a hardware distributor, inspired by [bg.beok-controls.com](https://bg.beok-controls.com). Built with Next.js, TypeScript, and Tailwind CSS.",
   "main": "next.config.js",
   "directories": {
