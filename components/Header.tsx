@@ -85,19 +85,19 @@ const Header: React.FC<HeaderProps> = ({ locale, dict }) => {
 
   return (
   <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-    <Container className="flex items-center justify-between py-3">
+    <Container className="flex flex-wrap items-center gap-2 py-3 sm:flex-nowrap sm:justify-between">
       <Link href={withLocale(locale, '/')} className="flex items-center gap-2">
         <span className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-orange to-brand-blue flex-shrink-0" />
-        <span className="text-2xl font-extrabold text-brand-blue leading-none cursor-pointer">
+        <span className="text-xl sm:text-2xl font-extrabold text-brand-blue leading-none cursor-pointer">
           BEOK<span className="text-brand-orange">BG</span>
         </span>
       </Link>
-      <div className="flex items-center gap-6">
-        <ul className="flex gap-6 text-sm font-semibold uppercase tracking-wide">
+      <div className="ml-auto flex items-center justify-end gap-2 sm:gap-4">
+        <ul className="flex gap-2 sm:gap-6 text-xs sm:text-sm font-semibold uppercase tracking-wide">
           <li className="relative group">
             <Link
               href={withLocale(locale, '/products')}
-              className="flex items-center gap-1 text-gray-700 hover:text-brand-orange transition-colors py-3"
+              className="flex items-center gap-1 text-gray-700 hover:text-brand-orange transition-colors py-2"
             >
               {t.products}
               <span aria-hidden="true" className="text-xs">&#9662;</span>
