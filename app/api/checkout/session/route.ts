@@ -96,6 +96,14 @@ function getStripeClient(): Stripe | null {
   return new Stripe(key);
 }
 
+function resolveCheckoutLocale(locale: string): Stripe.Checkout.SessionCreateParams.Locale {
+  if (locale === 'bg') {
+    return 'bg';
+  }
+
+  return 'en';
+}
+
 export async function POST(request: Request) {
   const stripe = getStripeClient();
   if (!stripe) {
@@ -177,6 +185,7 @@ export async function POST(request: Request) {
     const siteUrl = getSiteUrl();
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      locale: resolveCheckoutLocale(payload.locale),
       line_items: lineItems,
       allow_promotion_codes: true,
       success_url: `${siteUrl}/${payload.locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
