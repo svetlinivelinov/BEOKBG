@@ -101,6 +101,12 @@ const Footer: React.FC<FooterProps> = ({ locale, dict }) => {
             beok-controls.com
           </a>
         </p>
+        <p className="mt-2 text-sm text-gray-400">
+          <a href="mailto:beokbg@gmail.com" className="hover:text-brand-orange transition-colors">beokbg@gmail.com</a>
+        </p>
+        <p className="mt-1 text-sm text-gray-400">
+          <a href="tel:+359898535383" className="hover:text-brand-orange transition-colors">0898535383</a>
+        </p>
       </div>
     </Container>
     <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
