@@ -1,45 +1,91 @@
 
 import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
+import { formatEurPrice } from '../lib/products/formatEurPrice';
 
 export interface ProductCardProps {
-  slug?: string;
-  title: string;
+  id: string;
+  name: string;
   description: string;
-  image: string;
-  url: string;
   category?: string;
-  viewProduct?: string;
+  application?: 'electric' | 'water' | 'gas-boiler';
+  currency?: 'EUR';
+  finalPriceEur?: number | null;
+  priceQty?: number | null;
+  image?: string | null;
   locale?: string;
+  viewProductLabel?: string;
+  isDescriptionOpen?: boolean;
+  onDescriptionToggle?: (open: boolean) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ title, description, image, viewProduct, slug, locale }) => {
-  const id = slug ?? title.replace(/\s+/g, '-').toLowerCase();
-  const isValidSrc = image.startsWith('/') || image.startsWith('http://') || image.startsWith('https://');
+
+const ProductCard: React.FC<ProductCardProps> = ({
+  id,
+  name,
+  description,
+  finalPriceEur,
+  priceQty,
+  image,
+  locale,
+  viewProductLabel = 'Виж продукта',
+  isDescriptionOpen = false,
+  onDescriptionToggle
+}) => {
+  const href = locale ? `/${locale}/products/${id}` : `/products/${id}`;
+  const descriptionLabel = locale === 'bg' ? 'Описание' : 'Description';
+  const priceLabel = locale === 'bg' ? 'Цена (с ДДС)' : 'Price (incl. VAT)';
+  const detailsRegionId = `product-description-${id}`;
+  const hasPrice = typeof finalPriceEur === 'number' && Number.isFinite(finalPriceEur);
+  const priceText = hasPrice ? formatEurPrice(finalPriceEur, locale) : null;
 
   return (
-    <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center">
-      <div className="relative w-32 h-32 mb-4 bg-gray-100 rounded flex items-center justify-center">
-        {isValidSrc ? (
-          <Image
-            src={image}
-            alt={title}
-            fill
-            className="object-contain rounded"
-            sizes="128px"
-          />
-        ) : (
-          <span className="text-xs text-gray-400 px-2">{title}</span>
-        )}
-      </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600 text-sm mb-4">{description}</p>
+    <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center self-start">
+      {image ? (
+        <Image
+          src={image}
+          alt={name}
+          width={128}
+          height={128}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className="w-32 h-32 object-contain mb-4 rounded"
+        />
+      ) : (
+        <div
+          className="w-32 h-32 mb-4 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-3xl font-semibold"
+          aria-hidden="true"
+        >
+          {name.charAt(0).toUpperCase()}
+        </div>
+      )}
+      <h3 className="text-lg font-semibold mb-2">{name}</h3>
+      {priceText && (
+        <div className="mb-3">
+          <p className="text-xs uppercase tracking-wide text-gray-500">{priceLabel}</p>
+          <p className="text-xl font-bold text-brand-orange leading-tight">{priceText}</p>
+        </div>
+      )}
+      <details className="w-full text-left mb-4 group" open={isDescriptionOpen}>
+        <summary
+          className="cursor-pointer list-none text-sm font-medium text-gray-700 flex items-center justify-between"
+          aria-controls={detailsRegionId}
+          aria-expanded={isDescriptionOpen}
+          onClick={(event) => {
+            event.preventDefault();
+            onDescriptionToggle?.(!isDescriptionOpen);
+          }}
+        >
+          <span>{descriptionLabel}</span>
+          <span className="text-brand-orange transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
+        </summary>
+        <p id={detailsRegionId} className="text-gray-600 text-sm mt-2">{description}</p>
+      </details>
       <Link
-        href={locale ? `/${locale}/products/${id}` : `/products/${id}`}
-        className="mt-auto inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        href={href}
+        className="mt-auto inline-block px-4 py-2 bg-brand-orange text-white rounded hover:bg-brand-orange-dark transition-colors"
       >
-        {viewProduct ?? 'Виж продукта'}
+        {viewProductLabel}
       </Link>
     </div>
   );

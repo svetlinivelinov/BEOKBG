@@ -1,129 +1,68 @@
-﻿# i18n Architecture Reference
+# BG-EN Localization Notes
 
-This document describes the bilingual (bg/en) i18n structure as implemented in this project.
+Този документ описва реалното състояние на BG/EN локализацията в проекта.
 
-## File Structure
+## 1. Активна структура
 
-```
-app/
-  layout.tsx              # Root layout — Header + global CSS
-  [locale]/
-    layout.tsx            # (planned) locale-specific layout for <html lang>
-    page.tsx              # Home page — uses getDictionary
-    products/
-      page.tsx
-      [slug]/page.tsx
-    categories/
-      page.tsx
-locales/
-  bg.json                 # Bulgarian translations (default locale)
-  en.json                 # English translations
-lib/
-  i18n/
-    config.ts             # Locale list and type
-    getDictionary.ts      # Async loader for locale dictionaries
-    types.ts              # Dictionary interface
-```
+- /app/[locale] съдържа всички активни страници
+- /locales/bg.json и /locales/en.json съдържат UI речниците
+- /lib/i18n/config.ts дефинира активните езици и default locale
+- /lib/i18n/getDictionary.ts зарежда речника динамично
+- /lib/products/getProducts.ts обединява базови продуктови данни + локализирано съдържание
 
-## next.config.js — i18n for Pages Router
+## 2. Как работи локализацията
 
-```js
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  i18n: {
-    locales: ["bg", "en"],
-    defaultLocale: "bg",
-  },
-};
+- UI текстовете идват от /locales/*.json
+- Продуктовото съдържание не е в /locales, а в /data/products/content.*.json
+- /data/products/content.en.json е fallback източник
+- Ако поле липсва в bg, системата взема стойността от en
 
-module.exports = nextConfig;
-```
+## 3. Продуктов модел
 
-## lib/i18n/config.ts
+Базов модел в /data/products/products.json:
+- id
+- model
+- category
+- application (electric, water, gas-boiler)
+- image
+- sourceUrls
+- sourceNote
 
-```ts
-export const locales = ["bg", "en"] as const;
-export type Locale = (typeof locales)[number];
-```
+Локализирано съдържание в /data/products/content.en.json и /data/products/content.bg.json:
+- name
+- description
+- keyFeatures[]
+- technicalData[]
 
-## lib/i18n/getDictionary.ts
+## 4. Locale-aware навигация
 
-```ts
-import { locales } from "./config";
+- Пътища: /bg/... и /en/...
+- LanguageSwitcher пази query параметрите при смяна на език
+- Това позволява да се запазят category/application филтри между BG и EN
 
-export async function getDictionary(locale: string) {
-  if (!locales.includes(locale as never)) throw new Error("Invalid locale");
-  return import(`../../locales/${locale}.json`).then(mod => mod.default);
-}
-```
+## 5. Филтри в продуктовата страница
 
-## lib/i18n/types.ts
+- Category филтър: чрез query параметър category
+- Application филтър: чрез query параметър application
+- Application филтърът се показва само за релевантни категории
 
-```ts
-export interface Dictionary {
-  welcome: string;
-  products: string;
-  categories: string;
-  about: string;
-  contact: string;
-  all_products: string;
-  category: string;
-  not_found: string;
-}
-```
+## 6. Когато добавяш нов продукт
 
-## locales/bg.json (current)
+1. Добави базов запис в /data/products/products.json
+2. Добави EN съдържание в /data/products/content.en.json
+3. Добави BG съдържание в /data/products/content.bg.json
+4. Добави изображение в /public/images/products (ако има)
+5. Провери /bg/products и /en/products
 
-```json
-{
-  "welcome": "Добре дошли в BEOKBG",
-  "products": "Продукти",
-  "categories": "Категории",
-  "about": "За нас",
-  "contact": "Контакти",
-  "all_products": "Всички продукти",
-  "category": "Категория",
-  "not_found": "Продуктът не е намерен"
-}
-```
+## 7. Когато добавяш нов UI ключ
 
-## locales/en.json (current)
+1. Добави ключа в /lib/i18n/types.ts
+2. Добави стойности и в двата речника:
+   - /locales/bg.json
+   - /locales/en.json
+3. Използвай ключа през getDictionary в страницата/компонента
 
-```json
-{
-  "welcome": "Welcome to BEOKBG",
-  "products": "Products",
-  "categories": "Categories",
-  "about": "About Us",
-  "contact": "Contact",
-  "all_products": "All Products",
-  "category": "Category",
-  "not_found": "Product not found"
-}
-```
+## 8. Забележки
 
-## Usage in App Router Pages
-
-```tsx
-// app/[locale]/page.tsx
-import { getDictionary } from "@/lib/i18n/getDictionary";
-
-export default async function Page({ params }: { params: { locale: string } }) {
-  const dict = await getDictionary(params.locale);
-  return <Hero title={dict.welcome} />;
-}
-```
-
-## Planned: Language Switcher
-
-A `LanguageSwitcher` component should:
-- Read the current locale from `useParams()` or `useRouter()`
-- Render links to the same page in the other locale (e.g. `/bg/products` ↔ `/en/products`)
-- Be placed in the `Header` component
-
-## Adding a New Language
-
-1. Add the locale code to `locales` array in `lib/i18n/config.ts`
-2. Add it to the `locales` array in `next.config.js`
-3. Create `locales/<code>.json` with all required keys
-4. No other code changes needed — `getDictionary` handles it dynamically
+- Legacy /pages кодът е архивиран и не е активен.
+- next.config.js не дефинира i18n блок; локализацията е реализирана чрез сегмент [locale] в App Router.

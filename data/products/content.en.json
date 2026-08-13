@@ -1,0 +1,441 @@
+{
+  "tgm50-wifi-ep": {
+    "name": "Electric Heating Thermostat",
+    "description": "TGM50 thermostat is suitable for water heating, electric heating and boiler. The TGM50-EP model is listed for electric heating appliances with 16A current loading and week program. The manual lists WiFi for Android and Apple iOS, full-screen display and touchscreen, power-off memory function, real-time data save function, 5+2/6+1/7-day six-period program schedule, anti-freezing function, three sensor modes and child lock function.",
+    "keyFeatures": [
+      "WiFi for Android and Apple iOS",
+      "full-screen display and touchscreen",
+      "power-off memory",
+      "real-time data save",
+      "5+2/6+1/7-day six-period schedule",
+      "anti-freezing",
+      "3 sensor modes",
+      "child lock",
+      "16A",
+      "for electric heating appliances."
+    ],
+    "technicalData": [
+      "Power supply: AC 100-240V, 50/60Hz",
+      "current load: <=16A for electric heating",
+      "power consumption: <1W",
+      "material: PC+ABS flame retardant",
+      "sensing element: NTC",
+      "set temperature range: 5-95°C",
+      "hysteresis: ±1°C, default adjustable 0.5-10°C",
+      "dimension: 86x86x12.5mm",
+      "ambient: 0-45°C, 5-95%RH non-condensing",
+      "storage: -5~55°C",
+      "timing error: <1%."
+    ]
+  },
+  "tgm50-wifi-wp": {
+    "name": "Water Heating Thermostat",
+    "description": "TGM50 thermostat is suitable for water heating, electric heating and boiler. The TGM50-WP model is listed for water heating appliances with 3A current loading and week program. The manual lists WiFi for Android and Apple iOS, full-screen display and touchscreen, power-off memory function, real-time data save function, 5+2/6+1/7-day six-period program schedule, anti-freezing function, three sensor modes and child lock function.",
+    "keyFeatures": [
+      "WiFi for Android and Apple iOS",
+      "full-screen display and touchscreen",
+      "power-off memory",
+      "real-time data save",
+      "5+2/6+1/7-day six-period schedule",
+      "anti-freezing",
+      "3 sensor modes",
+      "child lock",
+      "3A",
+      "for water heating appliances."
+    ],
+    "technicalData": [
+      "Power supply: AC 100-240V, 50/60Hz",
+      "current load: <=3A for water heating/gas boiler",
+      "power consumption: <1W",
+      "material: PC+ABS flame retardant",
+      "sensing element: NTC",
+      "set temperature range: 5-95°C",
+      "hysteresis: ±1°C, default adjustable 0.5-10°C",
+      "dimension: 86x86x12.5mm",
+      "ambient: 0-45°C, 5-95%RH non-condensing",
+      "storage: -5~55°C",
+      "timing error: <1%."
+    ]
+  },
+  "tgm50b-wifi-ep": {
+    "name": "Electric Heating Thermostat",
+    "description": "The TGM50B WiFi thermostat product family includes electric floor heating, water floor heating and gas boiler heating versions. The model spec lists TGM50B-WIFI-EP with AC100-240V, 16A, electric floor heating, app control, air sensor and floor sensor. The product page says TGM50 series WiFi Thermostat works with Tuya app and Smart Life app, allowing phone control anywhere and anytime.",
+    "keyFeatures": [
+      "AC100-240V",
+      "16A",
+      "electric floor heating",
+      "app control",
+      "air sensor",
+      "floor sensor",
+      "Tuya / Smart Life app",
+      "GoogleHome / Amazon Alexa / Yandex Alice voice control for WiFi version",
+      "daily programmable function."
+    ],
+    "technicalData": [
+      "Power: AC100-240V, 50/60Hz",
+      "load current: 16A for electric heating version",
+      "temperature precision: ±0.5°C",
+      "temperature range: 5°C~60°C",
+      "temperature calibration: -9.9°C~9.9°C",
+      "temperature hysteresis: 0.5°C~10°C",
+      "sensor: NTC",
+      "self-consumption power: <170 μW",
+      "mounting: flush mounting",
+      "dimensions: 86x86x13 mm."
+    ]
+  },
+  "tgm50b-wifi-wp": {
+    "name": "Water Heating Thermostat",
+    "description": "TGM50B-WIFI-WP is described as a water floor heating thermostat. The product page states it is for water floor control, AC100-240V supply, 3A load current, only internal air sensor, wired connection, daily programmable, Wi-Fi enabled, with Tuya / Smart Life app control and GoogleHome / Amazon Alexa / Yandex Alice voice control for the WiFi version.",
+    "keyFeatures": [
+      "Water floor heating",
+      "AC100-240V",
+      "3A",
+      "internal air sensor",
+      "daily programmable",
+      "Tuya / Smart Life app control",
+      "voice control via GoogleHome / Amazon Alexa / Yandex Alice for WiFi version",
+      "flush mounting",
+      "CE / RED / ROHS",
+      "24 months warranty."
+    ],
+    "technicalData": [
+      "Model name: TGM50B-WIFI-WP",
+      "power: AC100-240V, 50/60Hz",
+      "temperature precision: ±0.5°C",
+      "temperature range: 5°C~60°C",
+      "temperature calibration: -9.9°C~9.9°C",
+      "hysteresis: 0.5°C~10°C",
+      "temperature sensor: NTC",
+      "load current: 3A resistant",
+      "self-consumption: <170 μW",
+      "app: Tuya / Smart Life",
+      "dimension: 86x86x13 mm."
+    ]
+  },
+  "tcc31-wifi-ep": {
+    "name": "Electric Heating Thermostat",
+    "description": "TCC31 is a smart knob thermostat. The manual states the product type EP is suitable for electric floor heating. It has a protection class IP20, NTC3950 10K sensor, ±1°C accuracy, 5-95°C set temperature range and 100-240VAC power supply. The manual describes mode switching between manual and automatic modes, child lock, temperature setting by rotating the knob, advanced settings and Wi-Fi connection.",
+    "keyFeatures": [
+      "Smart knob thermostat",
+      "EP suitable for electric floor heating",
+      "manual/automatic modes",
+      "child lock",
+      "knob temperature setting",
+      "advanced settings",
+      "Wi-Fi connection",
+      "max 16A for electric heating."
+    ],
+    "technicalData": [
+      "Model number: TCC31",
+      "protection class: IP20",
+      "current load: 3A for water heating/gas boiler, max 16A for electric heating",
+      "sensor: NTC3950, 10K",
+      "accuracy: ±1°C",
+      "set temperature range: 5-95°C",
+      "room temperature range: 5-99°C",
+      "power consumption: <2W",
+      "ambient humidity: 5-95%RH non-condensing",
+      "power supply: 100-240VAC 50-60Hz."
+    ]
+  },
+  "tcc31-wifi-wp": {
+    "name": "Water Heating Thermostat",
+    "description": "TCC31 is a smart knob thermostat. The manual states the product type WP is suitable for water heating. The thermostat supports manual and automatic modes, child lock, knob-based temperature adjustment, advanced settings and Wi-Fi connection.",
+    "keyFeatures": [
+      "Smart knob thermostat",
+      "WP suitable for water heating",
+      "manual/automatic modes",
+      "child lock",
+      "knob temperature setting",
+      "advanced settings",
+      "Wi-Fi connection",
+      "3A for water heating/gas boiler."
+    ],
+    "technicalData": [
+      "Model number: TCC31",
+      "protection class: IP20",
+      "current load: 3A for water heating/gas boiler, max 16A for electric heating",
+      "sensor: NTC3950, 10K",
+      "accuracy: ±1°C",
+      "set temperature range: 5-95°C",
+      "room temperature range: 5-99°C",
+      "power consumption: <2W",
+      "ambient humidity: 5-95%RH non-condensing",
+      "power supply: 100-240VAC 50-60Hz."
+    ]
+  },
+  "tgr85-wifi-wpb": {
+    "name": "Gas Boiler Thermostat",
+    "description": "TGR85 thermostat is suitable for water heating, electric heating and boiler. The TGR85-WPB model is listed for boilers connected via dry contact with 3A current loading and week program. Main functions include WiFi for Android and Apple iOS, large screen display and touch button, power-off memory, real-time data save function, 5+2/6+1/7-day six-period program schedule, anti-freezing function, three sensor modes and child lock function.",
+    "keyFeatures": [
+      "WiFi for Android and Apple iOS",
+      "large screen display and touch button",
+      "power-off memory",
+      "real-time data save",
+      "5+2/6+1/7-day six-period schedule",
+      "anti-freezing",
+      "3 sensor modes",
+      "child lock",
+      "for boilers connected via dry contact."
+    ],
+    "technicalData": [
+      "Power supply: 100-240V",
+      "current load: <=3A for water heating/gas boiler, <=16A for electric heating",
+      "power consumption: <1W",
+      "material: PC+ABS flame retardant",
+      "sensor: NTC",
+      "set temperature range: 5-95°C",
+      "floor set range: 5-60°C",
+      "hysteresis: ±1°C, default adjustable 0.5-10°C",
+      "dimension: 86x90x14mm",
+      "ambient: 0-45°C, 5-95%RH non-condensing",
+      "storage: -5~55°C",
+      "timing error: <1%."
+    ]
+  },
+  "tcc31-wifi-wpb": {
+    "name": "Gas Boiler Thermostat",
+    "description": "TCC31 is a smart knob thermostat. The manual states the product type WPB is suitable for gas boiler heating. It supports manual and automatic modes, child lock, knob-based temperature adjustment, advanced settings and Wi-Fi connection.",
+    "keyFeatures": [
+      "Smart knob thermostat",
+      "WPB suitable for gas boiler heating",
+      "manual/automatic modes",
+      "child lock",
+      "knob temperature setting",
+      "advanced settings",
+      "Wi-Fi connection",
+      "3A for water heating/gas boiler."
+    ],
+    "technicalData": [
+      "Model number: TCC31",
+      "protection class: IP20",
+      "current load: 3A for water heating/gas boiler, max 16A for electric heating",
+      "sensor: NTC3950, 10K",
+      "accuracy: ±1°C",
+      "set temperature range: 5-95°C",
+      "room temperature range: 5-99°C",
+      "power consumption: <2W",
+      "ambient humidity: 5-95%RH non-condensing",
+      "power supply: 100-240VAC 50-60Hz."
+    ]
+  },
+  "bot-r7w-x-wifi": {
+    "name": "Gas Boiler Thermostat",
+    "description": "The BOT-R7X wireless gas boiler heating thermostat manual describes an intelligent digital thermostat used as a temperature controller. It compares ambient temperature and set temperature and controls the working state of the electric valve of the floor heating system to adjust ambient temperature. The WiFi manual includes WiFi connection and an electrical specification with NTC temperature sensor, +0.5°C temperature precision, <170uW self-consumption, 3pcs 1.5V batteries, 3A load current and IP20 protection grade.",
+    "keyFeatures": [
+      "Wireless gas boiler heating thermostat",
+      "WiFi connection",
+      "manual and automatic modes",
+      "temperature adjustment",
+      "clock adjustment",
+      "lock key function",
+      "low temperature protection",
+      "NTC sensor",
+      "3A load",
+      "IP20."
+    ],
+    "technicalData": [
+      "Temperature sensor: NTC",
+      "temperature precision: +0.5°C",
+      "self-consumed: <170uW",
+      "voltage: 3pcs 1.5V batteries",
+      "load current: 3A",
+      "protection grade: IP20",
+      "K1/K2 passive linkage of wall-hung furnaces",
+      "normally open/normally close motorized valve notes."
+    ]
+  },
+  "bot-r7b-x-wifi": {
+    "name": "Gas Boiler Thermostat",
+    "description": "The BOT-R7X wireless gas boiler heating thermostat manual describes an intelligent digital thermostat used as a temperature controller. It compares ambient temperature and set temperature and controls the working state of the electric valve of the floor heating system to adjust ambient temperature. The WiFi manual includes WiFi connection and an electrical specification with NTC temperature sensor, +0.5°C temperature precision, <170uW self-consumption, 3pcs 1.5V batteries, 3A load current and IP20 protection grade.",
+    "keyFeatures": [
+      "Wireless gas boiler heating thermostat",
+      "WiFi connection",
+      "manual and automatic modes",
+      "temperature adjustment",
+      "clock adjustment",
+      "lock key function",
+      "low temperature protection",
+      "NTC sensor",
+      "3A load",
+      "IP20."
+    ],
+    "technicalData": [
+      "Temperature sensor: NTC",
+      "temperature precision: +0.5°C",
+      "self-consumed: <170uW",
+      "voltage: 3pcs 1.5V batteries",
+      "load current: 3A",
+      "protection grade: IP20",
+      "K1/K2 passive linkage of wall-hung furnaces",
+      "normally open/normally close motorized valve notes."
+    ]
+  },
+  "bot-r8x-wifi": {
+    "name": "Gas Boiler Thermostat",
+    "description": "The BOT-R5X/R8X WiFi wireless boiler thermostat manual describes a wireless intelligent one-to-one digital thermostat for underfloor heating systems. It compares ambient temperature with set temperature and controls the working status of the gas wall mounted boiler and electric valve in the underfloor heating system to regulate ambient temperature for comfort and energy conservation.",
+    "keyFeatures": [
+      "Wireless output",
+      "3x1.5V alkaline AAA batteries",
+      "IP20",
+      "NTC temperature sensor",
+      "±0.5°C adjustable temperature accuracy",
+      "<170uA self-consumption",
+      "3A load",
+      "manual and automatic mode switching",
+      "Tuya Smart / Smart Life network connection on 2.4 GHz WiFi",
+      "heating/cooling switch in device settings."
+    ],
+    "technicalData": [
+      "Equipment power supply: 3x1.5V alkaline AAA batteries",
+      "protection grade: IP20",
+      "temperature sensor: NTC",
+      "temperature accuracy: ±0.5°C adjustable",
+      "self-consumption power: <170uA",
+      "load: 3A",
+      "WiFi setup via Tuya Smart/Smart Life and 2.4GHz WiFi."
+    ]
+  },
+  "trv-604": {
+    "name": "Thermostatic Radiator Valve",
+    "description": "TRV604 is a Wi-Fi smart thermostatic radiator valve. The manual states automatic debugging function suitable for mainstream valves, Wi-Fi fast distribution network with no additional gateway required, intelligent PID algorithm for efficient valve opening and closing, ultra-quiet motor technology and automatic summer/winter time conversion. It supports Smart Life app remote control and voice control.",
+    "keyFeatures": [
+      "Automatic debugging",
+      "no gateway required",
+      "intelligent PID valve control",
+      "ultra-quiet motor",
+      "summer/winter time conversion",
+      "Auto and Manual modes",
+      "four time periods and setting temperature per day in Auto mode",
+      "Smart Life app",
+      "Amazon Alexa and Google Assistant support",
+      "open-window and anti-scale functions",
+      "child lock",
+      "factory reset."
+    ],
+    "technicalData": [
+      "Power supply: 3 x 1.5V alkaline AA batteries",
+      "protection degree: IP20",
+      "ambient temperature: 0~50°C",
+      "surface temperature: 90°C max at radiator",
+      "connection: M30 x 1.5mm",
+      "linear travel: 4.3mm",
+      "dimensions: 58.4mm x 97mm x 58.4mm",
+      "weight: 210g."
+    ]
+  },
+  "trv-705wf": {
+    "name": "Thermostatic Radiator Valve",
+    "description": "TRV-705WF is a LED WiFi smart thermostat radiator valve. The guide states it supports 4 standard modes and up to 6 programs for 7 days a week and complies with CE conformity RED/LVD/EMC and RoHS conformity. The product page states it can work directly with Tuya Smart or Smart Life app without a Zigbee gateway and allows temperature and working mode setting on device or smartphone.",
+    "keyFeatures": [
+      "LED WiFi smart thermostat radiator valve",
+      "4 standard modes",
+      "up to 6 programs, 7 days/week",
+      "Tuya Smart / Smart Life app",
+      "no Zigbee gateway required",
+      "device or smartphone control",
+      "window opening detection",
+      "power failure memory",
+      "factory reset",
+      "CE/RED/ROHS certifications."
+    ],
+    "technicalData": [
+      "Power: 3 x 1.5V alkaline AA batteries",
+      "standby current: 6μA min",
+      "operating temperature: 0~50°C indoor use only",
+      "storage: -20~70°C",
+      "WiFi: 802.11b/g/n 2.4GHz",
+      "WiFi range: 200m+ open field",
+      "temperature sensor: NTC B=3380 R25=10KΩ±1%",
+      "protection: IP20",
+      "surface temp: 90°C max",
+      "connection: M30 x 1.5mm",
+      "linear travel: 6mm",
+      "dimensions: 59.7 x 95.3 x 59.7mm",
+      "weight: 145g."
+    ]
+  },
+  "cct-28-x": {
+    "name": "Hub Controller",
+    "description": "CCT-28-X Wireless Hub Controller is used in water underfloor heating systems. The manual states it can control zone valves or boiler thermostats and, as a central control unit, can control boiler and circulating pump. According to the user set temperature, it controls opening or closing boiler, circulating pump and electric actuators to achieve comfort and energy consumption saving.",
+    "keyFeatures": [
+      "Wireless central/Hub controller",
+      "8 loops",
+      "433MHz",
+      "central control for boiler, circulating pump, electric actuators and thermostats",
+      "time delay function for boiler/pump protection",
+      "thermostat indicator LEDs LED1-LED8",
+      "pump indicator LED9",
+      "boiler indicator LED10",
+      "power indicator LED11."
+    ],
+    "technicalData": [
+      "Power supply: 220VAC or 100-240VAC depending source",
+      "current loading: max 20mA in manual, 10A on product page",
+      "frequency: 433MHz",
+      "wireless signal distance: 30m indoor, 200m outdoor",
+      "pump output delay: 5 min in manual",
+      "max power of pump: 1000W",
+      "dimensions: 180x110x40mm",
+      "number of circuits: 8 loops."
+    ]
+  },
+  "bot-r7x-wifi-nr": {
+    "name": "Gas Boiler Thermostat",
+    "description": "The BOT-R7X wireless gas boiler heating thermostat manual describes an intelligent digital thermostat used as a temperature controller. It compares ambient temperature and set temperature and controls the working state of the electric valve of the floor heating system to adjust ambient temperature. The WiFi manual includes WiFi connection and common operating instructions such as on/off, mode switching, temperature regulation, clock adjustment and lock key function.",
+    "keyFeatures": [
+      "BOT-R7X WiFi family",
+      "WiFi connection",
+      "mode switching between manual and automatic modes",
+      "temperature adjustment",
+      "clock adjustment",
+      "lock key function",
+      "low temperature protection",
+      "NTC sensor",
+      "3A load",
+      "IP20. The invoice additionally specifies no receiver and compatibility with CCT-28-X hub controller."
+    ],
+    "technicalData": [
+      "Temperature sensor: NTC",
+      "temperature precision: +0.5°C",
+      "self-consumed: <170uW",
+      "voltage: 3pcs 1.5V batteries",
+      "load current: 3A",
+      "protection grade: IP20",
+      "WiFi connection steps through Tuya app",
+      "K1/K2 passive linkage of wall-hung furnaces in R7X source."
+    ]
+  },
+  "rz-d01-230-nc": {
+    "name": "Thermal Actuator",
+    "description": "RZ-D01-230-NC is a normally closed electrical thermal actuator valve for water floor heating systems. The product description states it integrates manual and automatic control functions, with manual operation and automatic control modes. It is used for controlling manifolds, water valves and similar water underfloor heating components.",
+    "keyFeatures": [
+      "Water manifold/heating system",
+      "normally closed",
+      "M30x1.5 connection ring",
+      "black",
+      "IP54",
+      "230VAC",
+      "about 50mA load current",
+      "2W power consumption",
+      "manual and automatic control",
+      "working status indicator",
+      "used to control manifolds and water valves."
+    ],
+    "technicalData": [
+      "Model name: RZ-D01-230NC / RZ-D01-230-NC",
+      "power: 230VAC",
+      "load current: about 50mA",
+      "power consumption: 2W",
+      "working mode: NC",
+      "protection grade: IP54",
+      "working temperature: -20~50°C",
+      "storage temperature: -20~50°C",
+      "cable length: 72cm",
+      "running time: 180 seconds open-closed",
+      "connection ring: M30x1.5",
+      "work journey: 4mm."
+    ]
+  }
+}

@@ -1,69 +1,105 @@
 import React from 'react';
 import Link from 'next/link';
+import Container from './Container';
+import { Dictionary } from '../lib/i18n/types';
 
-type FooterProps = {
-  dict?: Record<string, string>;
+interface FooterProps {
+  locale?: string;
+  dict?: Dictionary;
+}
+
+const fallbackDict: Dictionary = {
+  welcome: 'Добре дошли в BEOKBG',
+  products: 'Продукти',
+  categories: 'Категории',
+  about: 'За нас',
+  contact: 'Контакти',
+  all_products: 'Всички продукти',
+  category: 'Категория',
+  not_found: 'Продуктът не е намерен',
+  hero_subtitle: 'Модерни термостати, контролери и решения за отопление и автоматизация. Вдъхновено от BEOK Controls.',
+  browse_products: 'Разгледай продуктите',
+  view_product: 'Виж продукта',
+  view_in_beok: 'Виж в BEOK Controls',
+  rights_reserved: 'Всички права запазени.',
+  home: 'Начало',
+  product_description: 'Описание на продукта',
+  all_categories: 'Всички категории',
+  key_features: 'Основни характеристики',
+  technical_data: 'Технически данни',
+  documentation: 'Официална документация',
+  cart: 'Количка',
+  add_to_cart: 'Добави в количката',
+  product_actions_hint: 'Имате нужда от този продукт? Добавете го в количката или изтеглете ръководството.',
+  quantity: 'Количество',
+  unit_price: 'Ед. цена',
+  line_total: 'Стойност',
+  subtotal: 'Общо',
+  added_to_cart: 'Продуктът е добавен в количката.',
+  continue_shopping: 'Продължи пазаруването',
+  go_to_cart: 'Към количката',
+  cart_empty: 'Количката е празна.',
+  remove: 'Премахни',
+  clear_cart: 'Изчисти количката',
+  order_request_title: 'Заявка за поръчка',
+  customer_name: 'Име',
+  customer_email: 'Имейл',
+  customer_phone: 'Телефон',
+  customer_note: 'Бележка',
+  send_order_request: 'Изпрати заявка за поръчка',
+  order_request_subject: 'Заявка за поръчка от BEOKBG',
+  order_request_intro: 'Попълнете данните си и изпратете заявката. Ще се свържем с вас възможно най-скоро.',
+  please_fill_required: 'Моля, попълнете име и имейл.',
+  order_request_success: 'Заявката за поръчка е изпратена успешно.',
+  order_request_error: 'Заявката не можа да бъде изпратена. Моля, опитайте отново.',
+  low_stock_alert_title: 'Предупреждение за ниска наличност',
+  send_factory_reorder_email: 'Изпрати имейл за заявка към фабриката',
+  request_quote: 'Заявка за оферта',
+  ask_availability: 'Питай за наличност',
+  download_manual: 'Изтегли ръководство',
+  contact_for_availability: 'Нуждаете се от наличност или оферта? Свържете се с нас и ще ви помогнем бързо.',
+  request_quote_cta: 'Заявете оферта за този продукт'
 };
 
-const Footer: React.FC<FooterProps> = ({ dict }) => (
-  <footer className="bg-slate-950 text-slate-100 mt-14">
-    <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-      <section>
-        <h3 className="text-base font-semibold mb-3">{dict?.follow_us ?? 'Последвай ни'}</h3>
-        <div className="flex gap-3 text-sm">
-          <a href="https://www.facebook.com/Beok.Controls" target="_blank" rel="noopener noreferrer" className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800">FB</a>
-          <a href="https://twitter.com/Beok_Controls" target="_blank" rel="noopener noreferrer" className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800">X</a>
-          <a href="https://www.linkedin.com/company/beokcontrols/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800">IN</a>
-          <a href="https://www.youtube.com/c/BeokControls/featured" target="_blank" rel="noopener noreferrer" className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800">YT</a>
-        </div>
-      </section>
+const withLocale = (locale: string | undefined, path: string) => {
+  if (!locale) return path;
+  return `/${locale}${path === '/' ? '' : path}`;
+};
 
-      <section>
-        <h3 className="text-base font-semibold mb-3">{dict?.quick_navigation ?? 'Бърза навигация'}</h3>
-        <ul className="space-y-2 text-sm text-slate-300">
-          <li><Link href="/" className="hover:text-white">{dict?.home ?? 'Начало'}</Link></li>
-          <li><Link href="/products" className="hover:text-white">{dict?.products ?? 'Продукти'}</Link></li>
-          <li><Link href="/about-us" className="hover:text-white">{dict?.about ?? 'За нас'}</Link></li>
-          <li><Link href="/contact-us" className="hover:text-white">{dict?.contact ?? 'Контакти'}</Link></li>
-        </ul>
-      </section>
+const Footer: React.FC<FooterProps> = ({ locale, dict }) => {
+  const t = dict || fallbackDict;
 
-      <section>
-        <h3 className="text-base font-semibold mb-3">{dict?.product_category ?? 'Продуктова категория'}</h3>
-        <ul className="space-y-2 text-sm text-slate-300">
-          <li><Link href="/products?category=room-thermostat" className="hover:text-white">{dict?.thermostats ?? 'Термостати'}</Link></li>
-          <li><Link href="/products?category=underfloor-heating-controller" className="hover:text-white">{dict?.ufh_controllers ?? 'Контролери за подово'}</Link></li>
-          <li><Link href="/products?category=radiator-actuator" className="hover:text-white">{dict?.radiator_valves ?? 'Радиаторни вентили'}</Link></li>
-          <li><Link href="/products?category=actuator" className="hover:text-white">{dict?.actuators ?? 'Термични задвижки'}</Link></li>
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="text-base font-semibold mb-3">{dict?.connect_us ?? 'Свържете се с нас'}</h3>
-        <ul className="space-y-2 text-sm text-slate-300">
-          <li>
-            <a href="mailto:shine.wang@beok-controls.com" className="hover:text-white">shine.wang@beok-controls.com</a>
-          </li>
-          <li>
-            <a href="tel:+8613127755172" className="hover:text-white">+86 131 2775 5172</a>
-          </li>
-          <li>
-            <a href="tel:+862133880317" className="hover:text-white">+86 21 3388 0317</a>
-          </li>
-          <li className="text-slate-400">
-            {dict?.address ?? 'Shanghai, China'}
-          </li>
-        </ul>
-      </section>
-    </div>
-
-    <div className="border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 py-4 text-xs text-slate-400 flex flex-col sm:flex-row justify-between gap-2">
-        <span>&copy; {new Date().getFullYear()} BEOKBG</span>
-        <span>{dict?.all_rights_reserved ?? 'Всички права запазени.'}</span>
+  return (
+  <footer className="bg-gray-900 text-gray-300 mt-12">
+    <Container className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 py-10">
+      <div>
+        <span className="text-xl font-extrabold text-white">
+          BEOK<span className="text-brand-orange">BG</span>
+        </span>
+        <p className="mt-3 text-sm text-gray-400">{t.hero_subtitle}</p>
       </div>
+      <div>
+        <h3 className="text-white font-semibold uppercase text-sm tracking-wide mb-3">{t.products}</h3>
+        <ul className="space-y-2 text-sm">
+          <li><Link href={withLocale(locale, '/')} className="hover:text-brand-orange transition-colors">BEOKBG</Link></li>
+          <li><Link href={withLocale(locale, '/products')} className="hover:text-brand-orange transition-colors">{t.all_products}</Link></li>
+          <li><Link href={withLocale(locale, '/categories')} className="hover:text-brand-orange transition-colors">{t.all_categories}</Link></li>
+        </ul>
+      </div>
+      <div>
+        <h3 className="text-white font-semibold uppercase text-sm tracking-wide mb-3">{t.contact}</h3>
+        <p className="text-sm text-gray-400">{t.view_in_beok}:{' '}
+          <a href="https://www.beok-controls.com" target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange transition-colors">
+            beok-controls.com
+          </a>
+        </p>
+      </div>
+    </Container>
+    <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+      &copy; {new Date().getFullYear()} BEOKBG. {t.rights_reserved}
     </div>
   </footer>
-);
+  );
+};
 
 export default Footer;

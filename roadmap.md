@@ -1,139 +1,96 @@
 
 # Project Roadmap
 
-**Reference site for structure and content inspiration:**
-https://bg.beok-controls.com
+This roadmap is updated to match the current codebase after the App Router migration and i18n/product refactor.
 
-## 1. Project Setup ✅
-- ✅ Initialize Next.js app with TypeScript
-- ✅ Install and configure Tailwind CSS + PostCSS
-- ✅ Clean architecture: `/components`, `/lib`, `/app`, `/pages`
-- ✅ `tsconfig.json` with strict mode and `@/` path alias
-- ✅ ESLint configured (`next/core-web-vitals`)
-- ✅ `.gitignore` with standard Next.js ignores
-- ✅ Document required environment variables
+## Completed
 
-## 2. UI Component Development ✅
-- ✅ `Header` — sticky nav with product/category links
-- ✅ `Hero` — banner with CTA button (scrolls to `#products`)
-- ✅ `ProductCard` — image, title, description, external link
-- ✅ `CategoryGrid` — responsive grid with optional category filter
-- ✅ `Footer` — links with optional i18n dictionary prop
-- ✅ All components use TypeScript prop interfaces
+### Architecture and Routing
+- Migrated active site to Next.js App Router
+- Archived legacy Pages Router files to /archive/pages-legacy-2026-08-05
+- Implemented locale-first routing under /app/[locale]
 
-## 3. Page & Routing Structure ✅
-- ✅ Pages Router: `/`, `/products`, `/products/[id]`, `/category`
-- ✅ Pages Router: `/about-us`, `/contact-us` (stub pages)
-- ✅ App Router: `/[locale]/`, `/[locale]/categories`, `/[locale]/products`, `/[locale]/products/[slug]`
-- ✅ `pages/_app.tsx` — correct Next.js App wrapper with global CSS
-- ⬜ Consolidate to a single router (App Router preferred long-term)
+### Localization
+- Added BG/EN dictionaries in /locales
+- Implemented dynamic dictionary loading from /lib/i18n/getDictionary.ts
+- Added locale-aware category label formatting
+- Added query-preserving language switcher
 
-## 4. Internationalization (i18n) ✅
-- ✅ `lib/i18n/config.ts` — locale list (`bg`, `en`)
-- ✅ `lib/i18n/getDictionary.ts` — async locale loader with guard
-- ✅ `locales/bg.json` + `locales/en.json` — translation dictionaries
-- ✅ App Router pages use `getDictionary` for server-side translations
-- ✅ Pages Router uses Next.js built-in `i18n` config
-- ✅ Language switcher UI component (`components/LanguageSwitcher.tsx`)
-- ⬜ Locale-aware `<html lang>` in App Router layout (requires moving html/body to `[locale]` layout — Next.js constraint)
-- ✅ i18n hardcoded strings in Header and ProductCard (dict prop + fallbacks)
+### Product Data and Rendering
+- Split product data into:
+  - /data/products/products.json (base metadata)
+  - /data/products/content.en.json (English content)
+  - /data/products/content.bg.json (Bulgarian content)
+- Implemented localized content merge with English fallback
+- Added product application classification (electric, water, gas-boiler)
 
-## 5. Static Data ✅
-- ✅ Product data sourced from `extracted/products-extracted.json`
-- ⬜ Migrate to PostgreSQL (Railway)
+### Product Page UX
+- Category filtering in products page
+- Application sub-filter for thermostat categories
+- Controlled single-open description accordion in product cards
+- Shared Container component for consistent layout width/padding
+- Header language switcher wrapped for safe rendering behavior
 
-## 6. Database (Railway PostgreSQL) ⬜
-- ⬜ Set up Railway PostgreSQL
-- ⬜ Create tables: `products`, `categories`, `orders`, `order_items`, `pickpack_logs`, `users`
-- ⬜ Define schema with field types, relations, and indexes
-- ⬜ Plan file storage for product images
+### Operations
+- Added local host scripts:
+  - npm run host:start
+  - npm run host:stop
 
-## 7. Authentication & Admin Panel ⬜
-- ⬜ Authentication (admin/customer roles)
-- ⬜ Admin dashboard for managing products, categories, and orders
+### SEO Metadata
+- Added richer page metadata for SEO on:
+  - /[locale]
+  - /[locale]/categories
+  - /[locale]/products
+  - /[locale]/products/[id]
+- Added canonical and language alternates for BG/EN routes
 
-## 8. CRUD Operations & Order Management ⬜
-- ⬜ CRUD endpoints and UI for products and categories
-- ⬜ Order status tracking (pending, shipped, completed)
+### QA Checklist (Executed)
+- Build verification completed successfully
+- BG and EN route smoke checks passed
+- Product detail metadata title rendering verified
+- Query-preserving locale switch verified with category/application filters
 
-## 9. API Integration ⬜
-- ⬜ `/api/orders` — order handling
-- ⬜ `/api/pickpack` — pick & pack integration
+## In Progress / Near-Term
 
-  ```ts
-  import { NextResponse } from "next/server";
+### Payment Enablement (Checkout MVP)
+- Select payment provider and complete account setup (recommended: Stripe; alternatives: local BG/EU providers)
+- Add server-side checkout session API that validates cart items from server product data
+- Add hosted checkout redirect from cart page (replace request-only flow with pay-now flow)
+- Add success and cancel return routes
+- Add webhook endpoint with signature verification to confirm paid status
+- Persist order records with lifecycle states (pending, paid, failed, fulfilled)
+- Add environment setup for payment keys and webhook secret
+- Add operational logging and retry-safe webhook handling
 
-  export async function POST(req: Request) {
-    const body = await req.json();
+### Content and Catalog Quality
+- Expand and verify localized product content accuracy
+- Standardize product imagery and alt text quality
+- Audit category taxonomy for naming consistency
 
-    const pickPackResponse = await fetch(process.env.PICKPACK_ENDPOINT!, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.PICKPACK_API_KEY}`
-      },
-      body: JSON.stringify({
-        orderId: body.orderId,
-        customer: body.customer,
-        items: body.items,
-        address: body.address
-      })
-    });
+### QA and Testing
+- Add component tests for filter and accordion behavior
+- Add route-level smoke tests for BG and EN pages
+- Add regression checks for locale-switch query preservation
 
-    const result = await pickPackResponse.json();
-    return NextResponse.json({ status: "ok", pickPackStatus: result });
-  }
-  ```
+### SEO and Performance
+- Add Product structured data (JSON-LD) on product detail pages
+- Add sitemap/robots if deployment strategy requires it
+- Continue optimizing image sizes and loading priorities
 
-## 10. Image Optimization ✅
-- ✅ Replace `<img>` tags in `ProductCard` with `next/image`
-- ⬜ Add real image URLs to product data (currently placeholder strings)
-- ⬜ Add `remotePatterns` in `next.config.js` if images are hosted externally
+## Future (Optional Expansion)
 
-## 11. Validation & Error Handling ⬜
-- ⬜ Input validation on all API routes and forms
-- ⬜ Consistent error response format: `{ success: boolean, data?, error? }`
+### Backend and Commerce
+- Extend checkout into full commerce operations (inventory sync, fulfillment workflow, order history)
+- Admin/content management interface
+- Database-backed catalog and content editing
+- Optionally introduce backend APIs/admin only if business scope requires it
 
-## 12. Testing & QA ⬜
-- ⬜ Unit tests for components (Jest, React Testing Library)
-- ⬜ Integration tests for API routes
-- ⬜ Mobile responsiveness and accessibility audit
+### Platform
+- CI checks for lint/build/test gates
+- Error monitoring and uptime checks
 
-## 13. Performance & SEO ⬜
-- ⬜ `next/image` for all product images (lazy load, sizing)
-- ⬜ Per-page `<meta>` tags and Open Graph
-- ⬜ Sitemap generation
-
-## 14. Security ⬜
-- ⬜ Upgrade Next.js to v15+ (resolves remaining high CVEs in v14)
-- ⬜ Protect admin API routes (auth middleware)
-- ⬜ Sanitize all user input server-side
-
-## 15. Deployment ⬜
-- ⬜ GitHub Actions CI pipeline (lint → test → build)
-- ⬜ Railway deployment on push to `main`
-
-## 13. Security
-- Secure API endpoints and sensitive data
-
-## 14. Logging & Monitoring
-- Add logging and monitoring for production
-
-## 15. Documentation
-- Write README with setup, environment, and deployment instructions
-
-## 16. Deployment
-- Set up GitHub Actions for CI/CD
-- Deploy to Railway using the workflow
-
----
-
-## Final Deliverables
-- Professional site 1:1 like Beok
-- Backend API on Railway
-- Automatic deploy from GitHub
-- Copilot writing 80% of the code
-- Automatic order sending to pick & pack
-- Database for orders and logs
-- Admin panel for management
-- Secure, tested, and documented codebase
+## Release Criteria for Current Catalog Version
+- Build passes in CI and locally
+- BG and EN parity for core catalog paths
+- Filters and language switching behave consistently
+- Documentation remains aligned with implementation
