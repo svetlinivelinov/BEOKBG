@@ -66,7 +66,15 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
             orderRequestSuccess: dict.order_request_success,
             orderRequestError: dict.order_request_error,
             lowStockAlertTitle: dict.low_stock_alert_title,
-            sendFactoryReorderEmail: dict.send_factory_reorder_email
+            sendFactoryReorderEmail: dict.send_factory_reorder_email,
+            proceedToCheckout: dict.proceed_to_checkout,
+            checkoutProcessing: dict.checkout_processing,
+            checkoutError: dict.checkout_error,
+            checkoutUnavailableForLowStock: dict.checkout_unavailable_for_low_stock,
+            checkoutNotConfigured: dict.checkout_not_configured,
+            checkoutSuccess: dict.checkout_success,
+            checkoutCancelled: dict.checkout_cancelled,
+            paymentOptionsTitle: dict.payment_options_title
           }}
         />
       </Container>
