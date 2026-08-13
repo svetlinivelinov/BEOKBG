@@ -44,6 +44,14 @@ export interface Dictionary {
 	order_request_error: string;
 	low_stock_alert_title: string;
 	send_factory_reorder_email: string;
+	proceed_to_checkout: string;
+	checkout_processing: string;
+	checkout_error: string;
+	checkout_unavailable_for_low_stock: string;
+	checkout_not_configured: string;
+	checkout_success: string;
+	checkout_cancelled: string;
+	payment_options_title: string;
 	request_quote: string;
 	ask_availability: string;
 	download_manual: string;

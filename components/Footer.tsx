@@ -54,6 +54,14 @@ const fallbackDict: Dictionary = {
   order_request_error: 'Заявката не можа да бъде изпратена. Моля, опитайте отново.',
   low_stock_alert_title: 'Предупреждение за ниска наличност',
   send_factory_reorder_email: 'Изпрати имейл за заявка към фабриката',
+  proceed_to_checkout: 'Към защитено плащане',
+  checkout_processing: 'Пренасочване към защитено плащане...',
+  checkout_error: 'Плащането не може да стартира в момента. Опитайте отново.',
+  checkout_unavailable_for_low_stock: 'Плащането е изключено, защото някои артикули надвишават наличността. Използвайте заявка за поръчка по-долу.',
+  checkout_not_configured: 'Онлайн плащането все още не е конфигурирано. Свържете се с нас или използвайте заявка за поръчка.',
+  checkout_success: 'Плащането е успешно. Благодарим за поръчката.',
+  checkout_cancelled: 'Плащането беше отказано. Можете да продължите и платите по-късно.',
+  payment_options_title: 'Опции за плащане',
   request_quote: 'Заявка за оферта',
   ask_availability: 'Питай за наличност',
   download_manual: 'Изтегли ръководство',
@@ -92,6 +100,12 @@ const Footer: React.FC<FooterProps> = ({ locale, dict }) => {
           <a href="https://www.beok-controls.com" target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange transition-colors">
             beok-controls.com
           </a>
+        </p>
+        <p className="mt-2 text-sm text-gray-400">
+          <a href="mailto:beokbg@gmail.com" className="hover:text-brand-orange transition-colors">beokbg@gmail.com</a>
+        </p>
+        <p className="mt-1 text-sm text-gray-400">
+          <a href="tel:+359898535383" className="hover:text-brand-orange transition-colors">0898535383</a>
         </p>
       </div>
     </Container>
