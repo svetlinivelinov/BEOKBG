@@ -14,8 +14,26 @@ type ProductInventoryRecord = {
 
 const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
 
+function resolveStripeSecretKey(): string | null {
+  const candidates = [
+    process.env.STRIPE_SECRET_KEY,
+    process.env.STRIPE_API_KEY,
+    process.env.STRIPE_SECRET,
+    process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY
+  ];
+
+  for (const candidate of candidates) {
+    const key = candidate?.trim();
+    if (key) {
+      return key;
+    }
+  }
+
+  return null;
+}
+
 function getStripeClientAndSecret(): { stripe: Stripe; webhookSecret: string } | null {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  const key = resolveStripeSecretKey();
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!key || !webhookSecret) {
     return null;

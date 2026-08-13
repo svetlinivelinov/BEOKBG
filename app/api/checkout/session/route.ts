@@ -24,6 +24,24 @@ type ProductRecord = {
 
 const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
 
+function resolveStripeSecretKey(): string | null {
+  const candidates = [
+    process.env.STRIPE_SECRET_KEY,
+    process.env.STRIPE_API_KEY,
+    process.env.STRIPE_SECRET,
+    process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY
+  ];
+
+  for (const candidate of candidates) {
+    const key = candidate?.trim();
+    if (key) {
+      return key;
+    }
+  }
+
+  return null;
+}
+
 function asSafeText(value: unknown, maxLength: number): string {
   if (typeof value !== 'string') {
     return '';
@@ -70,7 +88,7 @@ function parsePayload(input: unknown): CheckoutRequestPayload | null {
 }
 
 function getStripeClient(): Stripe | null {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  const key = resolveStripeSecretKey();
   if (!key) {
     return null;
   }
