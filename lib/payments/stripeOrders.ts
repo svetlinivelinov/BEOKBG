@@ -18,6 +18,7 @@ export type StoredStripeOrder = {
   locale: string;
   items: StoredStripeOrderItem[];
   paidAt: string;
+  emailSentAt?: string | null;
 };
 
 const ordersDir = path.join(process.cwd(), 'data', 'orders');
@@ -76,6 +77,31 @@ export async function appendStripeOrder(order: StoredStripeOrder): Promise<boole
   orders.push(order);
   await fs.writeFile(stripeOrdersPath, `${JSON.stringify(orders, null, 2)}\n`, 'utf8');
   return true;
+}
+
+export async function getStripeOrderBySessionId(sessionId: string): Promise<StoredStripeOrder | null> {
+  const orders = await readStripeOrders();
+  return orders.find((entry) => entry.sessionId === sessionId) ?? null;
+}
+
+export async function markStripeOrderEmailSent(sessionId: string): Promise<void> {
+  const orders = await readStripeOrders();
+  const index = orders.findIndex((entry) => entry.sessionId === sessionId);
+  if (index === -1) {
+    return;
+  }
+
+  const order = orders[index];
+  if (order.emailSentAt) {
+    return;
+  }
+
+  orders[index] = {
+    ...order,
+    emailSentAt: new Date().toISOString()
+  };
+
+  await fs.writeFile(stripeOrdersPath, `${JSON.stringify(orders, null, 2)}\n`, 'utf8');
 }
 
 export async function syncOrderFromCheckoutSession(sessionId: string, localeHint?: string): Promise<StoredStripeOrder | null> {
@@ -142,7 +168,8 @@ export async function syncOrderFromCheckoutSession(sessionId: string, localeHint
     amountTotal: session.amount_total ?? null,
     locale: localeHint?.trim() || session.metadata?.locale?.trim() || 'en',
     items: normalizedItems,
-    paidAt: new Date().toISOString()
+    paidAt: new Date().toISOString(),
+    emailSentAt: null
   };
 
   const appended = await appendStripeOrder(order);
@@ -157,7 +184,10 @@ export async function syncOrderFromCheckoutSession(sessionId: string, localeHint
 
   try {
     const { sendOrderConfirmationEmail } = await import('./sendOrderConfirmationEmail');
-    await sendOrderConfirmationEmail(order);
+    const sent = await sendOrderConfirmationEmail(order);
+    if (sent) {
+      await markStripeOrderEmailSent(order.sessionId);
+    }
   } catch (error) {
     console.error('[order_confirmation_email_failed]', error);
   }

@@ -46,22 +46,32 @@ function buildHtml(order: StoredStripeOrder): string {
   ].join('');
 }
 
-export async function sendOrderConfirmationEmail(order: StoredStripeOrder): Promise<void> {
+export async function sendOrderConfirmationEmail(order: StoredStripeOrder): Promise<boolean> {
   const resendApiKey = process.env.RESEND_API_KEY?.trim();
   const emailFrom = process.env.ORDER_EMAIL_FROM?.trim();
-  if (!resendApiKey || !emailFrom || !order.customerEmail) {
+  const internalNotificationEmail = process.env.ORDER_NOTIFICATION_EMAIL?.trim() || null;
+
+  const recipients = [
+    order.customerEmail?.trim() || null,
+    internalNotificationEmail
+  ].filter((value): value is string => Boolean(value));
+
+  const uniqueRecipients = Array.from(new Set(recipients));
+
+  if (!resendApiKey || !emailFrom || uniqueRecipients.length === 0) {
     console.warn('[order_confirmation_email_skipped]', {
       hasResendApiKey: Boolean(resendApiKey),
       hasOrderEmailFrom: Boolean(emailFrom),
       hasCustomerEmail: Boolean(order.customerEmail),
+      hasOrderNotificationEmail: Boolean(internalNotificationEmail),
       sessionId: order.sessionId
     });
-    return;
+    return false;
   }
 
   const payload = {
     from: emailFrom,
-    to: [order.customerEmail],
+    to: uniqueRecipients,
     subject: buildSubject(order.locale),
     html: buildHtml(order)
   };
@@ -79,4 +89,6 @@ export async function sendOrderConfirmationEmail(order: StoredStripeOrder): Prom
     const responseBody = await response.text().catch(() => '');
     throw new Error(`email_send_failed:${response.status}:${responseBody.slice(0, 500)}`);
   }
+
+  return true;
 }

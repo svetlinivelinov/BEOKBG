@@ -1,7 +1,12 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { appendStripeOrder, StoredStripeOrder } from '../../../../lib/payments/stripeOrders';
+import {
+  appendStripeOrder,
+  getStripeOrderBySessionId,
+  markStripeOrderEmailSent,
+  StoredStripeOrder
+} from '../../../../lib/payments/stripeOrders';
 import { sendOrderConfirmationEmail } from '../../../../lib/payments/sendOrderConfirmationEmail';
 import { decrementInventory } from '../../../../lib/payments/inventory';
 
@@ -55,6 +60,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'invalid_signature' }, { status: 400 });
   }
 
+  console.info('[checkout_webhook_received]', {
+    eventType: event.type,
+    eventId: event.id
+  });
+
   if (event.type !== 'checkout.session.completed') {
     return NextResponse.json({ ok: true, ignored: true });
   }
@@ -107,7 +117,8 @@ export async function POST(request: Request) {
     amountTotal: session.amount_total ?? null,
     locale,
     items: normalizedItems,
-    paidAt: new Date().toISOString()
+    paidAt: new Date().toISOString(),
+    emailSentAt: null
   };
 
   const appended = await appendStripeOrder(paidOrder);
@@ -116,10 +127,33 @@ export async function POST(request: Request) {
       await decrementInventory(normalizedItems.map((item) => ({ productId: item.productId, quantity: item.quantity })));
     }
 
+    console.info('[checkout_webhook_order_saved]', {
+      sessionId: paidOrder.sessionId,
+      appended,
+      itemCount: normalizedItems.length
+    });
+  }
+
+  const storedOrder = (await getStripeOrderBySessionId(paidOrder.sessionId)) ?? paidOrder;
+  if (!storedOrder.emailSentAt) {
+    const orderForEmail = {
+      ...storedOrder,
+      customerEmail: storedOrder.customerEmail ?? paidOrder.customerEmail
+    };
+
     try {
-      await sendOrderConfirmationEmail(paidOrder);
+      const sent = await sendOrderConfirmationEmail(orderForEmail);
+      if (sent) {
+        await markStripeOrderEmailSent(paidOrder.sessionId);
+        console.info('[order_confirmation_email_sent]', {
+          sessionId: paidOrder.sessionId
+        });
+      }
     } catch (error) {
-      console.error('[order_confirmation_email_failed]', error);
+      console.error('[order_confirmation_email_failed]', {
+        sessionId: paidOrder.sessionId,
+        error
+      });
     }
   }
 
