@@ -3,6 +3,7 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSiteUrl } from '../../../../lib/seo/siteUrl';
+import { getStockQuantities } from '../../../../lib/db/stock';
 
 type CheckoutRequestItem = {
   id: string;
@@ -125,6 +126,7 @@ export async function POST(request: Request) {
   const rawProducts = await fs.readFile(productsPath, 'utf8');
   const products = JSON.parse(rawProducts) as ProductRecord[];
   const productsById = new Map(products.map((product) => [product.id, product]));
+  const stockByProductId = await getStockQuantities(payload.items.map((item) => item.id));
 
   const insufficientItems: Array<{ id: string; model: string; requestedQty: number; availableQty: number }> = [];
 
@@ -143,9 +145,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'product_not_payable', productId: item.id }, { status: 400 });
     }
 
-    const availableQty = typeof product.priceQty === 'number' && Number.isFinite(product.priceQty)
-      ? Math.max(0, Math.floor(product.priceQty))
-      : null;
+    const availableQtyFromDb = stockByProductId?.get(product.id);
+    const availableQty = typeof availableQtyFromDb === 'number'
+      ? Math.max(0, Math.floor(availableQtyFromDb))
+      : typeof product.priceQty === 'number' && Number.isFinite(product.priceQty)
+        ? Math.max(0, Math.floor(product.priceQty))
+        : null;
 
     if (availableQty !== null && item.quantity > availableQty) {
       insufficientItems.push({

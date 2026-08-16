@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto';
-import fs from 'fs/promises';
-import path from 'path';
 import { NextResponse } from 'next/server';
+import { decrementInventory } from '../../../lib/payments/inventory';
 
 type OrderRequestItem = {
   id: string;
@@ -19,12 +18,6 @@ type OrderRequestPayload = {
   items: OrderRequestItem[];
 };
 
-type ProductInventoryRecord = {
-  id: string;
-  model: string;
-  priceQty?: number | null;
-};
-
 type LowStockAlert = {
   id: string;
   model: string;
@@ -39,7 +32,6 @@ type InventoryUpdateResult = {
 
 const LOW_STOCK_THRESHOLD = 5;
 const REORDER_TARGET_QTY = 20;
-const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
 
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -224,41 +216,35 @@ function buildReorderMailto(alerts: LowStockAlert[]): string | null {
 }
 
 async function updateInventoryAfterOrder(items: OrderRequestItem[]): Promise<InventoryUpdateResult> {
-  const raw = await fs.readFile(productsPath, 'utf8');
-  const products = JSON.parse(raw) as ProductInventoryRecord[];
-
   const orderedById = new Map<string, number>();
+  const modelById = new Map<string, string>();
+
   for (const item of items) {
     orderedById.set(item.id, (orderedById.get(item.id) ?? 0) + item.quantity);
+    if (!modelById.has(item.id)) {
+      modelById.set(item.id, item.model);
+    }
   }
+
+  const remainingById = await decrementInventory(
+    Array.from(orderedById.entries()).map(([productId, quantity]) => ({
+      productId,
+      quantity
+    }))
+  );
 
   const lowStockAlerts: LowStockAlert[] = [];
 
-  for (const product of products) {
-    const soldQty = orderedById.get(product.id);
-    if (!soldQty) {
-      continue;
-    }
-
-    const currentQty = typeof product.priceQty === 'number' && Number.isFinite(product.priceQty) ? product.priceQty : null;
-    if (currentQty === null) {
-      continue;
-    }
-
-    const remaining = Math.max(0, currentQty - soldQty);
-    product.priceQty = remaining;
-
+  for (const [productId, remaining] of remainingById ?? new Map()) {
     if (remaining <= LOW_STOCK_THRESHOLD) {
       lowStockAlerts.push({
-        id: product.id,
-        model: product.model,
+        id: productId,
+        model: modelById.get(productId) ?? productId,
         remainingQty: remaining,
         reorderSuggestedQty: Math.max(REORDER_TARGET_QTY - remaining, 0)
       });
     }
   }
-
-  await fs.writeFile(productsPath, `${JSON.stringify(products, null, 2)}\n`, 'utf8');
 
   return {
     lowStockAlerts,
