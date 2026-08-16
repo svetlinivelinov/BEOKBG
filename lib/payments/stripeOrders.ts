@@ -137,7 +137,7 @@ export async function syncOrderFromCheckoutSession(sessionId: string, localeHint
   const order: StoredStripeOrder = {
     sessionId: session.id,
     paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : null,
-    customerEmail: session.customer_details?.email ?? null,
+    customerEmail: session.customer_details?.email ?? session.customer_email ?? null,
     currency: session.currency ?? null,
     amountTotal: session.amount_total ?? null,
     locale: localeHint?.trim() || session.metadata?.locale?.trim() || 'en',

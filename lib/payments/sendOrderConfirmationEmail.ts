@@ -50,6 +50,12 @@ export async function sendOrderConfirmationEmail(order: StoredStripeOrder): Prom
   const resendApiKey = process.env.RESEND_API_KEY?.trim();
   const emailFrom = process.env.ORDER_EMAIL_FROM?.trim();
   if (!resendApiKey || !emailFrom || !order.customerEmail) {
+    console.warn('[order_confirmation_email_skipped]', {
+      hasResendApiKey: Boolean(resendApiKey),
+      hasOrderEmailFrom: Boolean(emailFrom),
+      hasCustomerEmail: Boolean(order.customerEmail),
+      sessionId: order.sessionId
+    });
     return;
   }
 
@@ -70,6 +76,7 @@ export async function sendOrderConfirmationEmail(order: StoredStripeOrder): Prom
   });
 
   if (!response.ok) {
-    throw new Error('email_send_failed');
+    const responseBody = await response.text().catch(() => '');
+    throw new Error(`email_send_failed:${response.status}:${responseBody.slice(0, 500)}`);
   }
 }
