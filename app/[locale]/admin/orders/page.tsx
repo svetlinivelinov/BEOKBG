@@ -67,7 +67,7 @@ export default async function AdminOrdersPage({
                     ? new Intl.NumberFormat(isBg ? 'bg-BG' : 'en-US', {
                         style: 'currency',
                         currency: order.currency.toUpperCase()
-                      }).format(order.amountTotal / 100)
+                      }).format(order.amountTotal)
                     : '-';
 
                   return (
@@ -95,3 +95,4 @@ export default async function AdminOrdersPage({
     </div>
   );
 }
+
