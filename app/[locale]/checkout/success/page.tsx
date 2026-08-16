@@ -3,8 +3,9 @@ import Link from 'next/link';
 import Header from '../../../../components/Header';
 import Footer from '../../../../components/Footer';
 import Container from '../../../../components/Container';
+import CartClearOnSuccess from '../../../../components/cart/CartClearOnSuccess';
 import { getDictionary } from '../../../../lib/i18n/getDictionary';
-import { readStripeOrders } from '../../../../lib/payments/stripeOrders';
+import { readStripeOrders, syncOrderFromCheckoutSession } from '../../../../lib/payments/stripeOrders';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -29,8 +30,16 @@ export default async function CheckoutSuccessPage({
   const { session_id: sessionId } = await searchParams;
   const dict = await getDictionary(locale);
 
-  const orders = await readStripeOrders();
-  const order = sessionId ? orders.find((entry) => entry.sessionId === sessionId) : undefined;
+  let orders = await readStripeOrders();
+  let order = sessionId ? orders.find((entry) => entry.sessionId === sessionId) : undefined;
+
+  if (sessionId && !order) {
+    const recoveredOrder = await syncOrderFromCheckoutSession(sessionId, locale);
+    if (recoveredOrder) {
+      orders = await readStripeOrders();
+      order = orders.find((entry) => entry.sessionId === sessionId) ?? recoveredOrder;
+    }
+  }
 
   const isBg = locale === 'bg';
   const title = isBg ? 'Плащането е успешно' : 'Payment successful';
@@ -47,6 +56,7 @@ export default async function CheckoutSuccessPage({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <CartClearOnSuccess />
       <Header locale={locale} dict={dict} />
       <Container className="flex-1 py-8">
         <div className="rounded-lg border border-green-200 bg-white p-6">
