@@ -1,14 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useCart } from './CartProvider';
 
 const STORAGE_KEY = 'beokbg_cart_v1';
 
 export default function CartClearOnSuccess() {
   const { clear } = useCart();
+  const didRunRef = useRef(false);
 
   useEffect(() => {
+    if (didRunRef.current) {
+      return;
+    }
+
+    didRunRef.current = true;
     clear();
 
     try {

@@ -104,7 +104,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
     };
 
     const clear = () => {
-      setItems([]);
+      setItems((prev) => (prev.length === 0 ? prev : []));
     };
 
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
