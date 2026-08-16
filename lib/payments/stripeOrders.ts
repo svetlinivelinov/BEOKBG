@@ -62,6 +62,26 @@ function getStripeClient(): Stripe | null {
   return new Stripe(key);
 }
 
+/**
+ * Convert Stripe amount (in cents) to decimal dollars for storage/display
+ */
+function stripeCentsToDecimal(cents: number | null): number | null {
+  if (cents === null || !Number.isFinite(cents)) {
+    return null;
+  }
+  return Math.round(cents) / 100;
+}
+
+/**
+ * Convert decimal dollars back to Stripe cents for storage
+ */
+function decimalToStripeCents(decimal: number | null): number | null {
+  if (decimal === null || !Number.isFinite(decimal)) {
+    return null;
+  }
+  return Math.round(decimal * 100);
+}
+
 async function ensureDbInitialized(): Promise<void> {
   if (!pool) {
     return;
@@ -129,7 +149,7 @@ async function ensureDbInitialized(): Promise<void> {
               order.paymentIntentId,
               order.customerEmail,
               order.currency,
-              order.amountTotal,
+              decimalToStripeCents(order.amountTotal),
               order.locale,
               order.paidAt,
               order.emailSentAt ?? null
@@ -242,7 +262,7 @@ async function readStripeOrdersFromDb(): Promise<StoredStripeOrder[]> {
         paymentIntentId: row.payment_intent_id,
         customerEmail: row.customer_email,
         currency: row.currency,
-        amountTotal: toNullableNumber(row.amount_total),
+        amountTotal: stripeCentsToDecimal(toNullableNumber(row.amount_total)),
         locale: row.locale,
         items: [],
         paidAt: new Date(row.paid_at).toISOString(),
@@ -302,7 +322,7 @@ export async function appendStripeOrder(order: StoredStripeOrder): Promise<boole
           order.paymentIntentId,
           order.customerEmail,
           order.currency,
-          order.amountTotal,
+          decimalToStripeCents(order.amountTotal),
           order.locale,
           order.paidAt,
           order.emailSentAt ?? null
@@ -392,7 +412,7 @@ export async function getStripeOrderBySessionId(sessionId: string): Promise<Stor
       paymentIntentId: first.payment_intent_id,
       customerEmail: first.customer_email,
       currency: first.currency,
-      amountTotal: toNullableNumber(first.amount_total),
+      amountTotal: stripeCentsToDecimal(toNullableNumber(first.amount_total)),
       locale: first.locale,
       items: [],
       paidAt: new Date(first.paid_at).toISOString(),
@@ -512,7 +532,7 @@ export async function syncOrderFromCheckoutSession(sessionId: string, localeHint
     paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : null,
     customerEmail: session.customer_details?.email ?? session.customer_email ?? null,
     currency: session.currency ?? null,
-    amountTotal: session.amount_total ?? null,
+    amountTotal: stripeCentsToDecimal(session.amount_total),
     locale: localeHint?.trim() || session.metadata?.locale?.trim() || 'en',
     items: normalizedItems,
     paidAt: new Date().toISOString(),
@@ -541,3 +561,4 @@ export async function syncOrderFromCheckoutSession(sessionId: string, localeHint
 
   return order;
 }
+
