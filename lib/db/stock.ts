@@ -5,6 +5,7 @@ import { Pool } from 'pg';
 type ProductSeedRecord = {
   id: string;
   priceQty?: number | null;
+  finalPriceEur?: number | null;
 };
 
 const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
@@ -25,7 +26,7 @@ export function isPostgresStockEnabled(): boolean {
   return Boolean(pool);
 }
 
-async function readStockSeedRows(): Promise<Array<{ productId: string; quantity: number }>> {
+async function readStockSeedRows(): Promise<Array<{ productId: string; quantity: number; priceEur: number | null }>> {
   const raw = await fs.readFile(productsPath, 'utf8');
   const parsed = JSON.parse(raw) as ProductSeedRecord[];
 
@@ -36,9 +37,14 @@ async function readStockSeedRows(): Promise<Array<{ productId: string; quantity:
         ? Math.max(0, Math.floor(entry.priceQty))
         : 0;
 
+      const priceEur = typeof entry.finalPriceEur === 'number' && Number.isFinite(entry.finalPriceEur)
+        ? entry.finalPriceEur
+        : null;
+
       return {
         productId: entry.id,
-        quantity: normalized
+        quantity: normalized,
+        priceEur
       };
     });
 }
@@ -54,8 +60,13 @@ async function ensureInitialized(): Promise<void> {
         CREATE TABLE IF NOT EXISTS product_stock (
           product_id TEXT PRIMARY KEY,
           quantity INTEGER NOT NULL CHECK (quantity >= 0),
+          price_eur NUMERIC(10,2),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `);
+
+      await pool.query(`
+        ALTER TABLE product_stock ADD COLUMN IF NOT EXISTS price_eur NUMERIC(10,2)
       `);
 
       const seeds = await readStockSeedRows();
@@ -69,11 +80,11 @@ async function ensureInitialized(): Promise<void> {
         for (const seed of seeds) {
           await client.query(
             `
-              INSERT INTO product_stock (product_id, quantity)
-              VALUES ($1, $2)
-              ON CONFLICT (product_id) DO NOTHING
+              INSERT INTO product_stock (product_id, quantity, price_eur)
+              VALUES ($1, $2, $3)
+              ON CONFLICT (product_id) DO UPDATE SET price_eur = EXCLUDED.price_eur
             `,
-            [seed.productId, seed.quantity]
+            [seed.productId, seed.quantity, seed.priceEur]
           );
         }
         await client.query('COMMIT');

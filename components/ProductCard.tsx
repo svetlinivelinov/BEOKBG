@@ -41,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const priceText = hasPrice ? formatEurPrice(finalPriceEur, locale) : null;
 
   return (
-    <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center self-start">
+    <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center h-full">
       {image ? (
         <Image
           src={image}
@@ -66,9 +66,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className="text-xl font-bold text-brand-orange leading-tight">{priceText}</p>
         </div>
       )}
-      <details className="w-full text-left mb-4 group" open={isDescriptionOpen}>
+      <details className="w-full text-center mb-4 group flex-1" open={isDescriptionOpen}>
         <summary
-          className="cursor-pointer list-none text-sm font-medium text-gray-700 flex items-center justify-between"
+          className="cursor-pointer list-none text-sm font-medium text-gray-700 flex items-center justify-center gap-2"
           aria-controls={detailsRegionId}
           aria-expanded={isDescriptionOpen}
           onClick={(event) => {
@@ -79,7 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <span>{descriptionLabel}</span>
           <span className="text-brand-orange transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
         </summary>
-        <p id={detailsRegionId} className="text-gray-600 text-sm mt-2">{description}</p>
+        <p id={detailsRegionId} className="text-gray-600 text-sm mt-2 text-center">{description}</p>
       </details>
       <Link
         href={href}

@@ -46,7 +46,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   return (
     <div>
       {category && <h2 className="text-2xl font-bold mb-4">{formatCategoryLabel(category, locale || 'en')}</h2>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch">
         {filtered.map(product => (
           <ProductCard
             key={product.id}
