@@ -4,12 +4,14 @@ import { getDictionary } from '../../../lib/i18n/getDictionary';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import CategoryGrid from '../../../components/CategoryGrid';
+import BreadcrumbStructuredData from '../../../components/BreadcrumbStructuredData';
 import CategorySidebar from '../../../components/CategorySidebar';
 import Container from '../../../components/Container';
 import { getProducts, getCategories } from '../../../lib/products/getProducts';
 import { APPLICATIONS, getApplicationLabels, isProductApplication, ProductApplication } from '../../../lib/products/application';
 import { formatCategoryLabel } from '../../../lib/formatCategoryLabel';
 import { locales } from '../../../lib/i18n/config';
+import { getSiteUrl } from '../../../lib/seo/siteUrl';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -54,6 +56,7 @@ export default async function ProductsPage({
   const { locale } = await params;
   const { category, application } = await searchParams;
   const dict = await getDictionary(locale);
+  const siteUrl = getSiteUrl();
   const products = getProducts(locale);
   const categories = getCategories();
   const selectedApplication = isProductApplication(application) ? application : undefined;
@@ -88,23 +91,30 @@ export default async function ProductsPage({
   const clearAllLabel = locale === 'bg' ? 'Изчисти всички' : 'Clear all';
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header locale={locale} dict={dict} />
-      <Container className="pt-4 text-sm text-gray-500">
-        <nav aria-label="Breadcrumb">
-          {dict.home} / {dict.all_products}
-        </nav>
-      </Container>
-      <Container className="flex-1 py-8 w-full flex flex-col md:flex-row gap-8">
-        <CategorySidebar
-          categories={categories}
-          basePath={`/${locale}/products`}
-          activeCategory={category}
-          allLabel={dict.all_products}
-          locale={locale}
-        />
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold mb-6">{dict.all_products}</h1>
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: dict.home, item: `${siteUrl}/${locale}` },
+          { name: dict.all_products, item: `${siteUrl}/${locale}/products` }
+        ]}
+      />
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header locale={locale} dict={dict} />
+        <Container className="pt-4 text-sm text-gray-500">
+          <nav aria-label="Breadcrumb">
+            {dict.home} / {dict.all_products}
+          </nav>
+        </Container>
+        <Container className="flex-1 py-8 w-full flex flex-col md:flex-row gap-8">
+          <CategorySidebar
+            categories={categories}
+            basePath={`/${locale}/products`}
+            activeCategory={category}
+            allLabel={dict.all_products}
+            locale={locale}
+          />
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-6">{dict.all_products}</h1>
 
           {hasActiveFilters && (
             <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-live="polite">
@@ -171,18 +181,19 @@ export default async function ProductsPage({
               </div>
             </div>
           )}
-          <CategoryGrid
-            products={products}
-            category={category}
-            application={selectedApplication}
-            locale={locale}
-            viewProductLabel={dict.view_product}
-            emptyStateResetHref={`/${locale}/products`}
-            emptyStateResetLabel={clearAllLabel}
-          />
-        </div>
-      </Container>
-      <Footer locale={locale} dict={dict} />
-    </div>
+            <CategoryGrid
+              products={products}
+              category={category}
+              application={selectedApplication}
+              locale={locale}
+              viewProductLabel={dict.view_product}
+              emptyStateResetHref={`/${locale}/products`}
+              emptyStateResetLabel={clearAllLabel}
+            />
+          </div>
+        </Container>
+        <Footer locale={locale} dict={dict} />
+      </div>
+    </>
   );
 }

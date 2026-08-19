@@ -8,11 +8,13 @@ import CategoryGrid from '../../../../components/CategoryGrid';
 import Container from '../../../../components/Container';
 import ProductImageGallery from '../../../../components/ProductImageGallery';
 import ProductStructuredData from '../../../../components/ProductStructuredData';
+import BreadcrumbStructuredData from '../../../../components/BreadcrumbStructuredData';
 import ProductLeadActions from '../../../../components/ProductLeadActions';
 import { getProducts } from '../../../../lib/products/getProducts';
 import { formatCategoryLabel } from '../../../../lib/formatCategoryLabel';
 import { formatEurPrice } from '../../../../lib/products/formatEurPrice';
 import { locales } from '../../../../lib/i18n/config';
+import { getSiteUrl } from '../../../../lib/seo/siteUrl';
 
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
@@ -63,6 +65,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const dict = await getDictionary(locale);
   const products = getProducts(locale);
   const product = products.find((p) => p.id === decodeURIComponent(id));
+  const siteUrl = getSiteUrl();
 
   if (!product) {
     return (
@@ -113,6 +116,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: dict.home, item: `${siteUrl}/${locale}` },
+          { name: dict.all_products, item: `${siteUrl}/${locale}/products` },
+          { name: product.name, item: `${siteUrl}/${locale}/products/${product.id}` }
+        ]}
+      />
       <ProductStructuredData
         name={product.name}
         model={product.model}
