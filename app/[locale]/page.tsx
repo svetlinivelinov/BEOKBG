@@ -40,10 +40,17 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const products = getProducts(locale);
+  const heroImages = Array.from(new Set(products.map((product) => product.image).filter(Boolean) as string[])).slice(0, 10);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header locale={locale} dict={dict} />
-      <Hero title={dict.welcome} subtitle={dict.hero_subtitle} ctaLabel={dict.browse_products} />
+      <Hero
+        title={dict.welcome}
+        subtitle={dict.hero_subtitle}
+        ctaLabel={dict.browse_products}
+        images={heroImages}
+      />
       <Container id="products" className="flex-1 py-8">
         <CategoryGrid
           products={products}

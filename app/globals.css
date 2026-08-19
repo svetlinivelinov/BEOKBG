@@ -16,3 +16,24 @@ body {
 * {
   box-sizing: border-box;
 }
+
+@keyframes heroSlideZoomOut {
+  from {
+    transform: scale(1.08);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.hero-slide-zoom-out {
+  animation: heroSlideZoomOut 5s linear forwards;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide-zoom-out {
+    animation: none;
+  }
+}
