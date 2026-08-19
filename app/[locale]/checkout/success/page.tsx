@@ -68,6 +68,11 @@ export default async function CheckoutSuccessPage({
               <p className="text-sm text-gray-600 mb-1">{isBg ? 'Сесия' : 'Session'}: <span className="font-medium text-gray-900">{order.sessionId}</span></p>
               <p className="text-sm text-gray-600 mb-1">{isBg ? 'Платено на' : 'Paid at'}: <span className="font-medium text-gray-900">{new Date(order.paidAt).toLocaleString()}</span></p>
               <p className="text-sm text-gray-600 mb-3">{isBg ? 'Обща сума' : 'Total'}: <span className="font-semibold text-brand-orange">{totalText}</span></p>
+              {order.awb && (
+                <p className="text-sm text-gray-600 mb-3">
+                  {isBg ? 'Товарителница' : 'AWB'}: <span className="font-semibold text-gray-900">{order.awb.number}</span>
+                </p>
+              )}
 
               <p className="text-sm font-semibold text-gray-800 mb-2">{isBg ? 'Артикули' : 'Items'}:</p>
               <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">

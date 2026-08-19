@@ -2,10 +2,19 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCart } from './CartProvider';
 import { trackEvent } from '../../lib/analytics';
 import { formatEurPrice } from '../../lib/products/formatEurPrice';
+
+type DeliveryType = 'address' | 'easybox';
+
+type LockerOption = {
+  id: string;
+  name: string;
+  city?: string | null;
+  address?: string | null;
+};
 
 type CartPageClientProps = {
   locale: string;
@@ -40,6 +49,18 @@ type CartPageClientProps = {
     checkoutSuccess: string;
     checkoutCancelled: string;
     paymentOptionsTitle: string;
+    deliveryTitle: string;
+    fullName: string;
+    phone: string;
+    email: string;
+    deliveryAddress: string;
+    deliveryEasybox: string;
+    addressLine1: string;
+    city: string;
+    postalCode: string;
+    easyboxLocker: string;
+    loadEasyboxError: string;
+    fillDeliveryRequired: string;
   };
 };
 
@@ -64,6 +85,18 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
   const [reorderMailto, setReorderMailto] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [hasAttemptedCheckout, setHasAttemptedCheckout] = useState(false);
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>('address');
+  const [checkoutFullName, setCheckoutFullName] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutEmail, setCheckoutEmail] = useState('');
+  const [checkoutAddressLine1, setCheckoutAddressLine1] = useState('');
+  const [checkoutCity, setCheckoutCity] = useState('');
+  const [checkoutPostalCode, setCheckoutPostalCode] = useState('');
+  const [checkoutLockerId, setCheckoutLockerId] = useState('');
+  const [lockers, setLockers] = useState<LockerOption[]>([]);
+  const [isLoadingLockers, setIsLoadingLockers] = useState(false);
+  const [lockersError, setLockersError] = useState<string | null>(null);
 
   const hasRequiredCustomerFields = customerName.trim().length > 0 && customerEmail.trim().length > 0;
   const cartRows = items.map((item) => {
@@ -84,9 +117,55 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
   const subtotal = cartRows.reduce((sum, row) => sum + (row.lineTotal ?? 0), 0);
   const hasInsufficientQty = cartRows.some((row) => row.insufficientBy > 0);
   const checkoutStatus = searchParams.get('checkout');
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutEmail.trim());
+  const hasCommonDeliveryFields = checkoutFullName.trim().length > 0 && checkoutPhone.trim().length > 0 && isEmailValid;
+  const hasAddressDeliveryFields = checkoutAddressLine1.trim().length > 0 && checkoutCity.trim().length > 0 && checkoutPostalCode.trim().length > 0;
+  const hasEasyboxFields = checkoutLockerId.trim().length > 0;
+  const hasRequiredDeliveryFields = hasCommonDeliveryFields && (deliveryType === 'address' ? hasAddressDeliveryFields : hasEasyboxFields);
+
+  useEffect(() => {
+    if (deliveryType !== 'easybox' || lockers.length > 0 || isLoadingLockers) {
+      return;
+    }
+
+    let isActive = true;
+    setIsLoadingLockers(true);
+    setLockersError(null);
+
+    fetch('/api/sameday/lockers')
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error('failed');
+        }
+
+        const json = await response.json() as { ok: boolean; lockers?: LockerOption[] };
+        if (!json.ok || !Array.isArray(json.lockers)) {
+          throw new Error('invalid_payload');
+        }
+
+        if (isActive) {
+          setLockers(json.lockers);
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setLockersError(labels.loadEasyboxError);
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsLoadingLockers(false);
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [deliveryType, isLoadingLockers, labels.loadEasyboxError, lockers.length]);
 
   const handleCheckout = async () => {
-    if (isCheckingOut || hasInsufficientQty || items.length === 0) {
+    setHasAttemptedCheckout(true);
+    if (isCheckingOut || hasInsufficientQty || items.length === 0 || !hasRequiredDeliveryFields) {
       return;
     }
 
@@ -99,7 +178,17 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locale,
-          items: items.map((item) => ({ id: item.id, quantity: item.quantity }))
+          items: items.map((item) => ({ id: item.id, quantity: item.quantity })),
+          delivery: {
+            fullName: checkoutFullName.trim(),
+            phone: checkoutPhone.trim(),
+            email: checkoutEmail.trim().toLowerCase(),
+            deliveryType,
+            addressLine1: deliveryType === 'address' ? checkoutAddressLine1.trim() : null,
+            city: deliveryType === 'address' ? checkoutCity.trim() : null,
+            postalCode: deliveryType === 'address' ? checkoutPostalCode.trim() : null,
+            lockerId: deliveryType === 'easybox' ? checkoutLockerId.trim() : null
+          }
         })
       });
 
@@ -284,6 +373,118 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
 
       <div className="rounded-lg border border-gray-200 bg-white p-4">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">{labels.paymentOptionsTitle}</h2>
+        <p className="mb-3 text-sm font-medium text-gray-700">{labels.deliveryTitle}</p>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 mb-4">
+          <div>
+            <label htmlFor="checkout-full-name" className="mb-1 block text-sm font-medium text-gray-700">{labels.fullName}</label>
+            <input
+              id="checkout-full-name"
+              type="text"
+              value={checkoutFullName}
+              onChange={(event) => setCheckoutFullName(event.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+            />
+          </div>
+          <div>
+            <label htmlFor="checkout-phone" className="mb-1 block text-sm font-medium text-gray-700">{labels.phone}</label>
+            <input
+              id="checkout-phone"
+              type="text"
+              value={checkoutPhone}
+              onChange={(event) => setCheckoutPhone(event.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="checkout-email" className="mb-1 block text-sm font-medium text-gray-700">{labels.email}</label>
+            <input
+              id="checkout-email"
+              type="email"
+              value={checkoutEmail}
+              onChange={(event) => setCheckoutEmail(event.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="mb-4 flex flex-wrap gap-4">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="radio"
+              name="deliveryType"
+              value="address"
+              checked={deliveryType === 'address'}
+              onChange={() => setDeliveryType('address')}
+            />
+            {labels.deliveryAddress}
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="radio"
+              name="deliveryType"
+              value="easybox"
+              checked={deliveryType === 'easybox'}
+              onChange={() => setDeliveryType('easybox')}
+            />
+            {labels.deliveryEasybox}
+          </label>
+        </div>
+
+        {deliveryType === 'address' ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 mb-4">
+            <div className="sm:col-span-3">
+              <label htmlFor="checkout-address-line1" className="mb-1 block text-sm font-medium text-gray-700">{labels.addressLine1}</label>
+              <input
+                id="checkout-address-line1"
+                type="text"
+                value={checkoutAddressLine1}
+                onChange={(event) => setCheckoutAddressLine1(event.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+              />
+            </div>
+            <div>
+              <label htmlFor="checkout-city" className="mb-1 block text-sm font-medium text-gray-700">{labels.city}</label>
+              <input
+                id="checkout-city"
+                type="text"
+                value={checkoutCity}
+                onChange={(event) => setCheckoutCity(event.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+              />
+            </div>
+            <div>
+              <label htmlFor="checkout-postal-code" className="mb-1 block text-sm font-medium text-gray-700">{labels.postalCode}</label>
+              <input
+                id="checkout-postal-code"
+                type="text"
+                value={checkoutPostalCode}
+                onChange={(event) => setCheckoutPostalCode(event.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="mb-4">
+            <label htmlFor="checkout-locker" className="mb-1 block text-sm font-medium text-gray-700">{labels.easyboxLocker}</label>
+            <select
+              id="checkout-locker"
+              value={checkoutLockerId}
+              onChange={(event) => setCheckoutLockerId(event.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-orange focus:outline-none"
+              disabled={isLoadingLockers}
+            >
+              <option value="">{isLoadingLockers ? 'Loading...' : '--'}</option>
+              {lockers.map((locker) => (
+                <option key={locker.id} value={locker.id}>
+                  {locker.name}{locker.city ? ` (${locker.city})` : ''}
+                </option>
+              ))}
+            </select>
+            {lockersError && <p className="mt-2 text-sm text-red-600">{lockersError}</p>}
+          </div>
+        )}
+
         {checkoutStatus === 'success' && (
           <p className="mb-3 text-sm text-green-700 break-words">{labels.checkoutSuccess}</p>
         )}
@@ -295,15 +496,19 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
           <button
             type="button"
             onClick={handleCheckout}
-            disabled={isCheckingOut}
+            disabled={isCheckingOut || !hasRequiredDeliveryFields}
             className={`inline-flex h-10 w-full justify-center sm:w-auto items-center rounded px-4 py-2 text-sm font-medium text-white ${
-              isCheckingOut ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'
+              isCheckingOut || !hasRequiredDeliveryFields ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'
             }`}
           >
             {isCheckingOut ? labels.checkoutProcessing : labels.proceedToCheckout}
           </button>
         ) : (
           <p className="text-sm text-amber-700 break-words">{labels.checkoutUnavailableForLowStock}</p>
+        )}
+
+        {hasAttemptedCheckout && !hasRequiredDeliveryFields && !hasInsufficientQty && (
+          <p className="mt-3 text-sm text-red-600 break-words">{labels.fillDeliveryRequired}</p>
         )}
 
         {checkoutError && (

@@ -76,7 +76,19 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
             checkoutNotConfigured: dict.checkout_not_configured,
             checkoutSuccess: dict.checkout_success,
             checkoutCancelled: dict.checkout_cancelled,
-            paymentOptionsTitle: dict.payment_options_title
+            paymentOptionsTitle: dict.payment_options_title,
+            deliveryTitle: dict.delivery_title,
+            fullName: dict.full_name,
+            phone: dict.phone,
+            email: dict.email,
+            deliveryAddress: dict.delivery_address,
+            deliveryEasybox: dict.delivery_easybox,
+            addressLine1: dict.address_line1,
+            city: dict.city,
+            postalCode: dict.postal_code,
+            easyboxLocker: dict.easybox_locker,
+            loadEasyboxError: dict.load_easybox_error,
+            fillDeliveryRequired: dict.fill_delivery_required
           }}
         />
       </Container>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 
 interface ProductImageGalleryProps {
@@ -9,8 +9,38 @@ interface ProductImageGalleryProps {
 }
 
 export default function ProductImageGallery({ images, alt }: ProductImageGalleryProps) {
-  const sanitized = useMemo(() => images.filter(Boolean), [images]);
+  const sanitized = useMemo(() => {
+    const unique = Array.from(new Set(images.filter(Boolean)));
+
+    const sortKey = (src: string): number => {
+      const dashMatch = src.match(/-(\d+)\.[a-zA-Z]+$/);
+      if (dashMatch) {
+        return Number.parseInt(dashMatch[1], 10);
+      }
+
+      const parenMatch = src.match(/\((\d+)\)\.[a-zA-Z]+$/);
+      if (parenMatch) {
+        return Number.parseInt(parenMatch[1], 10);
+      }
+
+      return Number.MAX_SAFE_INTEGER;
+    };
+
+    return unique.sort((a, b) => {
+      const orderA = sortKey(a);
+      const orderB = sortKey(b);
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+  }, [images]);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [images]);
 
   if (sanitized.length === 0) {
     return null;

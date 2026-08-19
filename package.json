@@ -18,7 +18,8 @@
     "start": "next start",
     "host:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-host.ps1",
     "host:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-host.ps1",
-    "prices:import": "node ./scripts/import-prices.mjs"
+    "prices:import": "node ./scripts/import-prices.mjs",
+    "images:import": "node ./scripts/import-product-images.mjs"
   },
   "keywords": [],
   "author": "",

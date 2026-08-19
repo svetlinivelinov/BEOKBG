@@ -79,9 +79,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     (p) => p.category === product.category && p.id !== product.id
   ).slice(0, 4);
 
-  const galleryImages = Array.from(
-    new Set([...(product.images ?? []), ...(product.image ? [product.image] : [])].filter(Boolean))
+  const gallerySortKey = (src: string): number => {
+    const dashMatch = src.match(/-(\d+)\.[a-zA-Z]+$/);
+    if (dashMatch) {
+      return Number.parseInt(dashMatch[1], 10);
+    }
+
+    const parenMatch = src.match(/\((\d+)\)\.[a-zA-Z]+$/);
+    if (parenMatch) {
+      return Number.parseInt(parenMatch[1], 10);
+    }
+
+    return Number.MAX_SAFE_INTEGER;
+  };
+
+  const uniqueGalleryImages = Array.from(
+    new Set([...(product.image ? [product.image] : []), ...(product.images ?? [])].filter(Boolean))
   );
+  const galleryImages = uniqueGalleryImages
+    .sort((a, b) => {
+      const orderA = gallerySortKey(a);
+      const orderB = gallerySortKey(b);
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
   const hasPrice = typeof product.finalPriceEur === 'number' && Number.isFinite(product.finalPriceEur);
   const priceDisplayValue = hasPrice ? Number(product.finalPriceEur) : null;
   const priceLabel = locale === 'bg' ? 'Цена (с ДДС)' : 'Price (incl. VAT)';

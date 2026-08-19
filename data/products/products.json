@@ -7,14 +7,27 @@
       "https://www.beok-controls.com/uploads/34945/files/TGM50-B-WIFI-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Exact PDF model from invoice; manual/source covers TGM50 EP/WP/WPB family.",
-    "image": "/images/products/tgm50-wifi-ep.webp",
+    "image": "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-01.jpg",
     "application": "electric",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 42.99,
     "finalPriceEur": 42.99,
     "marginEur": 0.33,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-01.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-02.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-03.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-04.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-05.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-06.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-07.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-08.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-09.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-10.jpg",
+      "/images/products/tgm50-wifi-ep/tgm50-wifi-ep-11.jpg"
+    ]
   },
   {
     "id": "tgm50-wifi-wp",
@@ -24,14 +37,27 @@
       "https://www.beok-controls.com/uploads/34945/files/TGM50-B-WIFI-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Exact PDF model from invoice; manual/source covers TGM50 EP/WP/WPB family.",
-    "image": "/images/products/tgm50-wifi-wp.webp",
+    "image": "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-01.jpg",
     "application": "water",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 42.99,
     "finalPriceEur": 42.99,
     "marginEur": 0.34,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-01.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-02.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-03.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-04.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-05.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-06.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-07.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-08.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-09.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-10.jpg",
+      "/images/products/tgm50-wifi-wp/tgm50-wifi-wp-11.jpg"
+    ]
   },
   {
     "id": "tgm50b-wifi-ep",
@@ -42,14 +68,34 @@
       "https://www.beok-controls.com/uploads/34945/files/TGM50-B-WIFI-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Exact TGM50B-WIFI-EP appears in the TGM50B model spec on product page.",
-    "image": "/images/products/tgm50b-wifi-ep.webp",
+    "image": "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-01.jpg",
     "application": "electric",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 44.99,
     "finalPriceEur": 44.99,
     "marginEur": 0.36,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-01.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-02.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-03.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-04.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-05.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-06.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-07.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-08.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-09.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-10.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-11.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-12.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-13.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-14.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-15.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-16.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-17.jpg",
+      "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-18.jpg"
+    ]
   },
   {
     "id": "tgm50b-wifi-wp",
@@ -59,14 +105,34 @@
       "https://www.beoks.com/products/Room-Thermostat1/Water-Floor-Heating-Thermostat_1400942.html"
     ],
     "sourceNote": "Exact model page/source found for TGM50B-WIFI-WP.",
-    "image": "/images/products/tgm50b-wifi-wp.webp",
+    "image": "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-01.jpg",
     "application": "water",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 44.99,
     "finalPriceEur": 44.99,
     "marginEur": 0.36,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-01.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-02.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-03.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-04.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-05.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-06.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-07.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-08.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-09.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-10.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-11.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-12.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-13.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-14.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-15.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-16.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-17.jpg",
+      "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-18.jpg"
+    ]
   },
   {
     "id": "tcc31-wifi-ep",
@@ -76,14 +142,26 @@
       "https://www.beok-controls.com/uploads/34945/files/TCC31-WiFi-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Manual covers TCC31 WPB/EP/WP product types.",
-    "image": "/images/products/tcc31-wifi-ep.webp",
+    "image": "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-01.jpg",
     "application": "electric",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 54.99,
     "finalPriceEur": 54.99,
     "marginEur": 0.38,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-01.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-02.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-03.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-04.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-05.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-06.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-07.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-08.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-09.jpg",
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-10.jpg"
+    ]
   },
   {
     "id": "tcc31-wifi-wp",
@@ -93,14 +171,26 @@
       "https://www.beok-controls.com/uploads/34945/files/TCC31-WiFi-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Manual covers TCC31 WPB/EP/WP product types.",
-    "image": "/images/products/tcc31-wifi-wp.webp",
+    "image": "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-01.jpg",
     "application": "water",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 54.99,
     "finalPriceEur": 54.99,
     "marginEur": 0.38,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-01.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-02.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-03.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-04.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-05.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-06.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-07.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-08.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-09.jpg",
+      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-10.jpg"
+    ]
   },
   {
     "id": "tgr85-wifi-wpb",
@@ -111,14 +201,25 @@
       "https://www.beok-controls.com/Content/upload/PDF/2021837153/TGR85WIFI-Heating-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Manual covers TGR85 EP/WP/WPB, including WPB gas boiler dry contact.",
-    "image": "/images/products/TGR85-WPB.webp",
+    "image": "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 42.99,
     "finalPriceEur": 42.99,
     "marginEur": 0.33,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-01.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-02.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-03.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-04.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-05.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-06.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-07.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-08.jpg",
+      "/images/products/tgr85-wifi-wpb/tgr85-wifi-wpb-09.jpg"
+    ]
   },
   {
     "id": "tcc31-wifi-wpb",
@@ -128,14 +229,26 @@
       "https://www.beok-controls.com/uploads/34945/files/TCC31-WiFi-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Manual covers TCC31 WPB/EP/WP product types.",
-    "image": "/images/products/tcc31-wifi-wpb.webp",
+    "image": "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 54.99,
     "finalPriceEur": 54.99,
     "marginEur": 0.38,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-01.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-02.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-03.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-04.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-05.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-06.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-07.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-08.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-09.jpg",
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-10.jpg"
+    ]
   },
   {
     "id": "bot-r7w-x-wifi",
@@ -146,14 +259,31 @@
       "https://www.beok-controls.com/Content/upload/pdf/202334945/Manual-of-BOT-R7X.pdf"
     ],
     "sourceNote": "Exact invoice model is BOT-R7W-X-WIFI; available Beok manual/source is BOT-R7X-WIFI family/manual. PDF invoice provides exact model specs.",
-    "image": "/images/products/bot-r7w-x-wifi.webp",
+    "image": "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 59.99,
     "finalPriceEur": 59.99,
     "marginEur": 0.33,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-01.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-02.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-03.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-04.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-05.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-06.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-07.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-08.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-09.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-10.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-11.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-12.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-13.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-14.jpg",
+      "/images/products/bot-r7w-x-wifi/bot-r7w-x-wifi-15.jpg"
+    ]
   },
   {
     "id": "bot-r7b-x-wifi",
@@ -164,14 +294,22 @@
       "https://www.beok-controls.com/Content/upload/pdf/202334945/Manual-of-BOT-R7X.pdf"
     ],
     "sourceNote": "Exact invoice model is BOT-R7B-X-WIFI; available Beok manual/source is BOT-R7X-WIFI family/manual. PDF invoice provides exact model specs.",
-    "image": "/images/products/bot-r7b-x-wifi.webp",
+    "image": "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 59.99,
     "finalPriceEur": 59.99,
     "marginEur": 0.33,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-01.jpg",
+      "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-02.jpg",
+      "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-03.jpg",
+      "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-04.jpg",
+      "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-05.jpg",
+      "/images/products/bot-r7b-x-wifi/bot-r7b-x-wifi-06.jpg"
+    ]
   },
   {
     "id": "bot-r8x-wifi",
@@ -182,14 +320,28 @@
       "https://device.report/manual/17872093"
     ],
     "sourceNote": "Manual covers BOT-R5X/R8X WiFi wireless boiler thermostat. PDF invoice provides exact BOT-R8X-WIFI line specs.",
-    "image": "/images/products/bot-r8x-wifi.webp",
+    "image": "/images/products/bot-r8x-wifi/bot-r8x-wifi-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 20,
     "competitorAmazonPriceInclVatEur": 64.99,
     "finalPriceEur": 64.99,
     "marginEur": 0.37,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-01.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-02.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-03.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-04.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-05.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-06.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-07.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-08.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-09.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-10.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-11.jpg",
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-12.jpg"
+    ]
   },
   {
     "id": "trv-604",
@@ -199,14 +351,24 @@
       "https://www.beok-controls.com/uploads/34945/files/OLED-Screen-Display-Wi-Fi-Radiator-Actuator-TRV-604.pdf"
     ],
     "sourceNote": "Exact TRV-604 manual/source found.",
-    "image": "/images/products/trv-604.webp",
+    "image": "/images/products/trv-604/trv-604-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 40,
     "competitorAmazonPriceInclVatEur": 49.99,
     "finalPriceEur": 49.99,
     "marginEur": 0.21,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/trv-604/trv-604-01.jpg",
+      "/images/products/trv-604/trv-604-02.jpg",
+      "/images/products/trv-604/trv-604-03.jpg",
+      "/images/products/trv-604/trv-604-04.jpg",
+      "/images/products/trv-604/trv-604-05.jpg",
+      "/images/products/trv-604/trv-604-06.jpg",
+      "/images/products/trv-604/trv-604-07.jpg",
+      "/images/products/trv-604/trv-604-08.jpg"
+    ]
   },
   {
     "id": "trv-705wf",
@@ -217,14 +379,24 @@
       "https://www.beoks.com/products/TRV1/TRV.html"
     ],
     "sourceNote": "Exact TRV-705WF product page and manual source found. Invoice states 4.3mm travel and 58.4x97x58.4mm, while website/manual states 6mm and 59.7x95.3x59.7mm; both values are kept in separate PDF vs website/manual columns.",
-    "image": "/images/products/trv-705wf.webp",
+    "image": "/images/products/trv-705wf/trv-705wf-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 40,
     "competitorAmazonPriceInclVatEur": 49.99,
     "finalPriceEur": 49.99,
     "marginEur": 0.3,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/trv-705wf/trv-705wf-01.jpg",
+      "/images/products/trv-705wf/trv-705wf-02.jpg",
+      "/images/products/trv-705wf/trv-705wf-03.jpg",
+      "/images/products/trv-705wf/trv-705wf-04.jpg",
+      "/images/products/trv-705wf/trv-705wf-05.jpg",
+      "/images/products/trv-705wf/trv-705wf-06.jpg",
+      "/images/products/trv-705wf/trv-705wf-07.jpg",
+      "/images/products/trv-705wf/trv-705wf-08.jpg"
+    ]
   },
   {
     "id": "cct-28-x",
@@ -235,14 +407,25 @@
       "https://www.beoks.com/products/Hub-Controller1/Hub-Controller.html"
     ],
     "sourceNote": "Exact CCT-28-X product page and manual source found. Manual/product page contain differing current/output delay values; both are preserved, not normalized.",
-    "image": "/images/products/cct-28-x.webp",
+    "image": "/images/products/cct-28-x/cct-28-x-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 10,
     "competitorAmazonPriceInclVatEur": 54.99,
     "finalPriceEur": 54.99,
     "marginEur": 0.37,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/cct-28-x/cct-28-x-01.jpg",
+      "/images/products/cct-28-x/cct-28-x-02.jpg",
+      "/images/products/cct-28-x/cct-28-x-03.jpg",
+      "/images/products/cct-28-x/cct-28-x-04.jpg",
+      "/images/products/cct-28-x/cct-28-x-05.jpg",
+      "/images/products/cct-28-x/cct-28-x-06.jpg",
+      "/images/products/cct-28-x/cct-28-x-07.jpg",
+      "/images/products/cct-28-x/cct-28-x-08.jpg",
+      "/images/products/cct-28-x/cct-28-x-09.jpg"
+    ]
   },
   {
     "id": "bot-r7x-wifi-nr",
@@ -253,14 +436,31 @@
       "https://www.beok-controls.com/Content/upload/pdf/202334945/Manual-of-BOT-R7X.pdf"
     ],
     "sourceNote": "Exact invoice model includes NR/no receiver; available Beok manual/source is BOT-R7X-WIFI family/manual. No receiver and CCT-28-X compatibility are from invoice PDF.",
-    "image": "/images/products/bot-r7x-wifi-nr.webp",
+    "image": "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-01.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 40,
     "competitorAmazonPriceInclVatEur": 54.99,
     "finalPriceEur": 54.99,
     "marginEur": 0.41,
-    "priceUpdatedAt": "2026-08-12T16:09:47.069Z"
+    "priceUpdatedAt": "2026-08-12T16:09:47.069Z",
+    "images": [
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-01.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-02.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-03.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-04.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-05.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-06.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-07.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-08.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-09.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-10.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-11.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-12.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-13.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-14.jpg",
+      "/images/products/bot-r7x-wifi-nr/bot-r7x-wifi-nr-15.jpg"
+    ]
   },
   {
     "id": "rz-d01-230-nc",
@@ -272,10 +472,12 @@
       "https://www.beok-controls.com/uploads/34945/files/Catalog-Thermal-Actuator.pdf"
     ],
     "sourceNote": "Exact product page/source found as RZ-D01-230NC/RZ-D01-230-NC. Invoice uses RZ-D01.230-NC punctuation.",
-    "image": "/images/products/rz-d01-230-nc.webp",
+    "image": "/images/products/rz-d01-230-nc/rz-d01-230-nc-01.jpg",
     "images": [
-      "/images/products/rz-d01-230-nc.webp",
-      "/images/products/rz-d01-230-nc-side.webp"
+      "/images/products/rz-d01-230-nc/rz-d01-230-nc-01.jpg",
+      "/images/products/rz-d01-230-nc/rz-d01-230-nc-02.jpg",
+      "/images/products/rz-d01-230-nc/rz-d01-230-nc-03.jpg",
+      "/images/products/rz-d01-230-nc/rz-d01-230-nc-04.jpg"
     ],
     "application": "gas-boiler",
     "currency": "EUR",

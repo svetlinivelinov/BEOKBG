@@ -52,6 +52,18 @@ export interface Dictionary {
 	checkout_success: string;
 	checkout_cancelled: string;
 	payment_options_title: string;
+	delivery_title: string;
+	full_name: string;
+	phone: string;
+	email: string;
+	delivery_address: string;
+	delivery_easybox: string;
+	address_line1: string;
+	city: string;
+	postal_code: string;
+	easybox_locker: string;
+	load_easybox_error: string;
+	fill_delivery_required: string;
 	request_quote: string;
 	ask_availability: string;
 	download_manual: string;
