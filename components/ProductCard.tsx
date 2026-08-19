@@ -6,6 +6,7 @@ import { formatEurPrice } from '../lib/products/formatEurPrice';
 
 export interface ProductCardProps {
   id: string;
+  model?: string;
   name: string;
   description: string;
   category?: string;
@@ -23,6 +24,7 @@ export interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
+  model,
   name,
   description,
   finalPriceEur,
@@ -58,6 +60,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
         >
           {name.charAt(0).toUpperCase()}
         </div>
+      )}
+      {model && (
+        <p className="mb-2 text-xs font-semibold tracking-wide text-gray-500">{model}</p>
       )}
       <h3 className="text-lg font-semibold mb-2">{name}</h3>
       {priceText && (

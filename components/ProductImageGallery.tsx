@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -50,14 +52,16 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
 
   return (
     <div className="w-full md:w-72 flex-shrink-0">
-      <Image
-        src={activeImage}
-        alt={alt}
-        width={288}
-        height={288}
-        sizes="(max-width: 768px) 100vw, 288px"
-        className="w-full h-72 object-contain rounded"
-      />
+      <Zoom zoomImg={{ src: activeImage, alt }}>
+        <img
+          src={activeImage}
+          alt={alt}
+          width={288}
+          height={288}
+          className="w-full h-72 object-contain rounded cursor-zoom-in"
+          loading="eager"
+        />
+      </Zoom>
 
       {sanitized.length > 1 && (
         <div className="mt-3 grid grid-cols-4 gap-2">
