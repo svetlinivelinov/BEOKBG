@@ -244,6 +244,7 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       locale: resolveCheckoutLocale(payload.locale),
+      customer_email: payload.delivery.email,
       line_items: lineItems,
       allow_promotion_codes: true,
       success_url: `${siteUrl}/${payload.locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

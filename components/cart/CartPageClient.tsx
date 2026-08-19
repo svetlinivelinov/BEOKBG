@@ -122,6 +122,7 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
   const hasAddressDeliveryFields = checkoutAddressLine1.trim().length > 0 && checkoutCity.trim().length > 0 && checkoutPostalCode.trim().length > 0;
   const hasEasyboxFields = checkoutLockerId.trim().length > 0;
   const hasRequiredDeliveryFields = hasCommonDeliveryFields && (deliveryType === 'address' ? hasAddressDeliveryFields : hasEasyboxFields);
+  const easyboxUnavailableText = locale === 'bg' ? 'временно недостъпна' : 'temporarily unavailable';
 
   useEffect(() => {
     if (deliveryType !== 'easybox' || lockers.length > 0 || isLoadingLockers) {
@@ -426,8 +427,9 @@ export default function CartPageClient({ locale, productMetaById, labels }: Cart
               value="easybox"
               checked={deliveryType === 'easybox'}
               onChange={() => setDeliveryType('easybox')}
+              disabled
             />
-            {labels.deliveryEasybox}
+            {labels.deliveryEasybox} ({easyboxUnavailableText})
           </label>
         </div>
 

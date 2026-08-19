@@ -1,0 +1,15 @@
+[
+  {
+    "sessionId": "cs_test_b1XpSkKz1ELTXqcVJv0ZLNO46QvG4YpGQxGJvWfPrg6IEaG19BhKjbVdbp",
+    "fullName": "Светлин Иванов",
+    "phone": "0898535383",
+    "email": "svetlin.ivelinov@gmail.com",
+    "deliveryType": "address",
+    "addressLine1": "генерал Иван Колев 43",
+    "city": "София",
+    "postalCode": "1407",
+    "lockerId": null,
+    "createdAt": "2026-08-19T14:29:34.613Z",
+    "updatedAt": "2026-08-19T14:29:34.613Z"
+  }
+]
