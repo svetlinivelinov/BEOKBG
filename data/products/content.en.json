@@ -194,6 +194,29 @@
       "timing error: <1%."
     ]
   },
+  "tgr85-wifi-ep": {
+    "name": "Electric Floor Heating Thermostat",
+    "description": "TGR85-WIFI-EP is the electric floor-heating variant in the TGR85 series. It supports WiFi app control, a weekly programmable schedule, anti-freeze protection, child lock, and power-off memory with real-time data retention.",
+    "keyFeatures": [
+      "WiFi control for Android and iOS",
+      "weekly schedule: 5+2/6+1/7-day with 6 periods",
+      "anti-freeze function",
+      "child lock",
+      "power-off memory",
+      "touch interface with large display",
+      "electric floor-heating control"
+    ],
+    "technicalData": [
+      "Power supply: 100-240V",
+      "current load: <=16A for electric heating",
+      "power consumption: <1W",
+      "sensor: NTC",
+      "set temperature range: 5-95°C",
+      "floor set range: 5-60°C",
+      "hysteresis: default ±1°C, adjustable",
+      "dimensions: 86x90x14mm"
+    ]
+  },
   "tcc31-wifi-wpb": {
     "name": "Gas Boiler Thermostat",
     "description": "TCC31 is a smart knob thermostat. The manual states the product type WPB is suitable for gas boiler heating. It supports manual and automatic modes, child lock, knob-based temperature adjustment, advanced settings and Wi-Fi connection.",

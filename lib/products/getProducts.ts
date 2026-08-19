@@ -24,6 +24,33 @@ export function getProduct(locale: string, id: string): Product | undefined {
   return getProducts(locale).find((p) => p.id === id);
 }
 
+const CATEGORY_ORDER: string[] = [
+  'room-thermostat',
+  'gas-boiler-thermostat',
+  'hub-controller',
+  'thermal-actuator',
+  'trv'
+];
+
 export function getCategories(): string[] {
-  return Array.from(new Set((productsBase as ProductBase[]).map((p) => p.category))).sort();
+  const unique = Array.from(new Set((productsBase as ProductBase[]).map((p) => p.category)));
+
+  return unique.sort((a, b) => {
+    const indexA = CATEGORY_ORDER.indexOf(a);
+    const indexB = CATEGORY_ORDER.indexOf(b);
+
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+
+    if (indexA !== -1) {
+      return -1;
+    }
+
+    if (indexB !== -1) {
+      return 1;
+    }
+
+    return a.localeCompare(b, undefined, { sensitivity: 'base' });
+  });
 }
