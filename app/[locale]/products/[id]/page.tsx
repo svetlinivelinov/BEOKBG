@@ -46,7 +46,8 @@ export async function generateMetadata({
       canonical: `/${locale}/products/${product.id}`,
       languages: {
         bg: `/bg/products/${product.id}`,
-        en: `/en/products/${product.id}`
+        en: `/en/products/${product.id}`,
+        'x-default': `/bg/products/${product.id}`
       }
     },
     openGraph: {

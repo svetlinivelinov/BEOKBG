@@ -29,7 +29,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       canonical: `/${locale}/products`,
       languages: {
         bg: '/bg/products',
-        en: '/en/products'
+        en: '/en/products',
+        'x-default': '/bg/products'
       }
     },
     openGraph: {
