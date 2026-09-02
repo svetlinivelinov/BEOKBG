@@ -6,7 +6,7 @@ import process from 'node:process';
 
 const projectRoot = process.cwd();
 const productsPath = path.join(projectRoot, 'data', 'products', 'products.json');
-const defaultSource = path.join(projectRoot, 'public', 'BEOK Pictures 2026', 'Pictures-0819');
+const defaultSource = path.join(projectRoot, 'public', 'BEOK Pictures 2026');
 
 const args = process.argv.slice(2);
 
@@ -31,7 +31,7 @@ const apply = args.includes('--apply');
 const help = args.includes('--help') || args.includes('-h');
 
 if (help) {
-  console.log('Usage: npm run images:import -- [--source "public/BEOK Pictures 2026/Pictures-0819"] [--map "product-id=FOLDER_NAME,other-id=OTHER_FOLDER"] [--apply]');
+  console.log('Usage: npm run images:import -- [--source "public/BEOK Pictures 2026"] [--map "product-id=FOLDER_NAME,other-id=OTHER_FOLDER"] [--apply]');
   console.log('Default mode is dry-run. Use --apply to copy files and update products.json.');
   process.exit(0);
 }

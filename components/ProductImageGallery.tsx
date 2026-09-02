@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import Zoom from 'react-medium-image-zoom';
-import 'react-medium-image-zoom/dist/styles.css';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -42,7 +40,49 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [images]);
+  }, [sanitized]);
+
+  const hasMultipleImages = sanitized.length > 1;
+
+  const goNext = () => {
+    if (!hasMultipleImages) {
+      return;
+    }
+
+    setActiveIndex((current) => (current + 1) % sanitized.length);
+  };
+
+  const goPrev = () => {
+    if (!hasMultipleImages) {
+      return;
+    }
+
+    setActiveIndex((current) => (current - 1 + sanitized.length) % sanitized.length);
+  };
+
+  useEffect(() => {
+    if (!hasMultipleImages) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goPrev();
+        return;
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [hasMultipleImages, sanitized.length]);
 
   if (sanitized.length === 0) {
     return null;
@@ -52,18 +92,47 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
 
   return (
     <div className="w-full md:w-72 flex-shrink-0">
-      <Zoom zoomImg={{ src: activeImage, alt }}>
-        <img
-          src={activeImage}
-          alt={alt}
-          width={288}
-          height={288}
-          className="w-full h-72 object-contain rounded cursor-zoom-in"
-          loading="eager"
-        />
-      </Zoom>
+      <div className="relative">
+        {hasMultipleImages && (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              aria-label="Previous image"
+              className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/55 px-3 py-1 text-lg leading-none text-white hover:bg-black/70"
+            >
+              {'<'}
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              aria-label="Next image"
+              className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/55 px-3 py-1 text-lg leading-none text-white hover:bg-black/70"
+            >
+              {'>'}
+            </button>
+          </>
+        )}
 
-      {sanitized.length > 1 && (
+        <button
+          type="button"
+          onClick={goNext}
+          className="block w-full"
+          aria-label={hasMultipleImages ? 'Next product image' : alt}
+        >
+          <Image
+            src={activeImage}
+            alt={alt}
+            width={288}
+            height={288}
+            sizes="(max-width: 768px) 100vw, 288px"
+            className="w-full h-72 object-contain rounded"
+            priority
+          />
+        </button>
+      </div>
+
+      {hasMultipleImages && (
         <div className="mt-3 grid grid-cols-4 gap-2">
           {sanitized.map((image, index) => {
             const isActive = index === activeIndex;
