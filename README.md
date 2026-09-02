@@ -73,6 +73,7 @@ Production note:
 - npm run host:start - start host in background and save PID to .host.pid
 - npm run host:stop - stop host process from .host.pid
 - npm run prices:import -- --file "<path-to-excel.xlsx>" - import EUR prices/margins into /data/products/products.json
+- npm run images:import -- --apply - sync image and images[] in /data/products/products.json from current files in /public/images/products (no copy/restore/delete)
 
 ## Environment Variables
 Create local or platform environment values from .env.example:

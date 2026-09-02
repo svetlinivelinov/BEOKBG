@@ -1,12 +1,37 @@
 import productsBase from '../../data/products/products.json';
 import contentEn from '../../data/products/content.en.json';
 import contentBg from '../../data/products/content.bg.json';
+import fs from 'node:fs';
+import path from 'node:path';
 import { Product, ProductBase, ProductContent } from './types';
 
 const contentByLocale: Record<string, Record<string, Partial<ProductContent>>> = {
   en: contentEn,
   bg: contentBg
 };
+
+const productImagesRoot = path.join(process.cwd(), 'public', 'images', 'products');
+
+function isImageFile(fileName: string): boolean {
+  return ['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(path.extname(fileName).toLowerCase());
+}
+
+function compareNatural(a: string, b: string): number {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+}
+
+function getProductImagesFromFs(productId: string): string[] {
+  const dirPath = path.join(productImagesRoot, productId);
+  if (!fs.existsSync(dirPath)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(dirPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && isImageFile(entry.name))
+    .map((entry) => `/images/products/${productId}/${entry.name}`)
+    .sort(compareNatural);
+}
 
 // English content is the source of truth; any field missing from the active
 // locale's translation file silently falls back to English so untranslated
@@ -16,7 +41,17 @@ export function getProducts(locale: string): Product[] {
   return (productsBase as ProductBase[]).map((base) => {
     const en = contentEn[base.id as keyof typeof contentEn];
     const localized = overlay[base.id];
-    return { ...base, ...en, ...localized } as Product;
+    const diskImages = getProductImagesFromFs(base.id);
+    const syncedImages = diskImages.length > 0 ? diskImages : [];
+    const syncedPrimaryImage = syncedImages[0] ?? null;
+
+    return {
+      ...base,
+      ...en,
+      ...localized,
+      image: syncedPrimaryImage,
+      images: syncedImages
+    } as Product;
   });
 }
 

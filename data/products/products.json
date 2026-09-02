@@ -68,7 +68,7 @@
       "https://www.beok-controls.com/uploads/34945/files/TGM50-B-WIFI-Thermostat-Manual.pdf"
     ],
     "sourceNote": "Exact TGM50B-WIFI-EP appears in the TGM50B model spec on product page.",
-    "image": "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-01.jpg",
+    "image": "/images/products/tgm50b-wifi-ep/tgm50-wifi-ep-10.jpg",
     "application": "electric",
     "currency": "EUR",
     "priceQty": 20,
@@ -77,6 +77,7 @@
     "marginEur": 0.36,
     "priceUpdatedAt": "2026-08-19T16:41:03.934Z",
     "images": [
+      "/images/products/tgm50b-wifi-ep/tgm50-wifi-ep-10.jpg",
       "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-01.jpg",
       "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-02.jpg",
       "/images/products/tgm50b-wifi-ep/tgm50b-wifi-ep-03.jpg",
@@ -94,7 +95,7 @@
       "https://www.beoks.com/products/Room-Thermostat1/Water-Floor-Heating-Thermostat_1400942.html"
     ],
     "sourceNote": "Exact model page/source found for TGM50B-WIFI-WP.",
-    "image": "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-01.jpg",
+    "image": "/images/products/tgm50b-wifi-wp/tgm50-wifi-ep-10.jpg",
     "application": "water",
     "currency": "EUR",
     "priceQty": 20,
@@ -103,6 +104,7 @@
     "marginEur": 0.36,
     "priceUpdatedAt": "2026-08-19T16:41:03.934Z",
     "images": [
+      "/images/products/tgm50b-wifi-wp/tgm50-wifi-ep-10.jpg",
       "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-01.jpg",
       "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-02.jpg",
       "/images/products/tgm50b-wifi-wp/tgm50b-wifi-wp-03.jpg",
@@ -135,10 +137,7 @@
       "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-04.jpg",
       "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-05.jpg",
       "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-06.jpg",
-      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-07.jpg",
-      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-08.jpg",
-      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-09.jpg",
-      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-10.jpg"
+      "/images/products/tcc31-wifi-ep/tcc31-wifi-ep-07.jpg"
     ]
   },
   {
@@ -164,8 +163,6 @@
       "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-04.jpg",
       "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-05.jpg",
       "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-06.jpg",
-      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-07.jpg",
-      "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-08.jpg",
       "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-09.jpg",
       "/images/products/tcc31-wifi-wp/tcc31-wifi-wp-10.jpg"
     ]
@@ -251,10 +248,7 @@
       "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-04.jpg",
       "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-05.jpg",
       "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-06.jpg",
-      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-07.jpg",
-      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-08.jpg",
-      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-09.jpg",
-      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-10.jpg"
+      "/images/products/tcc31-wifi-wpb/tcc31-wifi-wpb-08.jpg"
     ]
   },
   {
@@ -327,7 +321,7 @@
       "https://device.report/manual/17872093"
     ],
     "sourceNote": "Manual covers BOT-R5X/R8X WiFi wireless boiler thermostat. PDF invoice provides exact BOT-R8X-WIFI line specs.",
-    "image": "/images/products/bot-r8x-wifi/bot-r8x-wifi-01.jpg",
+    "image": "/images/products/bot-r8x-wifi/bot-r8x-wifi-00.jpg",
     "application": "gas-boiler",
     "currency": "EUR",
     "priceQty": 20,
@@ -336,6 +330,7 @@
     "marginEur": 0.37,
     "priceUpdatedAt": "2026-08-19T16:41:03.934Z",
     "images": [
+      "/images/products/bot-r8x-wifi/bot-r8x-wifi-00.jpg",
       "/images/products/bot-r8x-wifi/bot-r8x-wifi-01.jpg",
       "/images/products/bot-r8x-wifi/bot-r8x-wifi-02.jpg",
       "/images/products/bot-r8x-wifi/bot-r8x-wifi-03.jpg",
