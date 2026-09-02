@@ -37,3 +37,8 @@ body {
     animation: none;
   }
 }
+
+[data-rmiz-modal][open] {
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+}

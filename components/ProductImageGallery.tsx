@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import Zoom from 'react-medium-image-zoom';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -37,9 +38,11 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
     });
   }, [images]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     setActiveIndex(0);
+    setIsZoomed(false);
   }, [sanitized]);
 
   const hasMultipleImages = sanitized.length > 1;
@@ -66,6 +69,10 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (isZoomed) {
+        return;
+      }
+
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
         goPrev();
@@ -82,7 +89,7 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [hasMultipleImages, sanitized.length]);
+  }, [hasMultipleImages, sanitized.length, isZoomed]);
 
   if (sanitized.length === 0) {
     return null;
@@ -90,9 +97,27 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
 
   const activeImage = sanitized[Math.min(activeIndex, sanitized.length - 1)];
 
+  const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
+    if (!hasMultipleImages || isZoomed) {
+      return;
+    }
+
+    if (Math.abs(event.deltaY) < 8) {
+      return;
+    }
+
+    event.preventDefault();
+    if (event.deltaY > 0) {
+      goNext();
+      return;
+    }
+
+    goPrev();
+  };
+
   return (
     <div className="w-full md:w-72 flex-shrink-0">
-      <div className="relative">
+      <div className="relative" onWheel={handleWheel}>
         {hasMultipleImages && (
           <>
             <button
@@ -114,11 +139,11 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
           </>
         )}
 
-        <button
-          type="button"
-          onClick={goNext}
-          className="block w-full"
-          aria-label={hasMultipleImages ? 'Next product image' : alt}
+        <Zoom
+          zoomMargin={20}
+          onZoomChange={(value) => setIsZoomed(value)}
+          a11yNameButtonZoom="Zoom product image"
+          a11yNameButtonUnzoom="Close zoomed product image"
         >
           <Image
             src={activeImage}
@@ -129,7 +154,7 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
             className="w-full h-72 object-contain rounded"
             priority
           />
-        </button>
+        </Zoom>
       </div>
 
       {hasMultipleImages && (

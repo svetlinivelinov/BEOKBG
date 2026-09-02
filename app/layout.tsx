@@ -1,4 +1,5 @@
 import './globals.css';
+import 'react-medium-image-zoom/dist/styles.css';
 import type { Metadata } from 'next';
 import React from 'react';
 import { getSiteMetadataBase, getSiteUrl } from '../lib/seo/siteUrl';
