@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import Zoom from 'react-medium-image-zoom';
+import Lightbox from 'yet-another-react-lightbox';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import 'yet-another-react-lightbox/styles.css';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -38,11 +40,11 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
     });
   }, [images]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     setActiveIndex(0);
-    setIsZoomed(false);
+    setIsLightboxOpen(false);
   }, [sanitized]);
 
   const hasMultipleImages = sanitized.length > 1;
@@ -69,7 +71,7 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isZoomed) {
+      if (isLightboxOpen) {
         return;
       }
 
@@ -89,16 +91,17 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [hasMultipleImages, sanitized.length, isZoomed]);
+  }, [hasMultipleImages, sanitized.length, isLightboxOpen]);
 
   if (sanitized.length === 0) {
     return null;
   }
 
   const activeImage = sanitized[Math.min(activeIndex, sanitized.length - 1)];
+  const slides = sanitized.map((src) => ({ src }));
 
   const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
-    if (!hasMultipleImages || isZoomed) {
+    if (!hasMultipleImages || isLightboxOpen) {
       return;
     }
 
@@ -139,11 +142,11 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
           </>
         )}
 
-        <Zoom
-          zoomMargin={20}
-          onZoomChange={(value) => setIsZoomed(value)}
-          a11yNameButtonZoom="Zoom product image"
-          a11yNameButtonUnzoom="Close zoomed product image"
+        <button
+          type="button"
+          onClick={() => setIsLightboxOpen(true)}
+          className="block w-full"
+          aria-label="Open product image viewer"
         >
           <Image
             src={activeImage}
@@ -154,7 +157,7 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
             className="w-full h-72 object-contain rounded"
             priority
           />
-        </Zoom>
+        </button>
       </div>
 
       {hasMultipleImages && (
@@ -186,6 +189,23 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
           })}
         </div>
       )}
+
+      <Lightbox
+        open={isLightboxOpen}
+        close={() => setIsLightboxOpen(false)}
+        index={activeIndex}
+        slides={slides}
+        plugins={[Zoom]}
+        zoom={{
+          maxZoomPixelRatio: 4,
+          zoomInMultiplier: 1.6,
+          wheelZoomDistanceFactor: 140
+        }}
+        on={{
+          view: ({ index }) => setActiveIndex(index)
+        }}
+        carousel={{ finite: false }}
+      />
     </div>
   );
 }

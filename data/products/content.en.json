@@ -406,7 +406,7 @@
   },
   "bot-r7x-wifi-nr": {
     "name": "Gas Boiler Thermostat",
-    "description": "The BOT-R7X wireless gas boiler heating thermostat manual describes an intelligent digital thermostat used as a temperature controller. It compares ambient temperature and set temperature and controls the working state of the electric valve of the floor heating system to adjust ambient temperature. The WiFi manual includes WiFi connection and common operating instructions such as on/off, mode switching, temperature regulation, clock adjustment and lock key function.",
+    "description": "The manual for the wireless BOT-R7X thermostat describes an intelligent digital thermostat used as a temperature controller. The device compares the current room temperature with the setpoint and controls the water valves of a hydronic underfloor heating system. The BOT-R7X-WIFI-NR model specifies no receiver and operates as a standalone WiFi thermostat. It is compatible with the CCT-28-X hub controller, allowing integration into centralized heating management systems. The WiFi version supports remote control via a mobile application. The thermostat controls water heating circuits through its built-in relay and is suitable for manifolds with electro-thermal actuators.",
     "keyFeatures": [
       "BOT-R7X WiFi family",
       "WiFi connection",

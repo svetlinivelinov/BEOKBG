@@ -29,10 +29,15 @@ const sourceArg = getArg('source', defaultSource);
 const mapArg = getArg('map', '');
 const apply = args.includes('--apply');
 const help = args.includes('--help') || args.includes('-h');
+const defaultProductFolderMap = new Map([
+  ['bot-r7x-wifi-nr', 'BOT-R7W-X-WIFI']
+]);
 
 if (help) {
   console.log('Usage: npm run images:import -- [--source "public/BEOK Pictures 2026"] [--map "product-id=FOLDER_NAME,other-id=OTHER_FOLDER"] [--apply]');
-  console.log('Default mode is dry-run. Use --apply to copy files and update products.json.');
+  console.log('Default mode is dry-run. Use --apply to sync files and update products.json.');
+  console.log('Apply mode deletes stale files from /public/images/products/<product-id> so destination mirrors source.');
+  console.log('Default mapping includes: bot-r7x-wifi-nr=BOT-R7W-X-WIFI (can be overridden by --map).');
   process.exit(0);
 }
 
@@ -174,11 +179,6 @@ function pickFoldersForProduct(product, folders) {
     return exactFolders;
   }
 
-  const prefixFolders = folders.filter((folder) => modelNorm.startsWith(folder.normalizedName));
-  if (prefixFolders.length > 0) {
-    return prefixFolders;
-  }
-
   const tokenFolders = folders.filter((folder) => {
     if (folder.tokens.length === 0) {
       return false;
@@ -192,6 +192,17 @@ function pickFoldersForProduct(product, folders) {
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
+}
+
+function collectProductImageFiles(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(dirPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && isImageFile(entry.name))
+    .map((entry) => path.join(dirPath, entry.name));
 }
 
 function toPublicPath(absPath) {
@@ -212,6 +223,15 @@ if (!Array.isArray(products)) {
 
 const folders = collectFoldersWithImages(sourceRoot);
 const manualMap = parseManualMap(mapArg);
+const effectiveMap = new Map(
+  Array.from(defaultProductFolderMap.entries()).map(([productId, folderName]) => [
+    productId.toLowerCase(),
+    normalizeKey(folderName)
+  ])
+);
+for (const [productId, folderName] of manualMap.entries()) {
+  effectiveMap.set(productId, folderName);
+}
 if (folders.length === 0) {
   console.error(`No image folders or image files found in: ${sourceRoot}`);
   process.exit(1);
@@ -221,9 +241,10 @@ let matchedProducts = 0;
 let updatedProducts = 0;
 const unmatched = [];
 const appliedCopies = [];
+const appliedDeletes = [];
 
 for (const product of products) {
-  const manualFolder = manualMap.get(String(product.id ?? '').toLowerCase()) || null;
+  const manualFolder = effectiveMap.get(String(product.id ?? '').toLowerCase()) || null;
   const selectedFolders = manualFolder
     ? folders.filter((folder) => folder.normalizedName === manualFolder)
     : pickFoldersForProduct(product, folders);
@@ -242,6 +263,7 @@ for (const product of products) {
 
   const productImageDir = path.join(projectRoot, 'public', 'images', 'products', product.id);
   const nextImagePaths = [];
+  const nextDestinationPaths = [];
 
   sourceFiles.forEach((sourceFile, index) => {
     const ext = path.extname(sourceFile).toLowerCase() === '.jpeg' ? '.jpg' : path.extname(sourceFile).toLowerCase();
@@ -250,6 +272,7 @@ for (const product of products) {
     const publicPath = toPublicPath(destination);
 
     nextImagePaths.push(publicPath);
+    nextDestinationPaths.push(destination);
 
     if (apply) {
       ensureDir(productImageDir);
@@ -266,6 +289,21 @@ for (const product of products) {
   product.image = nextPrimary;
   product.images = nextImagePaths;
 
+  if (apply) {
+    const existingProductImages = collectProductImageFiles(productImageDir);
+    const keepSet = new Set(nextDestinationPaths.map((entry) => path.normalize(entry)));
+
+    for (const existingFile of existingProductImages) {
+      const normalizedExisting = path.normalize(existingFile);
+      if (keepSet.has(normalizedExisting)) {
+        continue;
+      }
+
+      fs.unlinkSync(existingFile);
+      appliedDeletes.push(toPublicPath(existingFile));
+    }
+  }
+
   if (changed) {
     updatedProducts += 1;
   }
@@ -281,8 +319,8 @@ console.log(`Folders with images: ${folders.length}`);
 console.log(`Matched products: ${matchedProducts}`);
 console.log(`Updated products: ${updatedProducts}`);
 console.log(`Unmatched products: ${unmatched.length}`);
-if (manualMap.size > 0) {
-  console.log(`Manual mappings: ${manualMap.size}`);
+if (effectiveMap.size > 0) {
+  console.log(`Mappings in use: ${effectiveMap.size}`);
 }
 
 if (unmatched.length > 0) {
@@ -291,6 +329,7 @@ if (unmatched.length > 0) {
 
 if (apply) {
   console.log(`Copied images: ${appliedCopies.length}`);
+  console.log(`Deleted stale images: ${appliedDeletes.length}`);
   console.log('products.json updated.');
 } else {
   console.log('Dry run only. Use --apply to copy files and update products.json.');
