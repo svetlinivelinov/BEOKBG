@@ -4,6 +4,7 @@ export interface ProductBase {
   category: string;
   application: 'electric' | 'water' | 'gas-boiler';
   currency?: 'EUR';
+  ean?: string;
   priceQty?: number | null;
   competitorAmazonPriceInclVatEur?: number | null;
   marginEur?: number | null;
