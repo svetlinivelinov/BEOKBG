@@ -6,3 +6,11 @@ dist
 .env
 .env.*
 !.env.example
+
+# Local development artifacts
+.venv/
+*.tsbuildinfo
+extracted/
+
+# Bundler scratch files sometimes generated in repository root
+turbopack-*.js
