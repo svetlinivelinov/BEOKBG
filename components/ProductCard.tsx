@@ -1,11 +1,15 @@
 
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatEurPrice } from '../lib/products/formatEurPrice';
 
 export interface ProductCardProps {
   id: string;
+  model?: string;
   name: string;
   description: string;
   category?: string;
@@ -23,6 +27,7 @@ export interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
+  model,
   name,
   description,
   finalPriceEur,
@@ -33,6 +38,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   isDescriptionOpen = false,
   onDescriptionToggle
 }) => {
+  const router = useRouter();
   const href = locale ? `/${locale}/products/${id}` : `/products/${id}`;
   const descriptionLabel = locale === 'bg' ? 'Описание' : 'Description';
   const priceLabel = locale === 'bg' ? 'Цена (с ДДС)' : 'Price (incl. VAT)';
@@ -40,8 +46,42 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const hasPrice = typeof finalPriceEur === 'number' && Number.isFinite(finalPriceEur);
   const priceText = hasPrice ? formatEurPrice(finalPriceEur, locale) : null;
 
+  const navigateToProduct = () => {
+    router.push(href);
+  };
+
+  const shouldIgnoreCardNavigation = (target: EventTarget | null) => {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return Boolean(target.closest('a, button, summary, details, [data-no-card-nav="true"]'));
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center self-start">
+    <article
+      className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center text-center h-full cursor-pointer"
+      role="link"
+      tabIndex={0}
+      aria-label={name}
+      onClick={(event) => {
+        if (shouldIgnoreCardNavigation(event.target)) {
+          return;
+        }
+
+        navigateToProduct();
+      }}
+      onKeyDown={(event) => {
+        if (shouldIgnoreCardNavigation(event.target)) {
+          return;
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          navigateToProduct();
+        }
+      }}
+    >
       {image ? (
         <Image
           src={image}
@@ -59,6 +99,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {name.charAt(0).toUpperCase()}
         </div>
       )}
+      {model && (
+        <p className="mb-2 text-xs font-semibold tracking-wide text-gray-500">{model}</p>
+      )}
       <h3 className="text-lg font-semibold mb-2">{name}</h3>
       {priceText && (
         <div className="mb-3">
@@ -66,9 +109,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className="text-xl font-bold text-brand-orange leading-tight">{priceText}</p>
         </div>
       )}
-      <details className="w-full text-left mb-4 group" open={isDescriptionOpen}>
+      <details className="w-full text-center mb-4 group flex-1" open={isDescriptionOpen}>
         <summary
-          className="cursor-pointer list-none text-sm font-medium text-gray-700 flex items-center justify-between"
+          className="cursor-pointer list-none text-sm font-medium text-gray-700 flex items-center justify-center gap-2"
+          data-no-card-nav="true"
           aria-controls={detailsRegionId}
           aria-expanded={isDescriptionOpen}
           onClick={(event) => {
@@ -79,7 +123,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <span>{descriptionLabel}</span>
           <span className="text-brand-orange transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
         </summary>
-        <p id={detailsRegionId} className="text-gray-600 text-sm mt-2">{description}</p>
+        <p id={detailsRegionId} className="text-gray-600 text-sm mt-2 text-center">{description}</p>
       </details>
       <Link
         href={href}
@@ -87,7 +131,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         {viewProductLabel}
       </Link>
-    </div>
+    </article>
   );
 };
 

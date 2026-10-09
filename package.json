@@ -18,16 +18,21 @@
     "start": "next start",
     "host:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-host.ps1",
     "host:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-host.ps1",
-    "prices:import": "node ./scripts/import-prices.mjs"
+    "prices:import": "node ./scripts/import-prices.mjs",
+    "images:import": "node ./scripts/import-product-images.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/pg": "^8.21.0",
     "next": "^16.3.0",
+    "pg": "^8.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "stripe": "^22.5.0"
+    "react-medium-image-zoom": "^5.4.9",
+    "stripe": "^22.5.0",
+    "yet-another-react-lightbox": "^3.32.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto';
-import fs from 'fs/promises';
-import path from 'path';
 import { NextResponse } from 'next/server';
+import { decrementInventory } from '../../../lib/payments/inventory';
 
 type OrderRequestItem = {
   id: string;
@@ -19,12 +18,6 @@ type OrderRequestPayload = {
   items: OrderRequestItem[];
 };
 
-type ProductInventoryRecord = {
-  id: string;
-  model: string;
-  priceQty?: number | null;
-};
-
 type LowStockAlert = {
   id: string;
   model: string;
@@ -39,7 +32,110 @@ type InventoryUpdateResult = {
 
 const LOW_STOCK_THRESHOLD = 5;
 const REORDER_TARGET_QTY = 20;
-const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function resolveOrderRequestRecipient(): string | null {
+  const candidates = [
+    process.env.ORDER_REQUEST_NOTIFICATION_EMAIL,
+    process.env.ORDER_NOTIFICATION_EMAIL,
+    process.env.FACTORY_ORDER_EMAIL
+  ];
+
+  for (const candidate of candidates) {
+    const value = candidate?.trim();
+    if (value && isValidEmail(value)) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function buildOrderRequestHtml(
+  payload: OrderRequestPayload,
+  requestId: string,
+  submittedAt: string,
+  inventory: InventoryUpdateResult | null
+): string {
+  const itemRows = payload.items
+    .map((item) => `<li>${item.model} x ${item.quantity}</li>`)
+    .join('');
+
+  const lowStockRows = inventory?.lowStockAlerts?.length
+    ? `<p><strong>Low stock alerts:</strong></p><ul>${inventory.lowStockAlerts
+        .map((alert) => `<li>${alert.model}: remaining ${alert.remainingQty}, suggested reorder ${alert.reorderSuggestedQty}</li>`)
+        .join('')}</ul>`
+    : '<p><strong>Low stock alerts:</strong> none</p>';
+
+  const note = payload.customerNote ? payload.customerNote : '-';
+  const phone = payload.customerPhone ? payload.customerPhone : '-';
+
+  return [
+    '<div style="font-family:Arial,sans-serif;line-height:1.5;color:#111">',
+    '<h2>New order request</h2>',
+    `<p><strong>Request ID:</strong> ${requestId}</p>`,
+    `<p><strong>Submitted at:</strong> ${submittedAt}</p>`,
+    `<p><strong>Locale:</strong> ${payload.locale}</p>`,
+    `<p><strong>Customer name:</strong> ${payload.customerName}</p>`,
+    `<p><strong>Customer email:</strong> ${payload.customerEmail}</p>`,
+    `<p><strong>Customer phone:</strong> ${phone}</p>`,
+    `<p><strong>Customer note:</strong> ${note}</p>`,
+    '<p><strong>Items:</strong></p>',
+    `<ul>${itemRows}</ul>`,
+    lowStockRows,
+    '</div>'
+  ].join('');
+}
+
+async function sendOrderRequestEmail(
+  payload: OrderRequestPayload,
+  requestId: string,
+  submittedAt: string,
+  inventory: InventoryUpdateResult | null
+): Promise<boolean> {
+  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  const emailFrom = process.env.ORDER_EMAIL_FROM?.trim();
+  const recipient = resolveOrderRequestRecipient();
+
+  if (!resendApiKey || !emailFrom || !recipient) {
+    console.warn('[order_request_email_skipped]', {
+      hasResendApiKey: Boolean(resendApiKey),
+      hasOrderEmailFrom: Boolean(emailFrom),
+      hasRecipient: Boolean(recipient),
+      requestId
+    });
+    return false;
+  }
+
+  const subject = payload.locale === 'bg'
+    ? `Нова заявка за поръчка (${requestId.slice(0, 8)})`
+    : `New order request (${requestId.slice(0, 8)})`;
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: emailFrom,
+      to: [recipient],
+      reply_to: payload.customerEmail,
+      subject,
+      html: buildOrderRequestHtml(payload, requestId, submittedAt, inventory)
+    })
+  });
+
+  if (!response.ok) {
+    const responseBody = await response.text().catch(() => '');
+    throw new Error(`order_request_email_failed:${response.status}:${responseBody.slice(0, 500)}`);
+  }
+
+  return true;
+}
 
 function asSafeText(value: unknown, maxLength: number): string {
   if (typeof value !== 'string') {
@@ -120,41 +216,35 @@ function buildReorderMailto(alerts: LowStockAlert[]): string | null {
 }
 
 async function updateInventoryAfterOrder(items: OrderRequestItem[]): Promise<InventoryUpdateResult> {
-  const raw = await fs.readFile(productsPath, 'utf8');
-  const products = JSON.parse(raw) as ProductInventoryRecord[];
-
   const orderedById = new Map<string, number>();
+  const modelById = new Map<string, string>();
+
   for (const item of items) {
     orderedById.set(item.id, (orderedById.get(item.id) ?? 0) + item.quantity);
+    if (!modelById.has(item.id)) {
+      modelById.set(item.id, item.model);
+    }
   }
+
+  const remainingById = await decrementInventory(
+    Array.from(orderedById.entries()).map(([productId, quantity]) => ({
+      productId,
+      quantity
+    }))
+  );
 
   const lowStockAlerts: LowStockAlert[] = [];
 
-  for (const product of products) {
-    const soldQty = orderedById.get(product.id);
-    if (!soldQty) {
-      continue;
-    }
-
-    const currentQty = typeof product.priceQty === 'number' && Number.isFinite(product.priceQty) ? product.priceQty : null;
-    if (currentQty === null) {
-      continue;
-    }
-
-    const remaining = Math.max(0, currentQty - soldQty);
-    product.priceQty = remaining;
-
+  for (const [productId, remaining] of remainingById ?? new Map()) {
     if (remaining <= LOW_STOCK_THRESHOLD) {
       lowStockAlerts.push({
-        id: product.id,
-        model: product.model,
+        id: productId,
+        model: modelById.get(productId) ?? productId,
         remainingQty: remaining,
         reorderSuggestedQty: Math.max(REORDER_TARGET_QTY - remaining, 0)
       });
     }
   }
-
-  await fs.writeFile(productsPath, `${JSON.stringify(products, null, 2)}\n`, 'utf8');
 
   return {
     lowStockAlerts,
@@ -179,7 +269,7 @@ export async function POST(request: Request) {
   const requestId = randomUUID();
   const submittedAt = new Date().toISOString();
 
-  // Current transport: server-side logging for ops visibility. Can be swapped with email/API provider.
+  // Keep structured log for ops/audit.
   console.info('[order_request]', JSON.stringify({
     requestId,
     submittedAt,
@@ -191,6 +281,19 @@ export async function POST(request: Request) {
     inventory = await updateInventoryAfterOrder(payload.items);
   } catch (error) {
     console.error('[inventory_update_failed]', error);
+  }
+
+  try {
+    const sent = await sendOrderRequestEmail(payload, requestId, submittedAt, inventory);
+    if (!sent) {
+      return NextResponse.json({ ok: false, error: 'order_request_not_configured' }, { status: 503 });
+    }
+  } catch (error) {
+    console.error('[order_request_email_failed]', {
+      requestId,
+      error
+    });
+    return NextResponse.json({ ok: false, error: 'order_request_email_failed' }, { status: 502 });
   }
 
   return NextResponse.json({

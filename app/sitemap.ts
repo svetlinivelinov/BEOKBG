@@ -6,23 +6,40 @@ import { getSiteUrl } from '../lib/seo/siteUrl';
 const siteUrl = getSiteUrl();
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const entries = new Set<string>();
+  const entries: MetadataRoute.Sitemap = [];
 
   for (const locale of locales) {
-    entries.add(`${siteUrl}/${locale}`);
-    entries.add(`${siteUrl}/${locale}/categories`);
-    entries.add(`${siteUrl}/${locale}/products`);
+    entries.push({
+      url: `${siteUrl}/${locale}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 1
+    });
+
+    entries.push({
+      url: `${siteUrl}/${locale}/categories`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85
+    });
+
+    entries.push({
+      url: `${siteUrl}/${locale}/products`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9
+    });
 
     const products = getProducts(locale);
     for (const product of products) {
-      entries.add(`${siteUrl}/${locale}/products/${product.id}`);
+      entries.push({
+        url: `${siteUrl}/${locale}/products/${product.id}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.75
+      });
     }
   }
 
-  return Array.from(entries).map((url) => ({
-    url,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7
-  }));
+  return entries;
 }

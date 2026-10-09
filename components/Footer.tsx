@@ -66,7 +66,19 @@ const fallbackDict: Dictionary = {
   ask_availability: 'Питай за наличност',
   download_manual: 'Изтегли ръководство',
   contact_for_availability: 'Нуждаете се от наличност или оферта? Свържете се с нас и ще ви помогнем бързо.',
-  request_quote_cta: 'Заявете оферта за този продукт'
+  request_quote_cta: 'Заявете оферта за този продукт',
+  delivery_title: 'Данни за доставка',
+  full_name: 'Име и фамилия',
+  phone: 'Телефон',
+  email: 'Имейл',
+  delivery_address: 'Доставка до адрес',
+  delivery_easybox: 'Доставка до easybox',
+  address_line1: 'Адрес',
+  city: 'Град',
+  postal_code: 'Пощенски код',
+  easybox_locker: 'Easybox локация',
+  load_easybox_error: 'В момента не можем да заредим Easybox локациите.',
+  fill_delivery_required: 'Моля, попълнете всички задължителни полета за доставка преди плащане.'
 };
 
 const withLocale = (locale: string | undefined, path: string) => {

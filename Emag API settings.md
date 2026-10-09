@@ -53,3 +53,49 @@ EMAG_CATEGORY_MAP_JSON={
 # =====================================================
 
 EMAG_WEBHOOK_ALLOWED_IPS=43.131.5.30,91.206.37.14,46.174.144.128
+
+# =====================================================
+# Sameday API BG
+# =====================================================
+
+# Live API base URL
+SAMEDAY_BASE_URL=https://api.sameday.bg
+
+# Official BG Swagger + Sandbox docs
+# https://sameday-api-bg.demo.zitec.com/documentation/client
+
+# Locker SDK docs
+# https://cdn.sameday.ro/locker-plugin/techdoc.html
+
+# API credentials (copy from one-time links into local env only)
+SAMEDAY_USERNAME=
+SAMEDAY_PASSWORD=
+
+# API paths (v3.4)
+SAMEDAY_AUTH_PATH=/api/authenticate
+SAMEDAY_AUTH_REMEMBER_ME=true
+SAMEDAY_AWB_PATH=/api/awb
+SAMEDAY_LOCKERS_PATH=/api/client/ooh-locations
+
+# Contract/account settings
+SAMEDAY_CLIENT_ID=
+SAMEDAY_PICKUP_POINT_ID=
+SAMEDAY_SERVICE_ID=7
+SAMEDAY_SERVICE_ID_ADDRESS=7
+SAMEDAY_SERVICE_ID_EASYBOX=15
+
+# Optional payload defaults
+SAMEDAY_ENABLE_COD=false
+SAMEDAY_PARCEL_WEIGHT_KG=1
+SAMEDAY_PARCEL_LENGTH_CM=20
+SAMEDAY_PARCEL_WIDTH_CM=15
+SAMEDAY_PARCEL_HEIGHT_CM=10
+SAMEDAY_PACKAGE_TYPE=0
+
+# Optional fallback values
+SAMEDAY_RECIPIENT_COUNTY_DEFAULT=
+SAMEDAY_RECIPIENT_CITY_DEFAULT=
+
+# Client/network tuning
+SAMEDAY_REQUEST_TIMEOUT_MS=12000
+SAMEDAY_RETRY_COUNT=2

@@ -17,8 +17,12 @@ export const metadata: Metadata = {
   alternates: {
     languages: {
       bg: '/bg',
-      en: '/en'
+      en: '/en',
+      'x-default': '/bg'
     }
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION
   },
   openGraph: {
     title: 'BEOKBG | Thermostat Catalog',
@@ -31,9 +35,33 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'BEOKBG',
+    url: siteUrl,
+    logo: `${siteUrl}/favicon.ico`
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'BEOKBG',
+    url: siteUrl,
+    inLanguage: ['bg', 'en']
+  };
+
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <CartProvider>{children}</CartProvider>
       </body>
     </html>

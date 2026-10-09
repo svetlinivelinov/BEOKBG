@@ -3,6 +3,8 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSiteUrl } from '../../../../lib/seo/siteUrl';
+import { getStockQuantities } from '../../../../lib/db/stock';
+import { DeliveryType, saveCheckoutDelivery } from '../../../../lib/payments/checkoutDelivery';
 
 type CheckoutRequestItem = {
   id: string;
@@ -12,6 +14,16 @@ type CheckoutRequestItem = {
 type CheckoutRequestPayload = {
   locale: string;
   items: CheckoutRequestItem[];
+  delivery: {
+    fullName: string;
+    phone: string;
+    email: string;
+    deliveryType: DeliveryType;
+    addressLine1: string | null;
+    city: string | null;
+    postalCode: string | null;
+    lockerId: string | null;
+  };
 };
 
 type ProductRecord = {
@@ -80,11 +92,53 @@ function parsePayload(input: unknown): CheckoutRequestPayload | null {
     })
     .filter((item): item is CheckoutRequestItem => Boolean(item));
 
+  const deliveryRaw = data.delivery;
+  if (!deliveryRaw || typeof deliveryRaw !== 'object') {
+    return null;
+  }
+
+  const deliveryData = deliveryRaw as Record<string, unknown>;
+  const fullName = asSafeText(deliveryData.fullName, 120);
+  const phone = asSafeText(deliveryData.phone, 40);
+  const email = asSafeText(deliveryData.email, 150).toLowerCase();
+  const deliveryTypeRaw = asSafeText(deliveryData.deliveryType, 20);
+  const deliveryType = deliveryTypeRaw === 'easybox' ? 'easybox' : deliveryTypeRaw === 'address' ? 'address' : null;
+  const addressLine1 = asSafeText(deliveryData.addressLine1, 240) || null;
+  const city = asSafeText(deliveryData.city, 120) || null;
+  const postalCode = asSafeText(deliveryData.postalCode, 40) || null;
+  const lockerId = asSafeText(deliveryData.lockerId, 80) || null;
+
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!fullName || !phone || !emailOk || !deliveryType) {
+    return null;
+  }
+
+  if (deliveryType === 'address' && (!addressLine1 || !city || !postalCode)) {
+    return null;
+  }
+
+  if (deliveryType === 'easybox' && !lockerId) {
+    return null;
+  }
+
   if (!locale || items.length === 0) {
     return null;
   }
 
-  return { locale, items };
+  return {
+    locale,
+    items,
+    delivery: {
+      fullName,
+      phone,
+      email,
+      deliveryType,
+      addressLine1: deliveryType === 'address' ? addressLine1 : null,
+      city: deliveryType === 'address' ? city : null,
+      postalCode: deliveryType === 'address' ? postalCode : null,
+      lockerId: deliveryType === 'easybox' ? lockerId : null
+    }
+  };
 }
 
 function getStripeClient(): Stripe | null {
@@ -125,6 +179,7 @@ export async function POST(request: Request) {
   const rawProducts = await fs.readFile(productsPath, 'utf8');
   const products = JSON.parse(rawProducts) as ProductRecord[];
   const productsById = new Map(products.map((product) => [product.id, product]));
+  const stockByProductId = await getStockQuantities(payload.items.map((item) => item.id));
 
   const insufficientItems: Array<{ id: string; model: string; requestedQty: number; availableQty: number }> = [];
 
@@ -143,9 +198,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'product_not_payable', productId: item.id }, { status: 400 });
     }
 
-    const availableQty = typeof product.priceQty === 'number' && Number.isFinite(product.priceQty)
-      ? Math.max(0, Math.floor(product.priceQty))
-      : null;
+    const availableQtyFromDb = stockByProductId?.get(product.id);
+    const availableQty = typeof availableQtyFromDb === 'number'
+      ? Math.max(0, Math.floor(availableQtyFromDb))
+      : typeof product.priceQty === 'number' && Number.isFinite(product.priceQty)
+        ? Math.max(0, Math.floor(product.priceQty))
+        : null;
 
     if (availableQty !== null && item.quantity > availableQty) {
       insufficientItems.push({
@@ -186,14 +244,28 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       locale: resolveCheckoutLocale(payload.locale),
+      customer_email: payload.delivery.email,
       line_items: lineItems,
       allow_promotion_codes: true,
       success_url: `${siteUrl}/${payload.locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/${payload.locale}/cart?checkout=cancelled`,
       metadata: {
         locale: payload.locale,
-        source: 'beokbg-cart'
+        source: 'beokbg-cart',
+        deliveryType: payload.delivery.deliveryType
       }
+    });
+
+    await saveCheckoutDelivery({
+      sessionId: session.id,
+      fullName: payload.delivery.fullName,
+      phone: payload.delivery.phone,
+      email: payload.delivery.email,
+      deliveryType: payload.delivery.deliveryType,
+      addressLine1: payload.delivery.addressLine1,
+      city: payload.delivery.city,
+      postalCode: payload.delivery.postalCode,
+      lockerId: payload.delivery.lockerId
     });
 
     return NextResponse.json({ ok: true, url: session.url, sessionId: session.id });

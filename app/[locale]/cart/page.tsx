@@ -5,6 +5,7 @@ import Container from '../../../components/Container';
 import CartPageClient from '../../../components/cart/CartPageClient';
 import { getDictionary } from '../../../lib/i18n/getDictionary';
 import { getProducts } from '../../../lib/products/getProducts';
+import { getStockQuantities } from '../../../lib/db/stock';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -26,6 +27,7 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const products = getProducts(locale);
+  const stockByProductId = await getStockQuantities(products.map((product) => product.id));
   const productMetaById = Object.fromEntries(
     products.map((product) => [
       product.id,
@@ -33,7 +35,7 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
         name: product.name,
         model: product.model,
         finalPriceEur: product.finalPriceEur,
-        priceQty: product.priceQty
+        priceQty: stockByProductId?.get(product.id) ?? product.priceQty
       }
     ])
   );
@@ -74,7 +76,19 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
             checkoutNotConfigured: dict.checkout_not_configured,
             checkoutSuccess: dict.checkout_success,
             checkoutCancelled: dict.checkout_cancelled,
-            paymentOptionsTitle: dict.payment_options_title
+            paymentOptionsTitle: dict.payment_options_title,
+            deliveryTitle: dict.delivery_title,
+            fullName: dict.full_name,
+            phone: dict.phone,
+            email: dict.email,
+            deliveryAddress: dict.delivery_address,
+            deliveryEasybox: dict.delivery_easybox,
+            addressLine1: dict.address_line1,
+            city: dict.city,
+            postalCode: dict.postal_code,
+            easyboxLocker: dict.easybox_locker,
+            loadEasyboxError: dict.load_easybox_error,
+            fillDeliveryRequired: dict.fill_delivery_required
           }}
         />
       </Container>
