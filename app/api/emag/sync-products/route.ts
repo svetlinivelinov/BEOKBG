@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     const client = getEmagClient();
-  const mappedProducts = selectedProducts.map(mapProductToEmagProduct);
+    const mappedProducts = selectedProducts.map(mapProductToEmagProduct);
     const batches = toArrayChunks(mappedProducts, 50);
 
     const syncReport: Array<{ batch: number; products: number; status: 'ok' | 'failed'; error?: string }> = [];

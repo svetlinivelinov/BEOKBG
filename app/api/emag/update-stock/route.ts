@@ -8,14 +8,6 @@ import { ProductBase } from '../../../../lib/products/types';
 
 const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
 
-function toArrayChunks<T>(items: T[], chunkSize: number): T[][] {
-  const chunks: T[][] = [];
-  for (let index = 0; index < items.length; index += chunkSize) {
-    chunks.push(items.slice(index, index + chunkSize));
-  }
-  return chunks;
-}
-
 async function readProducts(): Promise<ProductBase[]> {
   const raw = await fs.readFile(productsPath, 'utf8');
   const parsed = JSON.parse(raw);
@@ -37,30 +29,19 @@ export async function POST(request: Request) {
       : products;
 
     const updates = selectedProducts.map(mapProductToStockUpdate);
-    const batches = toArrayChunks(updates, 50);
     const client = getEmagClient();
 
-    const report: Array<{ batch: number; updates: number; status: 'ok' | 'failed'; error?: string }> = [];
+    const report: Array<{ id: number; status: 'ok' | 'failed'; error?: string }> = [];
     let synced = 0;
 
-    for (let i = 0; i < batches.length; i += 1) {
-      const batch = batches[i];
-
+    for (const update of updates) {
       try {
-        await client.postSave(
-          '/offer/save',
-          batch.map((item) => ({
-            id: item.id,
-            stock: item.stock
-          }))
-        );
-
-        synced += batch.length;
-        report.push({ batch: i + 1, updates: batch.length, status: 'ok' });
+        await client.patch(`/offer_stock/${update.id}`, { value: update.value });
+        synced += 1;
+        report.push({ id: update.id, status: 'ok' });
       } catch (error) {
         report.push({
-          batch: i + 1,
-          updates: batch.length,
+          id: update.id,
           status: 'failed',
           error: error instanceof Error ? error.message : 'update_stock_failed'
         });
@@ -74,7 +55,7 @@ export async function POST(request: Request) {
       data: {
         totalProducts: selectedProducts.length,
         updatedOffers: synced,
-        batches: batches.length,
+        updates: updates.length,
         failures,
         report
       }

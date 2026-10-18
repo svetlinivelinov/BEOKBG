@@ -10,6 +10,7 @@ import {
 const DEFAULT_SITE_URL = 'https://www.beoksmart.com';
 const FALLBACK_EAN = '0000000000000';
 const FALLBACK_BRAND = 'BEOK';
+const MAX_EMAG_PRODUCT_ID = 16_777_215;
 
 const defaultCategoryMap: Record<string, number> = {
   'room-thermostat': 0,
@@ -34,6 +35,17 @@ function roundPrice(value: number): number {
 function toStockValue(value: unknown): number {
   const parsed = typeof value === 'number' && Number.isFinite(value) ? Math.floor(value) : 0;
   return Math.max(0, parsed);
+}
+
+function toEmagProductId(localId: string): number {
+  let hash = 2_166_136_261;
+
+  for (let index = 0; index < localId.length; index += 1) {
+    hash ^= localId.charCodeAt(index);
+    hash = Math.imul(hash, 16_777_619);
+  }
+
+  return (hash >>> 0) % MAX_EMAG_PRODUCT_ID + 1;
 }
 
 function getCategoryMap(): Record<string, number> {
@@ -134,7 +146,7 @@ export function mapProductToEmagProduct(product: ProductBase): EmagProduct {
   const productEan = typeof product.ean === 'string' ? product.ean.trim() : '';
 
   return {
-    id: product.id,
+    id: toEmagProductId(product.id),
     name: product.model,
     category_id: mapCategory(product.category),
     part_number: product.model,
@@ -198,19 +210,14 @@ export function toMeasurementPayload(product: EmagProduct): EmagProductMeasureme
 
 export function mapProductToStockUpdate(product: ProductBase): EmagStockUpdate {
   return {
-    id: product.id,
-    stock: [
-      {
-        warehouse_id: getDefaultWarehouseId(),
-        value: toStockValue(product.priceQty)
-      }
-    ]
+    id: toEmagProductId(product.id),
+    value: toStockValue(product.priceQty)
   };
 }
 
 export function mapProductToPriceUpdate(product: ProductBase): EmagPriceUpdate {
   return {
-    id: product.id,
+    id: toEmagProductId(product.id),
     sale_price: roundPrice(toFiniteNumber(product.finalPriceEur, 0)),
     currency_type: product.currency || 'EUR'
   };

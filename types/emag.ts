@@ -15,7 +15,7 @@ export interface EmagHandlingTimeValue {
 }
 
 export interface EmagProduct {
-  id: string;
+  id: number;
   name: string;
   category_id: number;
   part_number: string;
@@ -37,7 +37,7 @@ export interface EmagProduct {
 }
 
 export interface EmagProductOfferPayload {
-  id: string;
+  id: number;
   name: string;
   category_id: number;
   part_number: string;
@@ -55,7 +55,7 @@ export interface EmagProductOfferPayload {
 }
 
 export interface EmagProductMeasurementPayload {
-  id: string;
+  id: number;
   weight: number;
   width: number;
   height: number;
@@ -63,7 +63,7 @@ export interface EmagProductMeasurementPayload {
 }
 
 export interface EmagOffer {
-  id: string;
+  id: number;
   status?: number;
   sale_price?: number;
   currency_type?: string;
@@ -73,12 +73,12 @@ export interface EmagOffer {
 }
 
 export interface EmagStockUpdate {
-  id: string;
-  stock: EmagStockValue[];
+  id: number;
+  value: number;
 }
 
 export interface EmagPriceUpdate {
-  id: string;
+  id: number;
   sale_price: number;
   currency_type?: string;
 }

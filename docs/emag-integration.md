@@ -1,6 +1,6 @@
 # eMAG Marketplace Integration
 
-This project integrates with eMAG Marketplace API version 4.5.2 using Next.js App Router route handlers.
+This project integrates with eMAG Marketplace API version 4.4.8 using Next.js App Router route handlers.
 
 ## Environment Variables
 
@@ -55,13 +55,14 @@ All protected routes accept token by one of these methods:
 
 - Reads all products from data/products/products.json
 - Maps product quantity to eMAG stock payload
-- Updates stock in batches via /offer/save
+- Updates stock with PATCH /offer_stock/{resourceId}; eMAG does not provide a bulk stock-save endpoint
+- Sends `{ "value": <quantity> }`, where `resourceId` is the mapped seller product ID
 
 ### POST /api/emag/update-price
 
 - Reads all products from data/products/products.json
 - Maps finalPriceEur to sale_price
-- Updates prices in batches via /offer/save
+- Updates prices in batches via /product_offer/save
 
 ### POST /api/emag/orders
 
@@ -149,6 +150,13 @@ flowchart TD
   E --> F[POST measurements/save]
   F --> G[Return sync report]
 ```
+
+## eMAG product IDs
+
+The local catalog uses string SKUs such as `tgm50-wifi-ep`, while eMAG requires
+the seller's internal product ID to be a positive integer. The mapper derives a
+stable integer ID from each local SKU and sends the original SKU as `part_number`.
+Do not change a product's local `id` after it has been published to eMAG.
 
 ```mermaid
 flowchart TD

@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
       try {
         await client.postSave(
-          '/offer/save',
+          '/product_offer/save',
           batch.map((item) => ({
             id: item.id,
             sale_price: item.sale_price,
