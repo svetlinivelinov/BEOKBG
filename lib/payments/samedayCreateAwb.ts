@@ -1,9 +1,8 @@
-import { DeliveryType } from './checkoutDelivery';
+import type { DeliveryType } from './checkoutDelivery';
 import { getCreateAwbPath, samedayRequest } from './samedayClient';
 
 export type CreateAwbInput = {
   clientId: string;
-  serviceId: string;
   pickupId: string;
   recipient: {
     fullName: string;
@@ -59,7 +58,7 @@ function parsePositiveInteger(value: string): number | null {
   }
 
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
     return null;
   }
 
@@ -68,7 +67,7 @@ function parsePositiveInteger(value: string): number | null {
 
 function resolveServiceId(deliveryType: DeliveryType, fallbackServiceId: string): string {
   if (deliveryType === 'easybox') {
-    return asServiceIdFromEnv('SAMEDAY_SERVICE_ID_EASYBOX', asServiceIdFromEnv('SAMEDAY_SERVICE_ID', fallbackServiceId));
+    return asServiceIdFromEnv('SAMEDAY_SERVICE_ID_EASYBOX', '15');
   }
 
   return asServiceIdFromEnv('SAMEDAY_SERVICE_ID_ADDRESS', asServiceIdFromEnv('SAMEDAY_SERVICE_ID', fallbackServiceId));
@@ -112,7 +111,7 @@ export async function createSamedayAwb(input: CreateAwbInput): Promise<CreateAwb
 
   const recipientCounty = countyFallback || cityFallback || asSafeString(input.recipient.city) || 'Unknown';
   const recipientCity = asSafeString(input.recipient.city) || cityFallback || countyFallback || 'Unknown';
-  const resolvedServiceId = input.serviceId || resolveServiceId(input.deliveryType, defaultServiceId);
+  const resolvedServiceId = resolveServiceId(input.deliveryType, defaultServiceId);
   const numericServiceId = parsePositiveInteger(resolvedServiceId);
   if (!numericServiceId) {
     throw new Error('sameday_awb_failed:invalid_service_id');

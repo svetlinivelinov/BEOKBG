@@ -13,6 +13,10 @@ export type SamedayLocker = {
   name: string;
   city?: string | null;
   address?: string | null;
+  cityId?: string | null;
+  county?: string | null;
+  countyId?: string | null;
+  postalCode?: string | null;
   oohType?: number | null;
   supportedPayment?: number | null;
 };
@@ -20,13 +24,33 @@ export type SamedayLocker = {
 const AUTH_PATH = process.env.SAMEDAY_AUTH_PATH?.trim() || '/api/authenticate';
 const LOCKERS_PATH = process.env.SAMEDAY_LOCKERS_PATH?.trim() || '/api/client/ooh-locations';
 const CREATE_AWB_PATH = process.env.SAMEDAY_AWB_PATH?.trim() || '/api/awb';
-const DEFAULT_TIMEOUT_MS = Number.parseInt(process.env.SAMEDAY_REQUEST_TIMEOUT_MS?.trim() || '12000', 10) || 12000;
-const DEFAULT_RETRIES = Number.parseInt(process.env.SAMEDAY_RETRY_COUNT?.trim() || '2', 10) || 2;
+const DEFAULT_TIMEOUT_MS = readIntegerSetting('SAMEDAY_REQUEST_TIMEOUT_MS', 12000, 1);
+const DEFAULT_RETRIES = readIntegerSetting('SAMEDAY_RETRY_COUNT', 2, 0);
+const COUNTRY_CODE = process.env.SAMEDAY_COUNTRY_CODE?.trim() || 'BG';
 const AUTH_REMEMBER_ME = process.env.SAMEDAY_AUTH_REMEMBER_ME?.trim()?.toLowerCase() !== 'false';
 
 let cachedToken: string | null = null;
 let tokenRefreshedAtMs = 0;
 let tokenExpiresAtMs: number | null = null;
+let authenticationPromise: Promise<string> | null = null;
+
+function readIntegerSetting(name: string, fallback: number, minimum: number): number {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < minimum) {
+    throw new Error(`sameday_invalid_setting:${name.toLowerCase()}`);
+  }
+  return parsed;
+}
+
+function asSafeId(value: unknown): string {
+  const text = typeof value === 'number' ? String(value) : asSafeString(value);
+  return /^\d+$/.test(text) && Number.isSafeInteger(Number(text)) && Number(text) > 0 ? text : '';
+}
 
 function normalizeUrl(baseUrl: string, endpointPath: string): string {
   const left = baseUrl.replace(/\/+$/, '');
@@ -48,11 +72,12 @@ function asSafeString(value: unknown): string {
 }
 
 function asSafeNumber(value: unknown): number | null {
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
+  const number = typeof value === 'number' ? value : typeof value === 'string' && value.trim() ? Number(value) : NaN;
+  if (!Number.isFinite(number)) {
     return null;
   }
 
-  return value;
+  return number;
 }
 
 function extractAuthToken(payload: unknown): string | null {
@@ -79,7 +104,8 @@ function extractTokenExpiry(payload: unknown): number | null {
     }
 
     const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-    const timestamp = Date.parse(normalized.endsWith('Z') ? normalized : `${normalized}Z`);
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized);
+    const timestamp = Date.parse(hasTimezone ? normalized : `${normalized}Z`);
     if (Number.isFinite(timestamp)) {
       return timestamp;
     }
@@ -97,7 +123,7 @@ async function parseJsonResponse(response: Response): Promise<unknown> {
   try {
     return JSON.parse(text) as unknown;
   } catch {
-    return { raw: text };
+    throw new Error('sameday_invalid_json_response');
   }
 }
 
@@ -162,14 +188,19 @@ async function authenticate(): Promise<string> {
 async function getToken(forceRefresh = false): Promise<string> {
   const now = Date.now();
   const tokenAgeMs = now - tokenRefreshedAtMs;
-  const looksStale = tokenAgeMs > 50 * 60 * 1000;
+  const looksStale = tokenExpiresAtMs === null && tokenAgeMs > 50 * 60 * 1000;
   const expiresSoon = typeof tokenExpiresAtMs === 'number' && tokenExpiresAtMs - now <= 10 * 60 * 1000;
 
   if (!forceRefresh && cachedToken && !looksStale && !expiresSoon) {
     return cachedToken;
   }
 
-  return authenticate();
+  if (!authenticationPromise) {
+    authenticationPromise = authenticate().finally(() => {
+      authenticationPromise = null;
+    });
+  }
+  return authenticationPromise;
 }
 
 export async function samedayRequest<TResponse>(
@@ -178,7 +209,14 @@ export async function samedayRequest<TResponse>(
   options?: { retryCount?: number }
 ): Promise<TResponse> {
   const baseUrl = getBaseUrl();
-  const retryCount = Number.isFinite(options?.retryCount) ? Math.max(0, Math.floor(options?.retryCount as number)) : DEFAULT_RETRIES;
+  const method = (init.method ?? 'GET').toUpperCase();
+  const isReadOnly = method === 'GET' || method === 'HEAD';
+  const configuredRetries = options?.retryCount ?? DEFAULT_RETRIES;
+  if (!Number.isSafeInteger(configuredRetries) || configuredRetries < 0) {
+    throw new Error('sameday_invalid_retry_count');
+  }
+  // A failed AWB POST may already have created a shipment; do not replay it.
+  const retryCount = isReadOnly ? configuredRetries : 0;
 
   let token = await getToken(false);
   for (let attempt = 0; attempt <= retryCount; attempt += 1) {
@@ -205,8 +243,7 @@ export async function samedayRequest<TResponse>(
         continue;
       }
 
-      const payload = await parseJsonResponse(response);
-      throw new Error(`sameday_request_failed:${response.status}:${JSON.stringify(payload).slice(0, 500)}`);
+      throw new Error(`sameday_request_failed:${response.status}`);
     }
 
     const payload = (await parseJsonResponse(response)) as TResponse;
@@ -222,7 +259,7 @@ function normalizeLockerRow(row: unknown): SamedayLocker | null {
   }
 
   const data = row as JsonRecord;
-  const id = asSafeString(data.oohId ?? data.id ?? data.lockerId ?? data.code);
+  const id = asSafeId(data.oohId ?? data.id ?? data.lockerId ?? data.code);
   const name = asSafeString(data.name ?? data.label ?? data.address);
 
   if (!id || !name) {
@@ -234,27 +271,61 @@ function normalizeLockerRow(row: unknown): SamedayLocker | null {
     name,
     city: asSafeString(data.city) || null,
     address: asSafeString(data.address) || null,
+    cityId: asSafeId(data.cityId) || null,
+    county: asSafeString(data.county) || null,
+    countyId: asSafeId(data.countyId) || null,
+    postalCode: asSafeString(data.postalCode) || null,
     oohType: asSafeNumber(data.oohType),
     supportedPayment: asSafeNumber(data.supportedPayment)
   };
 }
 
 export async function listSamedayLockers(): Promise<SamedayLocker[]> {
-  const separator = LOCKERS_PATH.includes('?') ? '&' : '?';
-  const path = `${LOCKERS_PATH}${separator}listingType=0&countPerPage=500`;
-  const payload = await samedayRequest<unknown>(path, {
-    method: 'GET'
-  });
+  if (!['BG', 'RO', 'HU'].includes(COUNTRY_CODE)) {
+    throw new Error('sameday_invalid_country_code');
+  }
 
-  const source = Array.isArray(payload)
-    ? payload
-    : payload && typeof payload === 'object' && Array.isArray((payload as JsonRecord).data)
-      ? ((payload as JsonRecord).data as unknown[])
-      : [];
+  const lockers = new Map<string, SamedayLocker>();
+  let page = 1;
+  let pages = 1;
+  do {
+    const url = new URL(normalizeUrl(getBaseUrl(), LOCKERS_PATH));
+    url.searchParams.set('listingType', '0');
+    url.searchParams.set('countPerPage', '500');
+    url.searchParams.set('countryCode', COUNTRY_CODE);
+    url.searchParams.set('page', String(page));
+    const payload = await samedayRequest<unknown>(`${url.pathname}${url.search}`, { method: 'GET' });
+    const data = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload as JsonRecord : null;
+    const rows = Array.isArray(payload) ? payload : data?.data;
+    if (!Array.isArray(rows)) {
+      throw new Error('sameday_invalid_locations_response');
+    }
 
-  return source
-    .map((entry) => normalizeLockerRow(entry))
-    .filter((entry): entry is SamedayLocker => Boolean(entry));
+    if (data) {
+      const pageCount = asSafeNumber(data.pages);
+      const currentPage = asSafeNumber(data.currentPage);
+      if (pageCount === null || !Number.isSafeInteger(pageCount) || pageCount < 0 ||
+          currentPage !== page || (pageCount === 0 && rows.length > 0) ||
+          (page > 1 && pageCount !== pages)) {
+        throw new Error('sameday_invalid_locations_pagination');
+      }
+      pages = pageCount;
+    }
+
+    for (const row of rows) {
+      const locker = normalizeLockerRow(row);
+      if (!locker) {
+        throw new Error('sameday_invalid_location');
+      }
+      if (locker.oohType !== null && locker.oohType !== 0) {
+        continue;
+      }
+      lockers.set(locker.id, locker);
+    }
+    page += 1;
+  } while (page <= pages);
+
+  return [...lockers.values()];
 }
 
 export function getCreateAwbPath(): string {
