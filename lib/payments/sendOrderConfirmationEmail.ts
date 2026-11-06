@@ -49,6 +49,20 @@ function formatAmountCents(amountTotal: number | null, currency: string | null):
   }).format(value);
 }
 
+function formatOptional(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed || '-';
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 function buildSubject(locale: string): string {
   return locale === 'bg'
     ? 'BEOKBG: Потвърждение за поръчка'
@@ -65,20 +79,48 @@ function buildHtml(order: StoredStripeOrder): string {
   const sessionLabel = isBg ? 'Номер на сесия' : 'Session ID';
   const dateLabel = isBg ? 'Дата на плащане' : 'Paid at';
   const itemsLabel = isBg ? 'Артикули' : 'Items';
+  const customerLabel = isBg ? 'Клиент' : 'Customer';
+  const nameLabel = isBg ? 'Име' : 'Full name';
+  const emailLabel = 'Email';
+  const phoneLabel = isBg ? 'Телефон' : 'Phone';
+  const deliveryTypeLabel = isBg ? 'Доставка' : 'Delivery type';
+  const addressLabel = isBg ? 'Адрес' : 'Address';
+  const cityLabel = isBg ? 'Град' : 'City';
+  const postalCodeLabel = isBg ? 'Пощенски код' : 'Postal code';
+  const lockerLabel = isBg ? 'Easybox' : 'Easybox locker';
 
   const itemsRows = order.items
-    .map((item) => `<li>${item.model} x ${item.quantity}</li>`)
+    .map((item) => `<li>${escapeHtml(item.model)} x ${item.quantity}</li>`)
     .join('');
+
+  const deliveryTypeValue = order.delivery?.deliveryType === 'easybox'
+    ? 'Easybox'
+    : order.delivery?.deliveryType === 'address'
+      ? (isBg ? 'Адрес' : 'Address')
+      : '-';
+
+  const customerRows = [
+    `<li><strong>${nameLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.fullName))}</li>`,
+    `<li><strong>${emailLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.email ?? order.customerEmail))}</li>`,
+    `<li><strong>${phoneLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.phone))}</li>`,
+    `<li><strong>${deliveryTypeLabel}:</strong> ${escapeHtml(deliveryTypeValue)}</li>`,
+    `<li><strong>${addressLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.addressLine1))}</li>`,
+    `<li><strong>${cityLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.city))}</li>`,
+    `<li><strong>${postalCodeLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.postalCode))}</li>`,
+    `<li><strong>${lockerLabel}:</strong> ${escapeHtml(formatOptional(order.delivery?.lockerId))}</li>`
+  ].join('');
 
   return [
     '<div style="font-family:Arial,sans-serif;line-height:1.5;color:#111">',
     `<h2>${headline}</h2>`,
     `<p>${intro}</p>`,
     `<p><strong>${amountLabel}:</strong> ${formatAmountCents(order.amountTotal, order.currency)}</p>`,
-    `<p><strong>${sessionLabel}:</strong> ${order.sessionId}</p>`,
+    `<p><strong>${sessionLabel}:</strong> ${escapeHtml(order.sessionId)}</p>`,
     `<p><strong>${dateLabel}:</strong> ${new Date(order.paidAt).toLocaleString()}</p>`,
     `<p><strong>${itemsLabel}:</strong></p>`,
     `<ul>${itemsRows}</ul>`,
+    `<p><strong>${customerLabel}:</strong></p>`,
+    `<ul>${customerRows}</ul>`,
     '</div>'
   ].join('');
 }

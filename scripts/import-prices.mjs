@@ -92,6 +92,34 @@ function parseText(value, maxLength) {
   return value.trim().slice(0, maxLength);
 }
 
+function hasValidGtinCheckDigit(code) {
+  const digits = code.split('').map(Number);
+  const checkDigit = digits.pop();
+  const sum = digits
+    .reverse()
+    .reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 3 : 1), 0);
+
+  return (10 - (sum % 10)) % 10 === checkDigit;
+}
+
+// Excel stores barcodes typed into General-format cells as numbers, so accept both.
+function parseEan(value) {
+  let raw = '';
+
+  if (typeof value === 'number') {
+    raw = Number.isSafeInteger(value) && value > 0 ? String(value) : '';
+  } else if (typeof value === 'string') {
+    raw = value.replace(/\s+/g, '');
+  }
+
+  if (!raw) {
+    return { ean: '', invalid: false };
+  }
+
+  const valid = /^(\d{8}|\d{12,14})$/.test(raw) && hasValidGtinCheckDigit(raw);
+  return valid ? { ean: raw, invalid: false } : { ean: '', invalid: true };
+}
+
 function findHeaderKey(headers, allowed) {
   return headers.find((header) => allowed.includes(normalizeHeader(header))) || null;
 }
@@ -110,7 +138,20 @@ const finalPriceHeaders = [
   'крайна цена',
   'цена'
 ];
-const eanHeaders = ['ean', 'barcode', 'bar code', 'gtin'];
+const eanHeaders = [
+  'ean',
+  'ean13',
+  'ean 13',
+  'ean-13',
+  'ean13 number',
+  'ean13 numbers',
+  'ean 13 numbers',
+  'ean code',
+  'ean codes',
+  'barcode',
+  'bar code',
+  'gtin'
+];
 
 const brandHeaders = ['brand', 'марка'];
 const stockHeaders = ['stock', 'qty', 'quantity', 'наличност'];
@@ -213,7 +254,7 @@ function parseOverridesSheet(workbook, sheetName, productsByLookup, existingOver
     }
 
     if (eanHeader) {
-      const value = parseText(row[eanHeader], 32);
+      const { ean: value } = parseEan(row[eanHeader]);
       if (value) {
         next.ean = value;
       } else {
@@ -345,6 +386,7 @@ let matchedCount = 0;
 let updatedCount = 0;
 const unknownIdentifiers = [];
 const invalidPriceRows = [];
+const invalidEanRows = [];
 
 for (const row of rows) {
   const identifier = String(row[idHeader] ?? '').trim();
@@ -365,7 +407,11 @@ for (const row of rows) {
   const qty = qtyHeader ? parseNumber(row[qtyHeader]) : null;
   const finalPrice = parseNumber(row[finalPriceHeader]);
   const margin = marginHeader ? parseNumber(row[marginHeader]) : null;
-  const ean = eanHeader ? parseText(row[eanHeader], 32) : '';
+  const parsedEan = eanHeader ? parseEan(row[eanHeader]) : { ean: '', invalid: false };
+  const ean = parsedEan.ean;
+  if (parsedEan.invalid) {
+    invalidEanRows.push(`${identifier} (${row[eanHeader]})`);
+  }
 
   if (finalPrice === null || finalPrice < 0) {
     invalidPriceRows.push(identifier);
@@ -437,7 +483,11 @@ console.log(`Matched products: ${matchedCount}`);
 console.log(`Updated products: ${updatedCount}`);
 console.log(`Unknown identifiers: ${unknownIdentifiers.length}`);
 console.log(`Rows with invalid final price: ${invalidPriceRows.length}`);
-console.log(`EAN column detected: ${eanHeader ? 'yes' : 'no'}`);
+console.log(`EAN column detected: ${eanHeader ? `yes (${eanHeader})` : 'no'}`);
+console.log(`Rows with invalid EAN: ${invalidEanRows.length}`);
+if (invalidEanRows.length > 0) {
+  console.log(`Invalid EAN rows (EAN not imported): ${invalidEanRows.join(', ')}`);
+}
 
 if (useOverridesSheet) {
   console.log(`Overrides sheet: ${overridesSheetNameArg}`);
