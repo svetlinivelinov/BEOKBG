@@ -179,7 +179,6 @@ export async function POST(request: Request) {
       try {
         const awbRequest = {
           clientId: process.env.SAMEDAY_CLIENT_ID?.trim() || '',
-          serviceId: process.env.SAMEDAY_SERVICE_ID?.trim() || '',
           pickupId: process.env.SAMEDAY_PICKUP_POINT_ID?.trim() || '',
           deliveryType: delivery.deliveryType,
           recipient: {
