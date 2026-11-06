@@ -55,8 +55,9 @@ export default async function AdminOrdersPage({
               <thead className="bg-gray-100 text-left text-gray-700">
                 <tr>
                   <th className="px-4 py-3">{isBg ? 'Дата' : 'Date'}</th>
-                  <th className="px-4 py-3">{isBg ? 'Имейл' : 'Email'}</th>
+                  <th className="px-4 py-3">{isBg ? 'Клиент' : 'Customer'}</th>
                   <th className="px-4 py-3">{isBg ? 'Сума' : 'Amount'}</th>
+                  <th className="px-4 py-3">{isBg ? 'Доставка' : 'Delivery'}</th>
                   <th className="px-4 py-3">{isBg ? 'Сесия' : 'Session'}</th>
                   <th className="px-4 py-3">{isBg ? 'Артикули' : 'Items'}</th>
                 </tr>
@@ -69,12 +70,37 @@ export default async function AdminOrdersPage({
                         currency: order.currency.toUpperCase()
                       }).format(order.amountTotal / 100)
                     : '-';
+                  const customerName = order.delivery?.fullName ?? '-';
+                  const customerEmail = order.delivery?.email ?? order.customerEmail ?? '-';
+                  const customerPhone = order.delivery?.phone ?? '-';
+                  const deliveryType = order.delivery?.deliveryType === 'easybox'
+                    ? 'Easybox'
+                    : order.delivery?.deliveryType === 'address'
+                      ? (isBg ? 'Адрес' : 'Address')
+                      : '-';
+                  const deliveryLine = order.delivery?.deliveryType === 'easybox'
+                    ? `${isBg ? 'Easybox' : 'Locker'}: ${order.delivery.lockerId ?? '-'}`
+                    : [order.delivery?.addressLine1, order.delivery?.city, order.delivery?.postalCode]
+                      .filter((value): value is string => Boolean(value && value.trim()))
+                      .join(', ') || '-';
 
                   return (
                     <tr key={order.sessionId} className="border-t border-gray-200 align-top">
                       <td className="px-4 py-3 text-gray-700">{new Date(order.paidAt).toLocaleString()}</td>
-                      <td className="px-4 py-3 text-gray-700">{order.customerEmail ?? '-'}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        <div className="space-y-1">
+                          <div className="font-medium">{customerName}</div>
+                          <div>{customerEmail}</div>
+                          <div>{customerPhone}</div>
+                        </div>
+                      </td>
                       <td className="px-4 py-3 font-semibold text-brand-orange">{amount}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        <div className="space-y-1">
+                          <div>{deliveryType}</div>
+                          <div className="text-xs text-gray-500">{deliveryLine}</div>
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-xs text-gray-500">{order.sessionId}</td>
                       <td className="px-4 py-3 text-gray-700">
                         <ul className="list-disc pl-4 space-y-1">
