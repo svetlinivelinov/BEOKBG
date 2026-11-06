@@ -9,6 +9,7 @@ Set the following variables in your environment file.
 - EMAG_USERNAME: eMAG API username
 - EMAG_PASSWORD: eMAG API password
 - EMAG_BASE_URL: marketplace base URL, example https://marketplace-api.emag.bg/api-3
+- EMAG_RELAY_SHARED_SECRET: optional shared secret sent as x-relay-secret header when using a private relay
 - EMAG_ADMIN_TOKEN: token required by the eMAG admin API routes (recommended)
 - EMAG_WEBHOOK_ALLOWED_IPS: comma-separated list of source IPs allowed to call webhook endpoint
 - EMAG_CATEGORY_MAP_JSON: JSON map from local category key to eMAG category id
@@ -176,6 +177,22 @@ flowchart TD
 - 403 forbidden_source_ip on webhook
   - Check EMAG_WEBHOOK_ALLOWED_IPS
   - Confirm forwarding headers are set by your proxy
+
+## Railway + Contabo relay (fixed outgoing IP)
+
+Use this when eMAG must allowlist a single fixed outgoing IP while the app is hosted on Railway.
+
+1. Create DNS record:
+   - A record `emag-relay.beoksmart.com` -> your Contabo IPv4
+2. On Contabo VPS install and enable Nginx + TLS cert for `emag-relay.beoksmart.com`.
+3. Configure Nginx to proxy all requests to `https://marketplace-api.emag.bg/api-3/`.
+4. Add shared secret check in Nginx (recommended) and set the same secret in Railway:
+   - `EMAG_RELAY_SHARED_SECRET=<long-random-secret>`
+5. In Railway set:
+   - `EMAG_BASE_URL=https://emag-relay.beoksmart.com`
+6. Keep normal API auth vars:
+   - `EMAG_USERNAME`, `EMAG_PASSWORD`
+7. Redeploy and run eMAG admin actions to verify connectivity.
 
 - eMAG rate limit exceeded
   - Reduce call frequency

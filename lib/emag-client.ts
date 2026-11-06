@@ -41,6 +41,7 @@ function stringifyError(error: unknown): string {
 export class EmagApiClient {
   private readonly baseUrl: string;
   private readonly authorizationHeader: string;
+  private readonly relaySharedSecret: string | null;
   private readonly debugEnabled: boolean;
   private readonly lastRequestAt: Record<RateBucket, number>;
   private readonly bucketQueues: Record<RateBucket, Promise<void>>;
@@ -49,11 +50,13 @@ export class EmagApiClient {
     baseUrl?: string;
     username?: string;
     password?: string;
+    relaySharedSecret?: string;
     debug?: boolean;
   }) {
     const baseUrl = options?.baseUrl || process.env.EMAG_BASE_URL || 'https://marketplace-api.emag.bg/api-3';
     const username = options?.username || process.env.EMAG_USERNAME || '';
     const password = options?.password || process.env.EMAG_PASSWORD || '';
+    const relaySharedSecret = options?.relaySharedSecret ?? process.env.EMAG_RELAY_SHARED_SECRET?.trim() ?? '';
 
     if (!username || !password) {
       throw new Error('Missing eMAG credentials. Set EMAG_USERNAME and EMAG_PASSWORD.');
@@ -61,6 +64,7 @@ export class EmagApiClient {
 
     this.baseUrl = normalizeBaseUrl(baseUrl);
     this.authorizationHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    this.relaySharedSecret = relaySharedSecret || null;
     this.debugEnabled = options?.debug ?? process.env.EMAG_DEBUG === '1';
     this.lastRequestAt = { orders: 0, general: 0 };
     this.bucketQueues = {
@@ -118,13 +122,18 @@ export class EmagApiClient {
     let response: Response;
 
     try {
+      const headers: Record<string, string> = {
+        Authorization: this.authorizationHeader,
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+      if (this.relaySharedSecret) {
+        headers['x-relay-secret'] = this.relaySharedSecret;
+      }
+
       response = await fetch(url, {
         method,
-        headers: {
-          Authorization: this.authorizationHeader,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: method === 'GET' ? undefined : JSON.stringify(payload ?? {})
       });
     } catch (error) {
