@@ -182,6 +182,10 @@ flowchart TD
 
 Use this when eMAG must allowlist a single fixed outgoing IP while the app is hosted on Railway.
 
+Detailed step-by-step runbook (Windows PowerShell driven):
+
+- [eMAG relay setup (Contabo + Railway) via PowerShell](./emag-relay-contabo-railway-powershell.md)
+
 1. Create DNS record:
    - A record `emag-relay.beoksmart.com` -> your Contabo IPv4
 2. On Contabo VPS install and enable Nginx + TLS cert for `emag-relay.beoksmart.com`.
