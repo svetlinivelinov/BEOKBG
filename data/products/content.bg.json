@@ -1,7 +1,7 @@
 {
   "tgm50-wifi-ep": {
     "name": "Термостат за електрическо подово отопление",
-    "description": "Wi-Fi touchscreen room thermostat from the TGM50 series, suitable for water heating, electric heating, and boiler systems. The EP variant is configured for electric heating appliances, with 16A current loading and a weekly program. Main functions include WiFi app control for Android and Apple iOS, a full-screen touchscreen display, power-off memory, real-time data save, 5+2/6+1/7-day six-period program scheduling, anti-freezing protection, three sensor modes, and child lock.",
+    "description": "Wi‑Fi стаен термостат със сензорен екран от серията TGM50, подходящ за водно, електрическо и котелно отопление. Вариантът EP е конфигуриран за електрически отоплителни уреди, с товарен ток 16A и седмична програма. Основните функции включват управление през приложение за Android и iOS, пълноекранен touch дисплей, запаметяване при спиране на захранването, запис на данни в реално време, 5+2/6+1/7-дневно програмиране с шест периода, антизамръзване, три режима на сензор и детска защита.",
     "keyFeatures": [
       "WiFi за Android и Apple iOS",
       "дисплей на цял екран със сензорно управление",
@@ -30,7 +30,7 @@
   },
   "tgm50-wifi-wp": {
     "name": "Термостат за водно подово отопление",
-    "description": "Wi-Fi touchscreen room thermostat from the TGM50 series, suitable for water heating, electric heating, and boiler systems. The WP variant is configured for water heating appliances, with 3A current loading and a weekly program. Main functions include WiFi app control for Android and Apple iOS, a full-screen touchscreen display, power-off memory, real-time data save, 5+2/6+1/7-day six-period program scheduling, anti-freezing protection, three sensor modes, and child lock.",
+    "description": "Wi‑Fi стаен термостат със сензорен екран от серията TGM50, подходящ за водно, електрическо и котелно отопление. Вариантът WP е конфигуриран за водни отоплителни системи, с товарен ток 3A и седмична програма. Основните функции включват управление през приложение за Android и iOS, пълноекранен touch дисплей, запаметяване при спиране на захранването, запис на данни в реално време, 5+2/6+1/7-дневно програмиране с шест периода, антизамръзване, три режима на сензор и детска защита.",
     "keyFeatures": [
       "WiFi за Android и Apple iOS",
       "дисплей на цял екран със сензорно управление",
@@ -59,7 +59,7 @@
   },
   "tgm50b-wifi-ep": {
     "name": "Термостат за електрическо подово отопление",
-    "description": "Wi-Fi touchscreen room thermostat from the TGM50B series, suitable for water heating, electric heating, and boiler systems. The EP variant is configured for electric floor heating, with AC100-240V supply, 16A load current, and both an internal air sensor and an external floor sensor. It connects via the Tuya/Smart Life app, with Google Home, Amazon Alexa, and Yandex Alice voice control on the WiFi version, and supports daily programming.",
+    "description": "Wi‑Fi стаен термостат със сензорен екран от серията TGM50B, подходящ за водно, електрическо и котелно отопление. Вариантът EP е конфигуриран за електрическо подово отопление, със захранване AC100-240V, товарен ток 16A, вътрешен въздушен сензор и външен подов сензор. Свързва се чрез Tuya/Smart Life, а WiFi версията поддържа гласово управление с Google Home, Amazon Alexa и Yandex Alice, както и дневно програмиране.",
     "keyFeatures": [
       "AC100-240V",
       "16A",
@@ -86,7 +86,7 @@
   },
   "tgm50b-wifi-wp": {
     "name": "Термостат за водно подово отопление",
-    "description": "Wi-Fi water floor heating thermostat from the TGM50B series. It is configured for water floor control, with AC100-240V supply, 3A load current, and an internal air sensor only (wired connection). It supports daily programming, Tuya/Smart Life app control, and Google Home, Amazon Alexa, and Yandex Alice voice control on the WiFi version.",
+    "description": "Wi‑Fi термостат за водно подово отопление от серията TGM50B. Конфигуриран е за водно управление, със захранване AC100-240V, товарен ток 3A и само вътрешен въздушен сензор (кабелна връзка). Поддържа дневно програмиране, управление през Tuya/Smart Life и гласов контрол с Google Home, Amazon Alexa и Yandex Alice при WiFi версията.",
     "keyFeatures": [
       "водно подово отопление",
       "AC100-240V",
@@ -115,7 +115,7 @@
   },
   "tcc31-wifi-ep": {
     "name": "Термостат за електрическо подово отопление",
-    "description": "Wi-Fi smart knob thermostat from the TCC31 series. The EP variant is suitable for electric floor heating, rated IP20, with an NTC3950 10KΩ sensor, ±1°C accuracy, a 5-95°C set temperature range, and 100-240VAC power supply. It supports manual/automatic mode switching, knob-based temperature adjustment, advanced settings, child lock, and WiFi connectivity.",
+    "description": "Wi‑Fi смарт термостат с въртящ се бутон от серията TCC31. Вариантът EP е подходящ за електрическо подово отопление, със степен на защита IP20, NTC3950 10KΩ сензор, точност ±1°C, диапазон на задаване 5–95°C и захранване 100–240VAC. Поддържа ръчен/автоматичен режим, настройка чрез копче, разширени настройки, детска защита и WiFi свързаност.",
     "keyFeatures": [
       "Интелигентен термостат с въртящ се регулатор",
       "Версия EP за електрическо подово отопление",
@@ -141,7 +141,7 @@
   },
   "tcc31-wifi-wp": {
     "name": "Термостат за водно подово отопление",
-    "description": "Wi-Fi smart knob thermostat from the TCC31 series. The WP variant is suitable for water heating. It supports manual/automatic mode switching, knob-based temperature adjustment, advanced settings, child lock, and WiFi connectivity.",
+    "description": "Wi‑Fi смарт термостат с въртящ се бутон от серията TCC31. Вариантът WP е подходящ за водно отопление. Поддържа ръчен/автоматичен режим, настройка на температурата чрез копче, разширени настройки, детска защита и WiFi свързаност.",
     "keyFeatures": [
       "Интелигентен термостат с въртящ се регулатор",
       "Версия WP за водно отопление",
@@ -167,7 +167,7 @@
   },
   "tgr85-wifi-wpb": {
     "name": "Термостат за газов котел",
-    "description": "Wi-Fi room thermostat from the TGR85 series, suitable for water heating, electric heating, and boiler systems. The WPB variant is configured for boilers connected via dry contact, with 3A current loading and a weekly program. Main functions include WiFi app control for Android and Apple iOS, a large-screen display with touch buttons, power-off memory, real-time data save, 5+2/6+1/7-day six-period program scheduling, anti-freezing protection, three sensor modes, and child lock.",
+    "description": "Wi‑Fi стаен термостат от серията TGR85, подходящ за водно, електрическо и котелно отопление. Вариантът WPB е конфигуриран за котли със сух контакт, с товарен ток 3A и седмична програма. Основните функции включват управление през приложение за Android и iOS, голям дисплей с touch бутони, памет при спиране на захранването, запис на данни в реално време, 5+2/6+1/7-дневно програмиране с шест периода, антизамръзване, три режима на сензор и детска защита.",
     "keyFeatures": [
       "WiFi за Android и Apple iOS",
       "Голям дисплей със сензорни бутони",
@@ -196,7 +196,7 @@
   },
   "tgr85-wifi-ep": {
     "name": "Термостат за електрическо подово отопление",
-    "description": "TGR85-WIFI-EP is the electric floor-heating variant in the TGR85 series. It supports WiFi app control, a weekly programmable schedule, anti-freeze protection, child lock, and power-off memory with real-time data retention.",
+    "description": "TGR85-WIFI-EP е вариантът за електрическо подово отопление в серията TGR85. Поддържа WiFi управление през приложение, седмичен програматор, защита против замръзване, детска защита и памет при прекъсване на захранването със съхранение на данни в реално време.",
     "keyFeatures": [
       "WiFi управление за Android и iOS",
       "Седмичен график 5+2/6+1/7 дни с 6 периода",
@@ -219,7 +219,7 @@
   },
   "tcc31-wifi-wpb": {
     "name": "Термостат за газов котел",
-    "description": "Wi-Fi smart knob thermostat from the TCC31 series. The WPB variant is suitable for gas boiler heating. It supports manual/automatic mode switching, knob-based temperature adjustment, advanced settings, child lock, and WiFi connectivity.",
+    "description": "Wi‑Fi смарт термостат с въртящ се бутон от серията TCC31. Вариантът WPB е подходящ за отопление с газов котел. Поддържа ръчен/автоматичен режим, настройка на температурата чрез копче, разширени настройки, детска защита и WiFi свързаност.",
     "keyFeatures": [
       "Интелигентен термостат с въртящ се регулатор",
       "Версия WPB за газов котел",
@@ -245,7 +245,7 @@
   },
   "bot-r7w-x-wifi": {
     "name": "Безжичен термостат за газов котел",
-    "description": "Wireless gas boiler heating thermostat from the BOT-R7X family. It is an intelligent digital temperature controller that compares ambient temperature with the set temperature and controls the electric valve of a floor heating system to regulate room temperature, improving comfort and saving energy. The WiFi version adds app connectivity, with an NTC sensor, ±0.5°C precision, <170µW self-consumption, 3x1.5V battery power, 3A load current, and IP20 protection.",
+    "description": "Безжичен термостат за отопление с газов котел от серията BOT-R7X. Интелигентен цифров контролер, който сравнява стайната температура със зададената и управлява електрическия вентил на подовата отоплителна система, за да поддържа комфорт и да пести енергия. WiFi версията добавя управление през приложение, NTC сензор, точност ±0.5°C, собствена консумация <170µW, захранване 3x1.5V батерии, товарен ток 3A и защита IP20.",
     "keyFeatures": [
       "Безжичен термостат за газов котел",
       "WiFi свързаност",
@@ -271,7 +271,7 @@
   },
   "bot-r7b-x-wifi": {
     "name": "Безжичен термостат за газов котел",
-    "description": "Wireless gas boiler heating thermostat from the BOT-R7X family. It is an intelligent digital temperature controller that compares ambient temperature with the set temperature and controls the electric valve of a floor heating system to regulate room temperature, improving comfort and saving energy. The WiFi version adds app connectivity, with an NTC sensor, ±0.5°C precision, <170µW self-consumption, 3x1.5V battery power, 3A load current, and IP20 protection.",
+    "description": "Безжичен термостат за отопление с газов котел от серията BOT-R7X. Интелигентен цифров контролер, който сравнява стайната температура със зададената и управлява електрическия вентил на подовата отоплителна система, за да поддържа комфорт и да пести енергия. WiFi версията добавя управление през приложение, NTC сензор, точност ±0.5°C, собствена консумация <170µW, захранване 3x1.5V батерии, товарен ток 3A и защита IP20.",
     "keyFeatures": [
       "Безжичен термостат за газов котел",
       "WiFi свързаност",
@@ -297,7 +297,7 @@
   },
   "bot-r8x-wifi": {
     "name": "Безжичен термостат за газов котел",
-    "description": "Wireless, one-to-one digital thermostat from the BOT-R8X family, designed for underfloor heating systems. It compares ambient temperature with the set temperature to control the working status of a gas wall-mounted boiler and electric valve, regulating room temperature for comfort and energy conservation. It connects via the Tuya Smart/Smart Life app over 2.4GHz WiFi.",
+    "description": "Безжичен дигитален термостат тип one-to-one от серията BOT-R8X, предназначен за системи за подово отопление. Сравнява стайната температура със зададената и управлява работата на стенен газов котел и електрически вентил, за да осигури комфорт и енергийна ефективност. Свързва се чрез приложението Tuya Smart/Smart Life през 2.4GHz WiFi.",
     "keyFeatures": [
       "Безжична комуникация",
       "3 x 1.5V алкални AAA батерии",
@@ -322,7 +322,7 @@
   },
   "bot-r7x-wifi-nr": {
     "name": "Безжичен термостат за газов котел",
-    "description": "Standalone Wi-Fi hydronic (water) underfloor heating thermostat from the BOT-R7X family, supplied with no receiver. It is an intelligent digital temperature controller that compares the current room temperature with the setpoint and controls the water valves of the underfloor heating system through its built-in relay, suitable for manifolds with electro-thermal actuators. It is compatible with the CCT-28-X hub controller for integration into centralized heating management systems, and the WiFi version supports remote control via a mobile app.",
+    "description": "Самостоятелен Wi‑Fi термостат за водно подово отопление от серията BOT-R7X, доставян без приемник. Умен цифров температурен контролер, който сравнява текущата стайна температура със зададената и управлява водните вентили на подовата инсталация чрез вграденото реле, подходящ за колектори с електротермични задвижки. Съвместим е с CCT-28-X hub контролер за интеграция в централизирани системи за управление на отоплението, а WiFi версията поддържа дистанционно управление през мобилно приложение.",
     "keyFeatures": [
       "Серия BOT‑R7X WiFi",
       "WiFi свързаност",
@@ -349,7 +349,7 @@
   },
   "trv-604": {
     "name": "Термостатичен радиаторен вентил",
-    "description": "Wi-Fi smart thermostatic radiator valve. It features an automatic debugging function compatible with mainstream valve types, fast Wi-Fi network pairing with no additional gateway required, an intelligent PID algorithm for efficient valve opening and closing, an ultra-quiet motor, and automatic summer/winter time conversion. It supports remote control and voice control through the Smart Life app.",
+    "description": "Wi‑Fi смарт термостатичен радиаторен вентил. Разполага с функция за автоматично калибриране, съвместима с масови типове вентили, бързо Wi‑Fi сдвояване без допълнителен gateway, интелигентен PID алгоритъм за ефективно отваряне и затваряне, ултра тих мотор и автоматично превключване лято/зима. Поддържа дистанционно и гласово управление чрез приложението Smart Life.",
     "keyFeatures": [
       "Автоматично калибриране",
       "Не изисква централен хъб",
@@ -377,7 +377,7 @@
   },
   "trv-705wf": {
     "name": "Термостатичен радиаторен вентил",
-    "description": "LED Wi-Fi smart thermostatic radiator valve. It supports 4 standard modes and up to 6 programs per day across 7 days a week, and complies with CE (RED/LVD/EMC) and RoHS requirements. It connects directly to the Tuya Smart or Smart Life app without a Zigbee gateway, and temperature and working mode can be set on the device or via smartphone.",
+    "description": "LED Wi‑Fi смарт термостатичен радиаторен вентил. Поддържа 4 стандартни режима и до 6 програми на ден за 7 дни в седмицата и отговаря на изискванията CE (RED/LVD/EMC) и RoHS. Свързва се директно с Tuya Smart или Smart Life без Zigbee gateway, а температурата и работният режим могат да се задават от устройството или през смартфон.",
     "keyFeatures": [
       "Интелигентен Wi‑Fi термостатичен радиаторен вентил с LED дисплей",
       "4 стандартни режима",
@@ -408,7 +408,7 @@
   },
   "cct-28-x": {
     "name": "Централен контролер",
-    "description": "Wireless hub controller used in water underfloor heating systems. As a central control unit, it manages zone valves or boiler thermostats, together with the boiler and circulating pump. Based on the user's set temperature, it opens or closes the boiler, circulating pump, and electric actuators to achieve comfort and energy savings.",
+    "description": "Безжичен hub контролер за водни системи за подово отопление. Като централен управляващ модул контролира зонални вентили или котелни термостати заедно с котела и циркулационната помпа. Според зададената от потребителя температура отваря или затваря котела, помпата и електрическите задвижки за по-висок комфорт и икономия на енергия.",
     "keyFeatures": [
       "Безжичен централен контролер",
       "8 отоплителни кръга",
@@ -433,7 +433,7 @@
   },
   "rz-d01-230-nc": {
     "name": "Термоелектрически задвижващ механизъм",
-    "description": "Normally closed electro-thermal actuator valve for water floor heating systems. It integrates manual and automatic control functions and is used to control manifolds, water valves, and similar underfloor heating components.",
+    "description": "Нормално затворена електротермична задвижка за водни системи за подово отопление. Комбинира ръчен и автоматичен режим на управление и се използва за контрол на колектори, водни вентили и сходни компоненти на подовото отопление.",
     "keyFeatures": [
       "За колектори и отоплителни системи",
       "Нормално затворен (NC)",
