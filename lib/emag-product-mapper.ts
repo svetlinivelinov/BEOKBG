@@ -1,4 +1,6 @@
 import { ProductBase } from './products/types';
+import type { ProductContent } from './products/types';
+import type { EmagProductOverride } from './emag-overrides';
 import {
   EmagPriceUpdate,
   EmagProduct,
@@ -11,6 +13,7 @@ const DEFAULT_SITE_URL = 'https://www.beoksmart.com';
 const FALLBACK_EAN = '0000000000000';
 const FALLBACK_BRAND = 'BEOK';
 const MAX_EMAG_PRODUCT_ID = 16_777_215;
+type EmagMappableProduct = ProductBase & Partial<ProductContent>;
 
 const defaultCategoryMap: Record<string, number> = {
   'room-thermostat': 0,
@@ -128,7 +131,48 @@ function getDefaultWarehouseId(): number {
   return Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1;
 }
 
-function buildDescription(product: ProductBase): string {
+function parseOptionalText(value: string | undefined): string | undefined {
+  const normalized = value?.trim();
+  return normalized || undefined;
+}
+
+function asTextLines(values: string[] | undefined): string[] {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function buildDescription(product: EmagMappableProduct, overrideDescription?: string): string {
+  const customDescription = parseOptionalText(overrideDescription);
+  if (customDescription) {
+    return customDescription;
+  }
+
+  const description = parseOptionalText(product.description);
+  if (description) {
+    return description;
+  }
+
+  const keyFeatures = asTextLines(product.keyFeatures);
+  const technicalData = asTextLines(product.technicalData);
+  const localizedSections: string[] = [];
+
+  if (keyFeatures.length) {
+    localizedSections.push(`Key features:\n- ${keyFeatures.join('\n- ')}`);
+  }
+
+  if (technicalData.length) {
+    localizedSections.push(`Technical data:\n- ${technicalData.join('\n- ')}`);
+  }
+
+  if (localizedSections.length) {
+    return localizedSections.join('\n\n');
+  }
+
   const base = `${product.model} ${product.category} thermostat by ${FALLBACK_BRAND}.`;
   const source = Array.isArray(product.sourceUrls) && product.sourceUrls[0] ? ` Source: ${product.sourceUrls[0]}` : '';
   return `${base}${source}`.trim();
@@ -139,11 +183,19 @@ function getPlaceholderDimension(envName: string, fallback: number): number {
   return Number.isFinite(value) ? Math.max(1, value) : fallback;
 }
 
-export function mapProductToEmagProduct(product: ProductBase): EmagProduct {
+export function mapProductToEmagProduct(
+  product: EmagMappableProduct,
+  options?: { override?: EmagProductOverride }
+): EmagProduct {
   const warehouseId = getDefaultWarehouseId();
   const price = roundPrice(toFiniteNumber(product.finalPriceEur, 0));
-  const stockValue = toStockValue(product.priceQty);
-  const productEan = typeof product.ean === 'string' ? product.ean.trim() : '';
+  const override = options?.override;
+  const stockValue = toStockValue(override?.stock ?? product.priceQty);
+  const productEan = typeof override?.ean === 'string'
+    ? override.ean.trim()
+    : typeof product.ean === 'string'
+      ? product.ean.trim()
+      : '';
 
   return {
     id: toEmagProductId(product.id),
@@ -151,8 +203,8 @@ export function mapProductToEmagProduct(product: ProductBase): EmagProduct {
     category_id: mapCategory(product.category),
     part_number: product.model,
     source_language: process.env.EMAG_SOURCE_LANGUAGE?.trim() || 'bg_BG',
-    description: buildDescription(product),
-    brand: process.env.EMAG_BRAND?.trim() || FALLBACK_BRAND,
+    description: buildDescription(product, override?.description),
+    brand: override?.brand?.trim() || process.env.EMAG_BRAND?.trim() || FALLBACK_BRAND,
     ean: productEan || process.env.EMAG_DEFAULT_EAN?.trim() || FALLBACK_EAN,
     images: collectImages(product),
     status: 1,
@@ -171,10 +223,10 @@ export function mapProductToEmagProduct(product: ProductBase): EmagProduct {
       }
     ],
     vat_id: getDefaultVatId(),
-    weight: getPlaceholderDimension('EMAG_DEFAULT_WEIGHT_GRAMS', 500),
-    width: getPlaceholderDimension('EMAG_DEFAULT_WIDTH_MM', 100),
-    height: getPlaceholderDimension('EMAG_DEFAULT_HEIGHT_MM', 100),
-    length: getPlaceholderDimension('EMAG_DEFAULT_LENGTH_MM', 100)
+    weight: toFiniteNumber(override?.weight, getPlaceholderDimension('EMAG_DEFAULT_WEIGHT_GRAMS', 500)),
+    width: toFiniteNumber(override?.width, getPlaceholderDimension('EMAG_DEFAULT_WIDTH_MM', 100)),
+    height: toFiniteNumber(override?.height, getPlaceholderDimension('EMAG_DEFAULT_HEIGHT_MM', 100)),
+    length: toFiniteNumber(override?.length, getPlaceholderDimension('EMAG_DEFAULT_LENGTH_MM', 100))
   };
 }
 

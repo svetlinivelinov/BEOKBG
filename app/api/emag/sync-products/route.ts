@@ -3,10 +3,17 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { isEmagAdminAuthorized, readJsonBody, unauthorizedResponse } from '../../../../lib/emag-admin';
 import { getEmagClient } from '../../../../lib/emag-client';
+import { loadEmagOverrides } from '../../../../lib/emag-overrides';
+import type { EmagOverrideIndex } from '../../../../lib/emag-overrides';
 import { mapProductToEmagProduct, toMeasurementPayload, toProductOfferPayload } from '../../../../lib/emag-product-mapper';
-import { ProductBase } from '../../../../lib/products/types';
+import { ProductBase, ProductContent } from '../../../../lib/products/types';
 
 const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
+const contentBgPath = path.join(process.cwd(), 'data', 'products', 'content.bg.json');
+const contentEnPath = path.join(process.cwd(), 'data', 'products', 'content.en.json');
+
+type ProductForEmag = ProductBase & Partial<ProductContent>;
+type ProductContentById = Record<string, Partial<ProductContent>>;
 
 function toArrayChunks<T>(items: T[], chunkSize: number): T[][] {
   const chunks: T[][] = [];
@@ -22,6 +29,46 @@ async function readProducts(): Promise<ProductBase[]> {
   return Array.isArray(parsed) ? (parsed as ProductBase[]) : [];
 }
 
+async function readProductContent(filePath: string): Promise<ProductContentById> {
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? (parsed as ProductContentById) : {};
+  } catch (error) {
+    console.warn(
+      `Unable to read eMAG content file: ${filePath}`,
+      error instanceof Error ? error.message : 'unknown_error'
+    );
+    return {};
+  }
+}
+
+async function readProductsForEmagSync(): Promise<ProductForEmag[]> {
+  const [products, contentBg, contentEn] = await Promise.all([
+    readProducts(),
+    readProductContent(contentBgPath),
+    readProductContent(contentEnPath)
+  ]);
+
+  return products.map((product) => {
+    const fallbackContent = contentEn[product.id] ?? {};
+    const bgContent = contentBg[product.id] ?? {};
+
+    return {
+      ...product,
+      ...fallbackContent,
+      ...bgContent
+    };
+  });
+}
+
+function getProductOverride(overrides: EmagOverrideIndex, product: ProductBase) {
+  const idKey = product.id.trim().toLowerCase();
+  const modelKey = product.model.trim().toLowerCase();
+
+  return overrides[idKey] ?? overrides[modelKey];
+}
+
 export async function POST(request: Request) {
   if (!isEmagAdminAuthorized(request)) {
     return unauthorizedResponse();
@@ -31,7 +78,7 @@ export async function POST(request: Request) {
   const selectedIds = new Set(Array.isArray(payload?.ids) ? payload.ids : []);
 
   try {
-    const products = await readProducts();
+    const [products, overrides] = await Promise.all([readProductsForEmagSync(), loadEmagOverrides()]);
     const selectedProducts = selectedIds.size > 0
       ? products.filter((product) => selectedIds.has(product.id))
       : products;
@@ -49,7 +96,9 @@ export async function POST(request: Request) {
     }
 
     const client = getEmagClient();
-    const mappedProducts = selectedProducts.map(mapProductToEmagProduct);
+    const mappedProducts = selectedProducts.map((product) =>
+      mapProductToEmagProduct(product, { override: getProductOverride(overrides, product) })
+    );
     const batches = toArrayChunks(mappedProducts, 50);
 
     const syncReport: Array<{ batch: number; products: number; status: 'ok' | 'failed'; error?: string }> = [];
