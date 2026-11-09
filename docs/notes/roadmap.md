@@ -94,3 +94,44 @@ This roadmap is updated to match the current codebase after the App Router migra
 - BG and EN parity for core catalog paths
 - Filters and language switching behave consistently
 - Documentation remains aligned with implementation
+
+## 2-Week Execution Checklist (Post eMAG Upload)
+
+### P1 — Immediate (next 2-3 days)
+1. Finalize and commit current catalog + integration updates:
+   - `data/products/content.en.json`
+   - `data/products/content.bg.json`
+   - `data/products/products.json`
+   - `app/api/emag/sync-products/route.ts`
+   - `lib/emag-product-mapper.ts`
+2. Run eMAG operator flow in order:
+   - Sync products
+   - Update stock
+   - Update price
+3. Validate eMAG sync report:
+   - No failed batches
+   - Check product visibility and category/attribute acceptance
+4. Run indexing push in Search Console:
+   - Submit key BG/EN URLs (home, products list, selected product pages)
+
+### P2 — Stabilization (days 4-7)
+1. Complete checkout reliability hardening:
+   - Webhook robustness
+   - Order lifecycle state handling
+2. Improve eMAG failure reporting and handling:
+   - Category/attribute rejection diagnostics
+   - Operational retries where safe
+3. Fix local test baseline compatibility:
+   - Ensure tests run cleanly on the target Node runtime
+
+### P3 — Scale-up (week 2)
+1. Catalog quality sweep:
+   - Content consistency and image/alt quality checks
+2. SEO/performance upgrades:
+   - Product JSON-LD
+   - Sitemap/robots strategy
+   - Image loading/size optimization
+3. Sameday phase-2 integration:
+   - Geography/pickup validation completion
+   - Shipment recovery/admin retry flows
+   - Status synchronization scheduling
