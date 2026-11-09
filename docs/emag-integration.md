@@ -47,7 +47,10 @@ All protected routes accept token by one of these methods:
 ### POST /api/emag/sync-products
 
 - Reads all products from data/products/products.json
+- Loads localized content from data/products/content.bg.json with field-level fallback to data/products/content.en.json
+- Loads optional product overrides from data/products/emag.overrides.json (or EMAG_OVERRIDES_PATH)
 - Maps products to eMAG offer payload
+- Uses description priority: overrides.description -> localized BG description -> generated fallback text
 - Sends batches to /product_offer/save
 - Sends measurements in matching batches to /measurements/save
 - Returns sync report with failed batches
@@ -114,6 +117,8 @@ Supported override fields per product:
 - width
 - height
 - length
+
+When syncing products to eMAG, override fields are applied on top of base product data. If `description` is set in overrides, it always takes precedence over the localized content description.
 
 The import script can also populate overrides directly from an Excel sheet:
 
