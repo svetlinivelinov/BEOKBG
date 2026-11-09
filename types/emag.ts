@@ -20,6 +20,12 @@ export interface EmagCharacteristic {
   tag?: string;
 }
 
+export interface EmagFamily {
+  id: number;
+  name?: string;
+  family_type_id?: number;
+}
+
 export interface EmagProduct {
   id: number;
   name: string;
@@ -36,6 +42,8 @@ export interface EmagProduct {
   stock: EmagStockValue[];
   handling_time: EmagHandlingTimeValue[];
   characteristics?: EmagCharacteristic[];
+  family?: EmagFamily;
+  warranty?: number;
   vat_id: number;
   weight: number;
   width: number;
@@ -59,6 +67,8 @@ export interface EmagProductOfferPayload {
   stock: EmagStockValue[];
   handling_time: EmagHandlingTimeValue[];
   characteristics?: EmagCharacteristic[];
+  family?: EmagFamily;
+  warranty?: number;
   vat_id: number;
 }
 

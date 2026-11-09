@@ -3,6 +3,7 @@ import type { ProductContent } from './products/types';
 import type { EmagProductOverride } from './emag-overrides';
 import {
   EmagCharacteristic,
+  EmagFamily,
   EmagPriceUpdate,
   EmagProduct,
   EmagProductMeasurementPayload,
@@ -19,6 +20,17 @@ type CharacteristicValueByApplication = Partial<Record<ProductBase['application'
 type CharacteristicConfigValue = string | CharacteristicValueByApplication;
 type CharacteristicConfigById = Record<string, CharacteristicConfigValue>;
 type CharacteristicsConfigByCategory = Record<string, CharacteristicConfigById>;
+type FamilyConfig = {
+  id?: number;
+  name?: string;
+  family_type_id?: number;
+  color?: string;
+};
+type FamilyConfigMap = Record<string, FamilyConfig>;
+type ResolvedFamilyConfig = {
+  family?: EmagFamily;
+  color?: string;
+};
 
 const DEFAULT_CATEGORY_CHARACTERISTICS: CharacteristicsConfigByCategory = {
   'room-thermostat': {
@@ -159,6 +171,34 @@ function getDefaultWarehouseId(): number {
   return Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1;
 }
 
+function getDefaultWarrantyMonths(): number | undefined {
+  const raw = process.env.EMAG_WARRANTY_MONTHS?.trim();
+  if (!raw) {
+    return undefined;
+  }
+
+  const value = Number(raw);
+  if (!Number.isFinite(value)) {
+    return undefined;
+  }
+
+  return Math.max(0, Math.floor(value));
+}
+
+function getColorCharacteristicId(): number | undefined {
+  const raw = process.env.EMAG_COLOR_CHARACTERISTIC_ID?.trim();
+  if (!raw) {
+    return 5401;
+  }
+
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value <= 0) {
+    return undefined;
+  }
+
+  return Math.floor(value);
+}
+
 function parseCharacteristicByApplication(value: unknown): CharacteristicValueByApplication | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return undefined;
@@ -215,6 +255,137 @@ function parseCategoryCharacteristicsConfig(raw: unknown): CharacteristicsConfig
   return parsed;
 }
 
+function parseFamilyConfig(value: unknown): FamilyConfig | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const source = value as Record<string, unknown>;
+  const id = Number(source.id);
+  const familyTypeId = Number(source.family_type_id);
+  const name = typeof source.name === 'string' ? source.name.trim() : '';
+  const color = typeof source.color === 'string' ? source.color.trim() : '';
+
+  const parsed: FamilyConfig = {
+    ...(Number.isFinite(id) && id > 0 ? { id: Math.floor(id) } : {}),
+    ...(name ? { name } : {}),
+    ...(Number.isFinite(familyTypeId) && familyTypeId > 0 ? { family_type_id: Math.floor(familyTypeId) } : {}),
+    ...(color ? { color } : {})
+  };
+
+  return Object.keys(parsed).length > 0 ? parsed : undefined;
+}
+
+function getFamilyConfigMap(): FamilyConfigMap {
+  const raw = process.env.EMAG_FAMILY_MAP_JSON?.trim();
+  if (!raw) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
+
+    const source = parsed as Record<string, unknown>;
+    const map: FamilyConfigMap = {};
+
+    for (const [key, value] of Object.entries(source)) {
+      const normalizedKey = key.trim().toLowerCase();
+      if (!normalizedKey) {
+        continue;
+      }
+
+      const parsedFamily = parseFamilyConfig(value);
+      if (parsedFamily) {
+        map[normalizedKey] = parsedFamily;
+      }
+    }
+
+    return map;
+  } catch {
+    return {};
+  }
+}
+
+function inferFamilyNameFromModel(model: string): string | undefined {
+  const normalizedModel = model.trim().toUpperCase();
+  if (!normalizedModel) {
+    return undefined;
+  }
+
+  const match = normalizedModel.match(/^(.*)-(EP|WP|WPB|NR)$/);
+  if (!match) {
+    return undefined;
+  }
+
+  const familyName = match[1]?.trim();
+  return familyName || undefined;
+}
+
+function inferColorFromModel(model: string): string | undefined {
+  const normalized = model.trim().toUpperCase();
+  if (!normalized) {
+    return undefined;
+  }
+
+  if (/(^|-)R7B(-|$)|(^|-)TGM50B(-|$)|BLACK|ЧЕРЕН/.test(normalized)) {
+    return 'Черен';
+  }
+
+  if (/(^|-)R7W(-|$)|(^|-)TGM50(-|$)|WHITE|БЯЛ/.test(normalized)) {
+    return 'Бял';
+  }
+
+  return undefined;
+}
+
+function resolveFamilyConfig(product: EmagMappableProduct): ResolvedFamilyConfig {
+  const map = getFamilyConfigMap();
+  const productIdKey = product.id.trim().toLowerCase();
+  const modelKey = product.model.trim().toLowerCase();
+  const explicit = map[productIdKey] ?? map[modelKey];
+
+  if (explicit) {
+    const familyId = explicit.id ?? (explicit.name ? toEmagProductId(`family:${explicit.name}`) : undefined);
+    const family = familyId
+      ? {
+          id: familyId,
+          ...(explicit.name ? { name: explicit.name } : {}),
+          ...(explicit.family_type_id ? { family_type_id: explicit.family_type_id } : {})
+        }
+      : undefined;
+
+    return {
+      ...(family ? { family } : {}),
+      ...(explicit.color ? { color: explicit.color } : {})
+    };
+  }
+
+  const autoEnabled = process.env.EMAG_ENABLE_AUTO_FAMILY === '1';
+  if (!autoEnabled) {
+    return {};
+  }
+
+  const inferredName = inferFamilyNameFromModel(product.model);
+  if (!inferredName) {
+    return {};
+  }
+
+  const rawFamilyTypeId = Number(process.env.EMAG_FAMILY_TYPE_ID ?? '1');
+  const familyTypeId = Number.isFinite(rawFamilyTypeId) && rawFamilyTypeId > 0 ? Math.floor(rawFamilyTypeId) : 1;
+
+  return {
+    family: {
+      id: toEmagProductId(`family:${inferredName}`),
+      name: inferredName,
+      family_type_id: familyTypeId
+    },
+    color: inferColorFromModel(product.model)
+  };
+}
+
 function getCategoryCharacteristicsConfig(): CharacteristicsConfigByCategory {
   const raw = process.env.EMAG_CHARACTERISTICS_MAP_JSON?.trim();
   if (!raw) {
@@ -242,28 +413,36 @@ function getCharacteristicValue(
   return byApplication || undefined;
 }
 
-function buildCharacteristics(product: EmagMappableProduct): EmagCharacteristic[] {
+function buildCharacteristics(product: EmagMappableProduct, color?: string): EmagCharacteristic[] {
   const configByCategory = getCategoryCharacteristicsConfig()[product.category];
-  if (!configByCategory) {
-    return [];
-  }
-
   const mapped: EmagCharacteristic[] = [];
 
-  for (const [idRaw, valueRaw] of Object.entries(configByCategory)) {
-    const id = Number(idRaw);
-    if (!Number.isFinite(id) || id <= 0) {
-      continue;
-    }
+  if (configByCategory) {
+    for (const [idRaw, valueRaw] of Object.entries(configByCategory)) {
+      const id = Number(idRaw);
+      if (!Number.isFinite(id) || id <= 0) {
+        continue;
+      }
 
-    const value = getCharacteristicValue(valueRaw, product.application);
-    if (!value) {
-      continue;
-    }
+      const value = getCharacteristicValue(valueRaw, product.application);
+      if (!value) {
+        continue;
+      }
 
+      mapped.push({
+        id: Math.floor(id),
+        value
+      });
+    }
+  }
+
+  const colorCharacteristicId = getColorCharacteristicId();
+  const normalizedColor = color?.trim();
+  const hasColorInMapping = Boolean(colorCharacteristicId && mapped.some((item) => item.id === colorCharacteristicId));
+  if (colorCharacteristicId && normalizedColor && !hasColorInMapping) {
     mapped.push({
-      id: Math.floor(id),
-      value
+      id: colorCharacteristicId,
+      value: normalizedColor
     });
   }
 
@@ -331,7 +510,9 @@ export function mapProductToEmagProduct(
   const price = roundPrice(toFiniteNumber(product.finalPriceEur, 0));
   const override = options?.override;
   const stockValue = toStockValue(override?.stock ?? product.priceQty);
-  const characteristics = buildCharacteristics(product);
+  const familyConfig = resolveFamilyConfig(product);
+  const characteristics = buildCharacteristics(product, familyConfig.color);
+  const warranty = getDefaultWarrantyMonths();
   const productEan = typeof override?.ean === 'string'
     ? override.ean.trim()
     : typeof product.ean === 'string'
@@ -357,6 +538,7 @@ export function mapProductToEmagProduct(
         value: stockValue
       }
     ],
+    ...(familyConfig.family ? { family: familyConfig.family } : {}),
     ...(characteristics.length > 0 ? { characteristics } : {}),
     handling_time: [
       {
@@ -364,6 +546,7 @@ export function mapProductToEmagProduct(
         value: getDefaultHandlingTime()
       }
     ],
+    ...(warranty !== undefined ? { warranty } : {}),
     vat_id: getDefaultVatId(),
     weight: toFiniteNumber(override?.weight, getPlaceholderDimension('EMAG_DEFAULT_WEIGHT_GRAMS', 500)),
     width: toFiniteNumber(override?.width, getPlaceholderDimension('EMAG_DEFAULT_WIDTH_MM', 100)),
@@ -387,8 +570,10 @@ export function toProductOfferPayload(product: EmagProduct): EmagProductOfferPay
     sale_price: product.sale_price,
     currency_type: product.currency_type,
     stock: product.stock,
+    family: product.family,
     characteristics: product.characteristics,
     handling_time: product.handling_time,
+    warranty: product.warranty,
     vat_id: product.vat_id
   };
 }

@@ -14,9 +14,14 @@ Set the following variables in your environment file.
 - EMAG_WEBHOOK_ALLOWED_IPS: comma-separated list of source IPs allowed to call webhook endpoint
 - EMAG_CATEGORY_MAP_JSON: JSON map from local category key to eMAG category id
 - EMAG_CHARACTERISTICS_MAP_JSON: optional JSON map for auto-filled eMAG category characteristics by category and characteristic id
+- EMAG_FAMILY_MAP_JSON: optional JSON map for explicit eMAG family assignment per product id/model
+- EMAG_ENABLE_AUTO_FAMILY: set to 1 to infer families from model suffixes (EP/WP/WPB/NR)
+- EMAG_FAMILY_TYPE_ID: family type id used when EMAG_ENABLE_AUTO_FAMILY=1 (default 1)
+- EMAG_COLOR_CHARACTERISTIC_ID: characteristic id used for auto color value (default 5401)
 - EMAG_CATEGORY_ID_DEFAULT: fallback category id when category key is missing
 - EMAG_VAT_ID: default eMAG VAT id
 - EMAG_WAREHOUSE_ID: default eMAG warehouse id
+- EMAG_WARRANTY_MONTHS: default warranty months sent in offer payload (optional)
 - EMAG_HANDLING_TIME_DAYS: default handling time value
 - EMAG_BRAND: fallback brand name
 - EMAG_DEFAULT_EAN: fallback EAN when unknown
@@ -132,6 +137,33 @@ Example `EMAG_CHARACTERISTICS_MAP_JSON` value:
       "water": "Водно подово отопление",
       "gas-boiler": "Газов котел"
     }
+  }
+}
+```
+
+Example `EMAG_FAMILY_MAP_JSON` value:
+
+```json
+{
+  "tgm50-wifi-ep": {
+    "name": "TGM50-WIFI",
+    "family_type_id": 1,
+    "color": "Бял"
+  },
+  "tgm50-wifi-wp": {
+    "name": "TGM50-WIFI",
+    "family_type_id": 1,
+    "color": "Бял"
+  },
+  "tgm50b-wifi-ep": {
+    "name": "TGM50B-WIFI",
+    "family_type_id": 1,
+    "color": "Черен"
+  },
+  "tgm50b-wifi-wp": {
+    "name": "TGM50B-WIFI",
+    "family_type_id": 1,
+    "color": "Черен"
   }
 }
 ```
