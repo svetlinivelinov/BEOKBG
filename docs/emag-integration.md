@@ -13,6 +13,7 @@ Set the following variables in your environment file.
 - EMAG_ADMIN_TOKEN: token required by the eMAG admin API routes (recommended)
 - EMAG_WEBHOOK_ALLOWED_IPS: comma-separated list of source IPs allowed to call webhook endpoint
 - EMAG_CATEGORY_MAP_JSON: JSON map from local category key to eMAG category id
+- EMAG_CHARACTERISTICS_MAP_JSON: optional JSON map for auto-filled eMAG category characteristics by category and characteristic id
 - EMAG_CATEGORY_ID_DEFAULT: fallback category id when category key is missing
 - EMAG_VAT_ID: default eMAG VAT id
 - EMAG_WAREHOUSE_ID: default eMAG warehouse id
@@ -117,6 +118,23 @@ Supported override fields per product:
 - width
 - height
 - length
+
+Example `EMAG_CHARACTERISTICS_MAP_JSON` value:
+
+```json
+{
+  "room-thermostat": {
+    "5704": "Термостат",
+    "8434": "Вътрешна употреба",
+    "7597": "BEOK",
+    "9645": {
+      "electric": "Електрическо подово отопление",
+      "water": "Водно подово отопление",
+      "gas-boiler": "Газов котел"
+    }
+  }
+}
+```
 
 When syncing products to eMAG, override fields are applied on top of base product data. If `description` is set in overrides, it always takes precedence over the localized content description.
 

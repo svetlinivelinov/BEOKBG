@@ -14,6 +14,12 @@ export interface EmagHandlingTimeValue {
   value: number;
 }
 
+export interface EmagCharacteristic {
+  id: number;
+  value: string;
+  tag?: string;
+}
+
 export interface EmagProduct {
   id: number;
   name: string;
@@ -29,6 +35,7 @@ export interface EmagProduct {
   currency_type?: string;
   stock: EmagStockValue[];
   handling_time: EmagHandlingTimeValue[];
+  characteristics?: EmagCharacteristic[];
   vat_id: number;
   weight: number;
   width: number;
@@ -51,6 +58,7 @@ export interface EmagProductOfferPayload {
   currency_type?: string;
   stock: EmagStockValue[];
   handling_time: EmagHandlingTimeValue[];
+  characteristics?: EmagCharacteristic[];
   vat_id: number;
 }
 

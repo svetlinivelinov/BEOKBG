@@ -2,6 +2,7 @@ import { ProductBase } from './products/types';
 import type { ProductContent } from './products/types';
 import type { EmagProductOverride } from './emag-overrides';
 import {
+  EmagCharacteristic,
   EmagPriceUpdate,
   EmagProduct,
   EmagProductMeasurementPayload,
@@ -14,6 +15,33 @@ const FALLBACK_EAN = '0000000000000';
 const FALLBACK_BRAND = 'BEOK';
 const MAX_EMAG_PRODUCT_ID = 16_777_215;
 type EmagMappableProduct = ProductBase & Partial<ProductContent>;
+type CharacteristicValueByApplication = Partial<Record<ProductBase['application'], string>>;
+type CharacteristicConfigValue = string | CharacteristicValueByApplication;
+type CharacteristicConfigById = Record<string, CharacteristicConfigValue>;
+type CharacteristicsConfigByCategory = Record<string, CharacteristicConfigById>;
+
+const DEFAULT_CATEGORY_CHARACTERISTICS: CharacteristicsConfigByCategory = {
+  'room-thermostat': {
+    '5704': 'Термостат',
+    '8434': 'Вътрешна употреба',
+    '7597': 'BEOK',
+    '9645': {
+      electric: 'Електрическо подово отопление',
+      water: 'Водно подово отопление',
+      'gas-boiler': 'Газов котел'
+    }
+  },
+  'gas-boiler-thermostat': {
+    '5704': 'Термостат',
+    '8434': 'Вътрешна употреба',
+    '7597': 'BEOK',
+    '9645': {
+      electric: 'Електрическо подово отопление',
+      water: 'Водно подово отопление',
+      'gas-boiler': 'Газов котел'
+    }
+  }
+};
 
 const defaultCategoryMap: Record<string, number> = {
   'room-thermostat': 0,
@@ -131,6 +159,118 @@ function getDefaultWarehouseId(): number {
   return Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1;
 }
 
+function parseCharacteristicByApplication(value: unknown): CharacteristicValueByApplication | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const source = value as Record<string, unknown>;
+  const result: CharacteristicValueByApplication = {};
+  for (const key of ['electric', 'water', 'gas-boiler'] as ProductBase['application'][]) {
+    if (typeof source[key] === 'string' && source[key].trim()) {
+      result[key] = source[key].trim();
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function parseCharacteristicValue(value: unknown): CharacteristicConfigValue | undefined {
+  if (typeof value === 'string') {
+    const normalized = value.trim();
+    return normalized || undefined;
+  }
+
+  return parseCharacteristicByApplication(value);
+}
+
+function parseCategoryCharacteristicsConfig(raw: unknown): CharacteristicsConfigByCategory {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return {};
+  }
+
+  const source = raw as Record<string, unknown>;
+  const parsed: CharacteristicsConfigByCategory = {};
+
+  for (const [categoryKey, value] of Object.entries(source)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      continue;
+    }
+
+    const characteristics = value as Record<string, unknown>;
+    const parsedById: CharacteristicConfigById = {};
+
+    for (const [characteristicId, characteristicValue] of Object.entries(characteristics)) {
+      const normalizedValue = parseCharacteristicValue(characteristicValue);
+      if (normalizedValue !== undefined) {
+        parsedById[characteristicId] = normalizedValue;
+      }
+    }
+
+    if (Object.keys(parsedById).length > 0) {
+      parsed[categoryKey] = parsedById;
+    }
+  }
+
+  return parsed;
+}
+
+function getCategoryCharacteristicsConfig(): CharacteristicsConfigByCategory {
+  const raw = process.env.EMAG_CHARACTERISTICS_MAP_JSON?.trim();
+  if (!raw) {
+    return DEFAULT_CATEGORY_CHARACTERISTICS;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    const config = parseCategoryCharacteristicsConfig(parsed);
+    return Object.keys(config).length > 0 ? config : DEFAULT_CATEGORY_CHARACTERISTICS;
+  } catch {
+    return DEFAULT_CATEGORY_CHARACTERISTICS;
+  }
+}
+
+function getCharacteristicValue(
+  value: CharacteristicConfigValue,
+  application: ProductBase['application']
+): string | undefined {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  const byApplication = value[application]?.trim();
+  return byApplication || undefined;
+}
+
+function buildCharacteristics(product: EmagMappableProduct): EmagCharacteristic[] {
+  const configByCategory = getCategoryCharacteristicsConfig()[product.category];
+  if (!configByCategory) {
+    return [];
+  }
+
+  const mapped: EmagCharacteristic[] = [];
+
+  for (const [idRaw, valueRaw] of Object.entries(configByCategory)) {
+    const id = Number(idRaw);
+    if (!Number.isFinite(id) || id <= 0) {
+      continue;
+    }
+
+    const value = getCharacteristicValue(valueRaw, product.application);
+    if (!value) {
+      continue;
+    }
+
+    mapped.push({
+      id: Math.floor(id),
+      value
+    });
+  }
+
+  mapped.sort((a, b) => a.id - b.id);
+  return mapped;
+}
+
 function parseOptionalText(value: string | undefined): string | undefined {
   const normalized = value?.trim();
   return normalized || undefined;
@@ -191,6 +331,7 @@ export function mapProductToEmagProduct(
   const price = roundPrice(toFiniteNumber(product.finalPriceEur, 0));
   const override = options?.override;
   const stockValue = toStockValue(override?.stock ?? product.priceQty);
+  const characteristics = buildCharacteristics(product);
   const productEan = typeof override?.ean === 'string'
     ? override.ean.trim()
     : typeof product.ean === 'string'
@@ -216,6 +357,7 @@ export function mapProductToEmagProduct(
         value: stockValue
       }
     ],
+    ...(characteristics.length > 0 ? { characteristics } : {}),
     handling_time: [
       {
         warehouse_id: warehouseId,
@@ -245,6 +387,7 @@ export function toProductOfferPayload(product: EmagProduct): EmagProductOfferPay
     sale_price: product.sale_price,
     currency_type: product.currency_type,
     stock: product.stock,
+    characteristics: product.characteristics,
     handling_time: product.handling_time,
     vat_id: product.vat_id
   };
