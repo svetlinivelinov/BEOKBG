@@ -66,6 +66,9 @@ export interface Dictionary {
 	fill_delivery_required: string;
 	request_quote: string;
 	ask_availability: string;
+	availability: string;
+	in_stock: string;
+	out_of_stock: string;
 	download_manual: string;
 	contact_for_availability: string;
 	request_quote_cta: string;

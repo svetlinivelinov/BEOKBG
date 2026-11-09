@@ -217,3 +217,18 @@ A lightweight operator page is available at:
 - /admin/emag
 
 Use this page to trigger sync, stock update, price update, and order retrieval operations and inspect raw API responses.
+
+## Product URL crawler readiness (for eMAG URL import)
+
+The product detail page now exposes structured data fields that eMAG crawlers expect:
+
+- Product + SKU + model + brand
+- GTIN (`gtin13` when EAN is 13 digits)
+- Offer (`price`, `priceCurrency`, `availability`, product URL)
+- `inventoryLevel` based on local stock quantity (`priceQty`)
+
+Operational notes:
+
+- Keep `NEXT_PUBLIC_SITE_URL` set to the live domain so schema URLs are absolute and correct.
+- Keep product pages publicly reachable without auth.
+- Keep `robots.txt` and `sitemap.xml` enabled in production.

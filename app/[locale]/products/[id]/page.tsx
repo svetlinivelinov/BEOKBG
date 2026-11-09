@@ -113,6 +113,16 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const hasPrice = typeof product.finalPriceEur === 'number' && Number.isFinite(product.finalPriceEur);
   const priceDisplayValue = hasPrice ? Number(product.finalPriceEur) : null;
   const priceLabel = locale === 'bg' ? 'Цена (с ДДС)' : 'Price (incl. VAT)';
+  const rawStockQty = product.priceQty;
+  const stockQuantity = typeof rawStockQty === 'number' && Number.isFinite(rawStockQty)
+    ? Math.max(0, Math.floor(rawStockQty))
+    : null;
+  const isInStock = stockQuantity !== null ? stockQuantity > 0 : null;
+  const schemaAvailability = isInStock === null
+    ? undefined
+    : isInStock
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/OutOfStock';
 
   return (
     <>
@@ -131,6 +141,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         imageUrl={product.image ?? undefined}
         locale={locale}
         productId={product.id}
+        ean={product.ean ?? null}
+        price={priceDisplayValue}
+        priceCurrency={product.currency ?? 'EUR'}
+        availability={schemaAvailability}
+        stockQuantity={stockQuantity}
       />
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header locale={locale} dict={dict} />
@@ -162,6 +177,19 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <div className="mb-4 rounded border border-brand-orange/30 bg-orange-50 px-3 py-2 inline-block">
                   <div className="text-xs uppercase tracking-wide text-gray-500">{priceLabel}</div>
                   <div className="text-2xl font-bold text-brand-orange leading-tight">{formatEurPrice(priceDisplayValue, locale)}</div>
+                </div>
+              )}
+              {isInStock !== null && (
+                <div className="mb-4">
+                  <span
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                      isInStock
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    {dict.availability}: {isInStock ? dict.in_stock : dict.out_of_stock}
+                  </span>
                 </div>
               )}
               <div className="text-sm text-gray-500 mb-6">{dict.category}: {formatCategoryLabel(product.category, locale)}</div>
