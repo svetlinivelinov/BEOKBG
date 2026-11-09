@@ -66,6 +66,9 @@
   "fill_delivery_required": "Please fill all required delivery fields before checkout.",
   "request_quote": "Request quote",
   "ask_availability": "Ask availability",
+  "availability": "Availability",
+  "in_stock": "In stock",
+  "out_of_stock": "Out of stock",
   "download_manual": "Download manual",
   "contact_for_availability": "Need availability or a quote? Contact us and we’ll help quickly.",
   "request_quote_cta": "Request a quote for this product"

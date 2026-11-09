@@ -8,6 +8,11 @@ type ProductStructuredDataProps = {
   imageUrl?: string | null;
   locale: string;
   productId: string;
+  ean?: string | null;
+  price?: number | null;
+  priceCurrency?: string | null;
+  availability?: 'https://schema.org/InStock' | 'https://schema.org/OutOfStock';
+  stockQuantity?: number | null;
 };
 
 export default function ProductStructuredData({
@@ -17,12 +22,46 @@ export default function ProductStructuredData({
   category,
   imageUrl,
   locale,
-  productId
+  productId,
+  ean,
+  price,
+  priceCurrency,
+  availability,
+  stockQuantity
 }: ProductStructuredDataProps) {
   const siteUrl = getSiteUrl();
   const productUrl = `${siteUrl}/${locale}/products/${productId}`;
   const productImageUrl = imageUrl
     ? (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') ? imageUrl : `${siteUrl}${imageUrl}`)
+    : undefined;
+  const normalizedCurrency = typeof priceCurrency === 'string' ? priceCurrency.trim().toUpperCase() : '';
+  const hasValidPrice = typeof price === 'number' && Number.isFinite(price);
+  const normalizedEan = typeof ean === 'string' ? ean.trim() : '';
+  const normalizedDigitsEan = normalizedEan.replace(/\D/g, '');
+  const gtinSchemaProperty = normalizedDigitsEan.length === 13
+    ? { gtin13: normalizedDigitsEan }
+    : normalizedEan
+      ? { gtin: normalizedEan }
+      : {};
+  const hasInventory = typeof stockQuantity === 'number' && Number.isFinite(stockQuantity) && stockQuantity >= 0;
+
+  const offerSchema = hasValidPrice
+    ? {
+        '@type': 'Offer',
+        price,
+        priceCurrency: normalizedCurrency || 'EUR',
+        url: productUrl,
+        itemCondition: 'https://schema.org/NewCondition',
+        ...(availability ? { availability } : {}),
+        ...(hasInventory
+          ? {
+              inventoryLevel: {
+                '@type': 'QuantitativeValue',
+                value: stockQuantity
+              }
+            }
+          : {})
+      }
     : undefined;
 
   const productSchema = {
@@ -38,7 +77,9 @@ export default function ProductStructuredData({
       name: 'BEOKBG'
     },
     url: productUrl,
-    ...(productImageUrl ? { image: productImageUrl } : {})
+    ...(productImageUrl ? { image: productImageUrl } : {}),
+    ...gtinSchemaProperty,
+    ...(offerSchema ? { offers: offerSchema } : {})
   };
 
   return (

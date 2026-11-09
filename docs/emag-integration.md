@@ -187,6 +187,10 @@ flowchart TD
 
 Use this when eMAG must allowlist a single fixed outgoing IP while the app is hosted on Railway.
 
+Detailed step-by-step runbook (Windows PowerShell driven):
+
+- [eMAG relay setup (Contabo + Railway) via PowerShell](./emag-relay-contabo-railway-powershell.md)
+
 1. Create DNS record:
    - A record `emag-relay.beoksmart.com` -> your Contabo IPv4
 2. On Contabo VPS install and enable Nginx + TLS cert for `emag-relay.beoksmart.com`.
@@ -218,3 +222,18 @@ A lightweight operator page is available at:
 - /admin/emag
 
 Use this page to trigger sync, stock update, price update, and order retrieval operations and inspect raw API responses.
+
+## Product URL crawler readiness (for eMAG URL import)
+
+The product detail page now exposes structured data fields that eMAG crawlers expect:
+
+- Product + SKU + model + brand
+- GTIN (`gtin13` when EAN is 13 digits)
+- Offer (`price`, `priceCurrency`, `availability`, product URL)
+- `inventoryLevel` based on local stock quantity (`priceQty`)
+
+Operational notes:
+
+- Keep `NEXT_PUBLIC_SITE_URL` set to the live domain so schema URLs are absolute and correct.
+- Keep product pages publicly reachable without auth.
+- Keep `robots.txt` and `sitemap.xml` enabled in production.
