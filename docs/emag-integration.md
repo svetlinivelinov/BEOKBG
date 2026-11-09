@@ -22,6 +22,9 @@ Set the following variables in your environment file.
 - EMAG_VAT_ID: default eMAG VAT id
 - EMAG_WAREHOUSE_ID: default eMAG warehouse id
 - EMAG_WARRANTY_MONTHS: default warranty months sent in offer payload (optional)
+- EMAG_MIN_SALE_PRICE_FACTOR: multiplier for min_sale_price (default 0.9)
+- EMAG_MAX_SALE_PRICE_FACTOR: multiplier for max_sale_price (default 1.1)
+- EMAG_RECOMMENDED_PRICE_FACTOR: optional multiplier for recommended_price (>1.0)
 - EMAG_HANDLING_TIME_DAYS: default handling time value
 - EMAG_BRAND: fallback brand name
 - EMAG_DEFAULT_EAN: fallback EAN when unknown
@@ -60,6 +63,7 @@ All protected routes accept token by one of these methods:
 - Sends batches to /product_offer/save
 - Sends measurements in matching batches to /measurements/save
 - Returns sync report with failed batches
+- Sends additional offer constraints automatically (`url`, `min_sale_price`, `max_sale_price`, optional `recommended_price`) to reduce manual work in eMAG offer wizard
 
 ### POST /api/emag/update-stock
 

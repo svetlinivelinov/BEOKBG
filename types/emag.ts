@@ -31,6 +31,7 @@ export interface EmagProduct {
   name: string;
   category_id: number;
   part_number: string;
+  url?: string;
   source_language: string;
   description: string;
   brand: string;
@@ -38,6 +39,9 @@ export interface EmagProduct {
   images: string[];
   status: number;
   sale_price: number;
+  min_sale_price?: number;
+  max_sale_price?: number;
+  recommended_price?: number;
   currency_type?: string;
   stock: EmagStockValue[];
   handling_time: EmagHandlingTimeValue[];
@@ -56,6 +60,7 @@ export interface EmagProductOfferPayload {
   name: string;
   category_id: number;
   part_number: string;
+  url?: string;
   source_language: string;
   description: string;
   brand: string;
@@ -63,6 +68,9 @@ export interface EmagProductOfferPayload {
   images: string[];
   status: number;
   sale_price: number;
+  min_sale_price?: number;
+  max_sale_price?: number;
+  recommended_price?: number;
   currency_type?: string;
   stock: EmagStockValue[];
   handling_time: EmagHandlingTimeValue[];

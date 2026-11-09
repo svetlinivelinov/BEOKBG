@@ -185,6 +185,34 @@ function getDefaultWarrantyMonths(): number | undefined {
   return Math.max(0, Math.floor(value));
 }
 
+function getPriceFactor(envName: string, fallback: number): number {
+  const raw = process.env[envName]?.trim();
+  if (!raw) {
+    return fallback;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+
+  return parsed;
+}
+
+function getRecommendedPriceFactor(): number | undefined {
+  const raw = process.env.EMAG_RECOMMENDED_PRICE_FACTOR?.trim();
+  if (!raw) {
+    return undefined;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 1) {
+    return undefined;
+  }
+
+  return parsed;
+}
+
 function getColorCharacteristicId(): number | undefined {
   const raw = process.env.EMAG_COLOR_CHARACTERISTIC_ID?.trim();
   if (!raw) {
@@ -497,6 +525,10 @@ function buildDescription(product: EmagMappableProduct, overrideDescription?: st
   return `${base}${source}`.trim();
 }
 
+function buildProductUrl(productId: string): string {
+  return `${resolveSiteUrl()}/bg/products/${encodeURIComponent(productId)}`;
+}
+
 function getPlaceholderDimension(envName: string, fallback: number): number {
   const value = Number(process.env[envName] ?? `${fallback}`);
   return Number.isFinite(value) ? Math.max(1, value) : fallback;
@@ -508,6 +540,14 @@ export function mapProductToEmagProduct(
 ): EmagProduct {
   const warehouseId = getDefaultWarehouseId();
   const price = roundPrice(toFiniteNumber(product.finalPriceEur, 0));
+  const minPriceFactor = getPriceFactor('EMAG_MIN_SALE_PRICE_FACTOR', 0.9);
+  const maxPriceFactor = getPriceFactor('EMAG_MAX_SALE_PRICE_FACTOR', 1.1);
+  const minSalePrice = roundPrice(Math.max(0.0001, price * minPriceFactor));
+  const maxSalePrice = roundPrice(Math.max(minSalePrice + 0.0001, price * maxPriceFactor));
+  const recommendedPriceFactor = getRecommendedPriceFactor();
+  const recommendedPrice = recommendedPriceFactor
+    ? roundPrice(Math.max(maxSalePrice + 0.0001, price * recommendedPriceFactor))
+    : undefined;
   const override = options?.override;
   const stockValue = toStockValue(override?.stock ?? product.priceQty);
   const familyConfig = resolveFamilyConfig(product);
@@ -524,6 +564,7 @@ export function mapProductToEmagProduct(
     name: product.model,
     category_id: mapCategory(product.category),
     part_number: product.model,
+    url: buildProductUrl(product.id),
     source_language: process.env.EMAG_SOURCE_LANGUAGE?.trim() || 'bg_BG',
     description: buildDescription(product, override?.description),
     brand: override?.brand?.trim() || process.env.EMAG_BRAND?.trim() || FALLBACK_BRAND,
@@ -531,6 +572,9 @@ export function mapProductToEmagProduct(
     images: collectImages(product),
     status: 1,
     sale_price: price,
+    min_sale_price: minSalePrice,
+    max_sale_price: maxSalePrice,
+    ...(recommendedPrice ? { recommended_price: recommendedPrice } : {}),
     currency_type: product.currency || 'EUR',
     stock: [
       {
@@ -561,6 +605,7 @@ export function toProductOfferPayload(product: EmagProduct): EmagProductOfferPay
     name: product.name,
     category_id: product.category_id,
     part_number: product.part_number,
+    url: product.url,
     source_language: product.source_language,
     description: product.description,
     brand: product.brand,
@@ -568,6 +613,9 @@ export function toProductOfferPayload(product: EmagProduct): EmagProductOfferPay
     images: product.images,
     status: product.status,
     sale_price: product.sale_price,
+    min_sale_price: product.min_sale_price,
+    max_sale_price: product.max_sale_price,
+    recommended_price: product.recommended_price,
     currency_type: product.currency_type,
     stock: product.stock,
     family: product.family,
