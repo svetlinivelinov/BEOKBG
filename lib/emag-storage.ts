@@ -79,6 +79,11 @@ export async function readStoredEmagOrders(limit = 100): Promise<StoredEmagOrder
   return orders.slice(0, Math.max(1, limit));
 }
 
+export async function readStoredEmagWebhookEvents(limit = 100): Promise<EmagWebhookEvent[]> {
+  const events = await readJsonArray<EmagWebhookEvent>(webhookEventsPath);
+  return events.slice(0, Math.max(1, limit));
+}
+
 export async function appendWebhookEvent(input: {
   sourceIp: string;
   eventType: string;

@@ -46,6 +46,7 @@ Set the following variables in your environment file.
 - GET /api/emag/orders
 - POST /api/emag/webhook
 - GET /api/emag/webhook
+- GET /api/admin/order-events
 
 All protected routes accept token by one of these methods:
 
@@ -105,6 +106,13 @@ All protected routes accept token by one of these methods:
 - Accepts `order_id` (or `orderId`) query parameter
 - Reads the order by ID from /order/read
 - Saves the order locally and acknowledges it via /order/acknowledge/{orderId}
+
+### GET /api/admin/order-events
+
+- Requires the same admin token logic as other protected eMAG admin routes
+- Returns a unified timeline that labels each event source (`stripe` or `emag`)
+- Stripe events come from `stripe_webhook_events` (or synthetic file-based order events when DB is not configured)
+- eMAG events come from `data/emag/webhook-events.json`
 
 ## Request Body Conventions
 

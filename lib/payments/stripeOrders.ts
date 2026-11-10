@@ -41,6 +41,16 @@ export type StoredStripeOrder = {
   emailSentAt?: string | null;
 };
 
+export type StoredStripeWebhookEvent = {
+  eventId: string;
+  eventType: string;
+  sessionId: string | null;
+  receivedAt: string;
+  processedAt: string | null;
+  status: string;
+  errorMessage: string | null;
+};
+
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
 const ordersDir = path.join(process.cwd(), 'data', 'orders');
@@ -353,6 +363,19 @@ function toNullableNumber(value: unknown): number | null {
   return Math.floor(numeric);
 }
 
+function toIsoString(value: Date | string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toISOString();
+}
+
 async function readStripeOrdersFromDb(): Promise<StoredStripeOrder[]> {
   if (!pool) {
     return [];
@@ -471,6 +494,73 @@ export async function readStripeOrders(): Promise<StoredStripeOrder[]> {
   }
 
   return readStripeOrdersFromFile();
+}
+
+async function readStripeWebhookEventsFromFile(limit = 200): Promise<StoredStripeWebhookEvent[]> {
+  const safeLimit = Math.min(1000, Math.max(1, Math.floor(limit)));
+  const orders = await readStripeOrdersFromFile();
+
+  return orders.slice(0, safeLimit).map((order) => ({
+    eventId: `file-order-${order.sessionId}`,
+    eventType: 'checkout.session.completed',
+    sessionId: order.sessionId,
+    receivedAt: order.paidAt,
+    processedAt: order.paidAt,
+    status: 'processed',
+    errorMessage: null
+  }));
+}
+
+async function readStripeWebhookEventsFromDb(limit = 200): Promise<StoredStripeWebhookEvent[]> {
+  if (!pool) {
+    return [];
+  }
+
+  await ensureDbInitialized();
+  const safeLimit = Math.min(1000, Math.max(1, Math.floor(limit)));
+
+  const result = await pool.query<{
+    event_id: string;
+    event_type: string;
+    session_id: string | null;
+    received_at: Date | string;
+    processed_at: Date | string | null;
+    status: string;
+    error_message: string | null;
+  }>(
+    `
+      SELECT
+        event_id,
+        event_type,
+        session_id,
+        received_at,
+        processed_at,
+        status,
+        error_message
+      FROM stripe_webhook_events
+      ORDER BY received_at DESC
+      LIMIT $1
+    `,
+    [safeLimit]
+  );
+
+  return result.rows.map((row) => ({
+    eventId: row.event_id,
+    eventType: row.event_type,
+    sessionId: row.session_id,
+    receivedAt: toIsoString(row.received_at) ?? new Date().toISOString(),
+    processedAt: toIsoString(row.processed_at),
+    status: row.status,
+    errorMessage: row.error_message
+  }));
+}
+
+export async function readStripeWebhookEvents(limit = 200): Promise<StoredStripeWebhookEvent[]> {
+  if (pool) {
+    return readStripeWebhookEventsFromDb(limit);
+  }
+
+  return readStripeWebhookEventsFromFile(limit);
 }
 
 export async function appendStripeOrder(order: StoredStripeOrder): Promise<boolean> {
