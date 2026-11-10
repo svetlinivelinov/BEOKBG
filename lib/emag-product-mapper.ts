@@ -50,9 +50,15 @@ const DEFAULT_CATEGORY_CHARACTERISTICS: CharacteristicsConfigByCategory = {
   // 2538 (connectivity) and 9516 (power supply) are the values entered on the manually completed eMAG offer.
   'room-thermostat': { ...THERMOSTAT_CHARACTERISTICS, '2538': 'Wi-Fi', '9516': 'Мрежово' },
   'gas-boiler-thermostat': THERMOSTAT_CHARACTERISTICS,
-  // Only 5704 is confirmed from the eMAG form; read the category with /api/emag/category-characteristics to see the rest.
+  // Only 5704 is mandatory in category 2410; these values come from its allowed list (/api/emag/category-characteristics?id=2410).
   trv: {
     '5704': 'Термостатична глава'
+  },
+  'thermal-actuator': {
+    '5704': 'Термоелектрически задвижващ механизъм'
+  },
+  'hub-controller': {
+    '5704': 'Централен контролер'
   }
 };
 
@@ -248,7 +254,8 @@ const DEFAULT_NAMES_BY_APPLICATION: Record<string, string> = {
 
 const DEFAULT_NAMES_BY_CATEGORY: Record<string, string> = {
   trv: 'Термостатичен радиаторен вентил',
-  'thermal-actuator': 'Термоелектрически задвижващ механизъм'
+  'thermal-actuator': 'Термоелектрически задвижващ механизъм',
+  'hub-controller': 'Централен контролер'
 };
 
 // Reads an optional JSON object of string values from the environment and merges it over the defaults.

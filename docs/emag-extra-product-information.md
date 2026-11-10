@@ -60,13 +60,17 @@ Room thermostats (`room-thermostat`) also send two optional characteristics take
 
 Values must come from the category's allowed values. Use `GET /api/emag/category-characteristics?id=<categoryId>` to list the mandatory characteristics and their allowed values, and override defaults with `EMAG_CHARACTERISTICS_MAP_JSON` when needed.
 
-### Basic characteristics (TRV category)
+### Basic characteristics (category 2410, «Централи и модули smart home»)
 
-Local category `trv` (TRV-604, TRV-705WF) sends:
+In this category only `5704` (Product type) is mandatory, and it is restrictive (the value must come from the category's allowed list). Defaults:
 
-- `5704` → Product type: `Термостатична глава`
+- Local category `trv` (TRV-604, TRV-705WF): `5704` → `Термостатична глава`
+- Local category `thermal-actuator` (RZ-D01.230-NC): `5704` → `Термоелектрически задвижващ механизъм`
+- Local category `hub-controller` (CCT-28-X): `5704` → `Хъб`; product name `Централен контролер`.
 
-Only this value is confirmed from the eMAG form. Read the target category with `GET /api/emag/category-characteristics?id=<categoryId>` to see its other mandatory characteristics before the first push, and add them with `EMAG_CHARACTERISTICS_MAP_JSON`.
+The family type for colour in this category is `219` («Цвят (visible)», groups by characteristic `5401`).
+
+Read the allowed values with `GET /api/emag/category-characteristics?id=2410` and add or change values with `EMAG_CHARACTERISTICS_MAP_JSON`.
 
 ### Color characteristic
 
