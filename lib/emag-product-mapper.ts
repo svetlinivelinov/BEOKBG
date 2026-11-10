@@ -558,6 +558,7 @@ export function mapProductToEmagProduct(
     : typeof product.ean === 'string'
       ? product.ean.trim()
       : '';
+  const resolvedEan = productEan || process.env.EMAG_DEFAULT_EAN?.trim() || FALLBACK_EAN;
 
   return {
     id: toEmagProductId(product.id),
@@ -568,7 +569,7 @@ export function mapProductToEmagProduct(
     source_language: process.env.EMAG_SOURCE_LANGUAGE?.trim() || 'bg_BG',
     description: buildDescription(product, override?.description),
     brand: override?.brand?.trim() || process.env.EMAG_BRAND?.trim() || FALLBACK_BRAND,
-    ean: productEan || process.env.EMAG_DEFAULT_EAN?.trim() || FALLBACK_EAN,
+    ean: [resolvedEan],
     images: collectImages(product),
     status: 1,
     sale_price: price,

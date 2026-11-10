@@ -44,6 +44,7 @@ Set the following variables in your environment file.
 - POST /api/emag/orders
 - GET /api/emag/orders
 - POST /api/emag/webhook
+- GET /api/emag/webhook
 
 All protected routes accept token by one of these methods:
 
@@ -83,6 +84,7 @@ All protected routes accept token by one of these methods:
 - Reads latest orders from /order/read
 - Accepts optional filters in request body
 - Saves orders locally in data/emag/orders.json
+- Acknowledges each newly inserted order via /order/acknowledge/{orderId}
 
 ### GET /api/emag/orders
 
@@ -94,6 +96,14 @@ All protected routes accept token by one of these methods:
 - Validates source IP against allowed list
 - Stores incoming event in data/emag/webhook-events.json
 - Attempts to extract and upsert orders from webhook payload
+- Acknowledges newly inserted orders via /order/acknowledge/{orderId}
+
+### GET /api/emag/webhook
+
+- Validates source IP against allowed list
+- Accepts `order_id` (or `orderId`) query parameter
+- Reads the order by ID from /order/read
+- Saves the order locally and acknowledges it via /order/acknowledge/{orderId}
 
 ## Request Body Conventions
 
@@ -101,6 +111,7 @@ The implementation follows the eMAG OpenAPI body conventions:
 
 - save/write endpoints are sent with data array wrapper
 - read/count endpoints are sent with top-level filters
+- Product `ean` is sent as an array, including single-barcode products
 
 ## Recommended Data Ownership
 

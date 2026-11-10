@@ -35,7 +35,7 @@ export interface EmagProduct {
   source_language: string;
   description: string;
   brand: string;
-  ean: string;
+  ean: string[];
   images: string[];
   status: number;
   sale_price: number;
@@ -64,7 +64,7 @@ export interface EmagProductOfferPayload {
   source_language: string;
   description: string;
   brand: string;
-  ean: string;
+  ean: string[];
   images: string[];
   status: number;
   sale_price: number;

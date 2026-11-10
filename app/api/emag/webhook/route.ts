@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { EmagApiClient, getEmagClient } from '../../../../lib/emag-client';
 import { appendWebhookEvent, upsertEmagOrders } from '../../../../lib/emag-storage';
 import { EmagOrder } from '../../../../types/emag';
 
@@ -83,6 +84,44 @@ function extractOrdersFromPayload(payload: unknown): EmagOrder[] {
   return [];
 }
 
+function parseOrderId(value: string | null): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
+async function acknowledgeOrders(client: EmagApiClient, orderIds: number[]): Promise<{
+  acknowledgedOrderIds: number[];
+  failures: Array<{ orderId: number; error: string }>;
+}> {
+  const acknowledgedOrderIds: number[] = [];
+  const failures: Array<{ orderId: number; error: string }> = [];
+
+  for (const orderId of orderIds) {
+    try {
+      await client.post(`/order/acknowledge/${orderId}`, {});
+      acknowledgedOrderIds.push(orderId);
+    } catch (error) {
+      failures.push({
+        orderId,
+        error: error instanceof Error ? error.message : 'acknowledge_failed'
+      });
+    }
+  }
+
+  return {
+    acknowledgedOrderIds,
+    failures
+  };
+}
+
 export async function POST(request: Request) {
   const sourceIp = getSourceIp(request);
   const allowedIps = resolveAllowedIps();
@@ -124,14 +163,108 @@ export async function POST(request: Request) {
 
   const orders = extractOrdersFromPayload(payload);
   const persisted = orders.length > 0 ? await upsertEmagOrders(orders) : null;
+  const acknowledged = persisted && persisted.insertedOrderIds.length > 0
+    ? await acknowledgeOrders(getEmagClient(), persisted.insertedOrderIds)
+    : { acknowledgedOrderIds: [], failures: [] as Array<{ orderId: number; error: string }> };
+  const hasAcknowledgeFailures = acknowledged.failures.length > 0;
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      eventId: storedEvent.id,
-      eventType,
-      sourceIp,
-      savedOrders: persisted
+  return NextResponse.json(
+    {
+      success: !hasAcknowledgeFailures,
+      data: {
+        eventId: storedEvent.id,
+        eventType,
+        sourceIp,
+        savedOrders: persisted,
+        acknowledgedCount: acknowledged.acknowledgedOrderIds.length,
+        acknowledgedOrderIds: acknowledged.acknowledgedOrderIds,
+        acknowledgeFailures: acknowledged.failures
+      }
+    },
+    {
+      status: hasAcknowledgeFailures ? 502 : 200
     }
-  });
+  );
+}
+
+export async function GET(request: Request) {
+  const sourceIp = getSourceIp(request);
+  const allowedIps = resolveAllowedIps();
+
+  if (sourceIp !== 'unknown' && !allowedIps.has(sourceIp)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'forbidden_source_ip'
+      },
+      {
+        status: 403
+      }
+    );
+  }
+
+  const url = new URL(request.url);
+  const orderId = parseOrderId(url.searchParams.get('order_id')) ?? parseOrderId(url.searchParams.get('orderId'));
+
+  if (orderId === null) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'invalid_order_id'
+      },
+      {
+        status: 400
+      }
+    );
+  }
+
+  try {
+    const client = getEmagClient();
+    const response = await client.postRead<EmagOrder[]>('/order/read', {
+      id: orderId,
+      currentPage: 1,
+      itemsPerPage: 1
+    });
+    const orders = Array.isArray(response.results) ? response.results : [];
+    const persisted = orders.length > 0 ? await upsertEmagOrders(orders) : null;
+    const acknowledged = await acknowledgeOrders(client, [orderId]);
+    const hasAcknowledgeFailures = acknowledged.failures.length > 0;
+
+    await appendWebhookEvent({
+      sourceIp,
+      eventType: 'order_callback_get',
+      payload: {
+        order_id: orderId,
+        fetched: orders.length,
+        acknowledgeFailures: acknowledged.failures
+      }
+    });
+
+    return NextResponse.json(
+      {
+        success: orders.length > 0 && !hasAcknowledgeFailures,
+        data: {
+          orderId,
+          fetched: orders.length,
+          savedOrders: persisted,
+          acknowledgedCount: acknowledged.acknowledgedOrderIds.length,
+          acknowledgedOrderIds: acknowledged.acknowledgedOrderIds,
+          acknowledgeFailures: acknowledged.failures
+        }
+      },
+      {
+        status: orders.length === 0 ? 404 : hasAcknowledgeFailures ? 502 : 200
+      }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'order_callback_get_failed'
+      },
+      {
+        status: 500
+      }
+    );
+  }
 }

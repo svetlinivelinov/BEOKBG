@@ -31,7 +31,7 @@ For each product offer, the integration sends:
   - `url` (product URL on seller website)
   - `description`
   - `brand`
-  - `ean`
+  - `ean` (array of strings; single values are wrapped)
   - `images`
 - Characteristics:
   - category characteristic array (`id`, `value`)

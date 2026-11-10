@@ -30,12 +30,15 @@ async function writeJsonArray<T>(filePath: string, data: T[]): Promise<void> {
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 }
 
-export async function upsertEmagOrders(orders: EmagOrder[]): Promise<{ inserted: number; updated: number; total: number }> {
+export async function upsertEmagOrders(
+  orders: EmagOrder[]
+): Promise<{ inserted: number; updated: number; total: number; insertedOrderIds: number[] }> {
   const existing = await readJsonArray<StoredEmagOrder>(ordersPath);
   const byId = new Map<number, StoredEmagOrder>(existing.map((order) => [order.id, order]));
 
   let inserted = 0;
   let updated = 0;
+  const insertedOrderIds: number[] = [];
 
   for (const order of orders) {
     const alreadyStored = byId.get(order.id);
@@ -49,6 +52,7 @@ export async function upsertEmagOrders(orders: EmagOrder[]): Promise<{ inserted:
       updated += 1;
     } else {
       inserted += 1;
+      insertedOrderIds.push(order.id);
     }
 
     byId.set(order.id, next);
@@ -65,7 +69,8 @@ export async function upsertEmagOrders(orders: EmagOrder[]): Promise<{ inserted:
   return {
     inserted,
     updated,
-    total: merged.length
+    total: merged.length,
+    insertedOrderIds
   };
 }
 

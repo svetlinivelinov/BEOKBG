@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { isEmagAdminAuthorized, readJsonBody, unauthorizedResponse } from '../../../../lib/emag-admin';
-import { getEmagClient } from '../../../../lib/emag-client';
+import { EmagApiClient, getEmagClient } from '../../../../lib/emag-client';
 import { readStoredEmagOrders, upsertEmagOrders } from '../../../../lib/emag-storage';
-import { EmagApiResponse, EmagOrder } from '../../../../types/emag';
+import { EmagOrder } from '../../../../types/emag';
 
 type ReadOrdersPayload = {
   status?: number;
@@ -58,6 +58,31 @@ function toOrderFilters(input: unknown): Record<string, unknown> {
   return filters;
 }
 
+async function acknowledgeOrders(client: EmagApiClient, orderIds: number[]): Promise<{
+  acknowledgedOrderIds: number[];
+  failures: Array<{ orderId: number; error: string }>;
+}> {
+  const acknowledgedOrderIds: number[] = [];
+  const failures: Array<{ orderId: number; error: string }> = [];
+
+  for (const orderId of orderIds) {
+    try {
+      await client.post(`/order/acknowledge/${orderId}`, {});
+      acknowledgedOrderIds.push(orderId);
+    } catch (error) {
+      failures.push({
+        orderId,
+        error: error instanceof Error ? error.message : 'acknowledge_failed'
+      });
+    }
+  }
+
+  return {
+    acknowledgedOrderIds,
+    failures
+  };
+}
+
 export async function POST(request: Request) {
   if (!isEmagAdminAuthorized(request)) {
     return unauthorizedResponse();
@@ -72,18 +97,29 @@ export async function POST(request: Request) {
 
     const orders = Array.isArray(response.results) ? response.results : [];
     const persisted = await upsertEmagOrders(orders);
+    const acknowledged = await acknowledgeOrders(client, persisted.insertedOrderIds);
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        fetched: orders.length,
-        inserted: persisted.inserted,
-        updated: persisted.updated,
-        totalStored: persisted.total,
-        filters,
-        messages: response.messages || []
+    const hasAcknowledgeFailures = acknowledged.failures.length > 0;
+
+    return NextResponse.json(
+      {
+        success: !hasAcknowledgeFailures,
+        data: {
+          fetched: orders.length,
+          inserted: persisted.inserted,
+          updated: persisted.updated,
+          totalStored: persisted.total,
+          filters,
+          messages: response.messages || [],
+          acknowledgedCount: acknowledged.acknowledgedOrderIds.length,
+          acknowledgedOrderIds: acknowledged.acknowledgedOrderIds,
+          acknowledgeFailures: acknowledged.failures
+        }
+      },
+      {
+        status: hasAcknowledgeFailures ? 502 : 200
       }
-    });
+    );
   } catch (error) {
     return NextResponse.json(
       {
