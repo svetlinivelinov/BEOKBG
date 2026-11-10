@@ -35,6 +35,7 @@ Set the following variables in your environment file.
 - EMAG_DEFAULT_LENGTH_MM: fallback measurement length
 - EMAG_PUBLIC_SITE_URL: base URL used to convert relative product image paths to absolute URLs
 - EMAG_OVERRIDES_PATH: optional path for product-level eMAG overrides JSON (advanced mode only)
+- EMAG_PRODUCT_ID_MAP_JSON: optional JSON map to pin eMAG numeric IDs by local `id` or `model`
 
 ## Implemented Routes
 
@@ -228,6 +229,16 @@ The local catalog uses string SKUs such as `tgm50-wifi-ep`, while eMAG requires
 the seller's internal product ID to be a positive integer. The mapper derives a
 stable integer ID from each local SKU and sends the original SKU as `part_number`.
 Do not change a product's local `id` after it has been published to eMAG.
+
+If you need to pin specific numeric IDs (for example to match previously created
+offers), configure `EMAG_PRODUCT_ID_MAP_JSON`:
+
+```json
+{
+  "tgm50-wifi-ep": 10542,
+  "TGM50-WIFI-EP": 10542
+}
+```
 
 ```mermaid
 flowchart TD

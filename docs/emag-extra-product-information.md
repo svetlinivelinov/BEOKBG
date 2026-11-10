@@ -76,6 +76,8 @@ Current inferred family ids:
   JSON map of category characteristics sent during product sync.
 - `EMAG_FAMILY_MAP_JSON`  
   Explicit family mapping per product id/model, including optional color.
+- `EMAG_PRODUCT_ID_MAP_JSON`  
+  Optional explicit numeric eMAG ID mapping keyed by local product id/model.
 - `EMAG_ENABLE_AUTO_FAMILY`  
   `1` enables automatic family inference from model suffixes.
 - `EMAG_FAMILY_TYPE_ID`  

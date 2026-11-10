@@ -63,6 +63,10 @@ const defaultCategoryMap: Record<string, number> = {
   'thermal-actuator': 0
 };
 
+function normalizeMapKey(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 function toFiniteNumber(value: unknown, fallback: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
     return fallback;
@@ -80,7 +84,7 @@ function toStockValue(value: unknown): number {
   return Math.max(0, parsed);
 }
 
-function toEmagProductId(localId: string): number {
+function toHashedEmagProductId(localId: string): number {
   let hash = 2_166_136_261;
 
   for (let index = 0; index < localId.length; index += 1) {
@@ -89,6 +93,45 @@ function toEmagProductId(localId: string): number {
   }
 
   return (hash >>> 0) % MAX_EMAG_PRODUCT_ID + 1;
+}
+
+function getExplicitProductIdMap(): Record<string, number> {
+  const raw = process.env.EMAG_PRODUCT_ID_MAP_JSON?.trim();
+  if (!raw) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const mapped: Record<string, number> = {};
+
+    for (const [key, value] of Object.entries(parsed)) {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric)) {
+        const normalized = Math.floor(numeric);
+        if (normalized >= 1 && normalized <= MAX_EMAG_PRODUCT_ID) {
+          mapped[normalizeMapKey(key)] = normalized;
+        }
+      }
+    }
+
+    return mapped;
+  } catch {
+    return {};
+  }
+}
+
+function toEmagProductId(product: Pick<ProductBase, 'id' | 'model'>): number {
+  const explicitMap = getExplicitProductIdMap();
+  const idKey = normalizeMapKey(product.id);
+  const modelKey = normalizeMapKey(product.model);
+  const explicitId = explicitMap[idKey] ?? explicitMap[modelKey];
+
+  if (typeof explicitId === 'number' && Number.isFinite(explicitId)) {
+    return explicitId;
+  }
+
+  return toHashedEmagProductId(product.id);
 }
 
 function getCategoryMap(): Record<string, number> {
@@ -376,7 +419,7 @@ function resolveFamilyConfig(product: EmagMappableProduct): ResolvedFamilyConfig
   const explicit = map[productIdKey] ?? map[modelKey];
 
   if (explicit) {
-    const familyId = explicit.id ?? (explicit.name ? toEmagProductId(`family:${explicit.name}`) : undefined);
+    const familyId = explicit.id ?? (explicit.name ? toHashedEmagProductId(`family:${explicit.name}`) : undefined);
     const family = familyId
       ? {
           id: familyId,
@@ -406,7 +449,7 @@ function resolveFamilyConfig(product: EmagMappableProduct): ResolvedFamilyConfig
 
   return {
     family: {
-      id: toEmagProductId(`family:${inferredName}`),
+      id: toHashedEmagProductId(`family:${inferredName}`),
       name: inferredName,
       family_type_id: familyTypeId
     },
@@ -561,7 +604,7 @@ export function mapProductToEmagProduct(
   const resolvedEan = productEan || process.env.EMAG_DEFAULT_EAN?.trim() || FALLBACK_EAN;
 
   return {
-    id: toEmagProductId(product.id),
+    id: toEmagProductId(product),
     name: product.model,
     category_id: mapCategory(product.category),
     part_number: product.model,
@@ -639,14 +682,14 @@ export function toMeasurementPayload(product: EmagProduct): EmagProductMeasureme
 
 export function mapProductToStockUpdate(product: ProductBase): EmagStockUpdate {
   return {
-    id: toEmagProductId(product.id),
+    id: toEmagProductId(product),
     value: toStockValue(product.priceQty)
   };
 }
 
 export function mapProductToPriceUpdate(product: ProductBase): EmagPriceUpdate {
   return {
-    id: toEmagProductId(product.id),
+    id: toEmagProductId(product),
     sale_price: roundPrice(toFiniteNumber(product.finalPriceEur, 0)),
     currency_type: product.currency || 'EUR'
   };
