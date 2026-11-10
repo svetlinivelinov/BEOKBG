@@ -68,6 +68,7 @@ All protected routes accept token by one of these methods:
 - Sends batches to /product_offer/save
 - Sends measurements in matching batches to /measurements/save
 - Returns sync report with failed batches
+- On failures, returns `debugFailurePreview` (first failed payload samples with `vat_id`, `category_id`, and image diagnostics)
 - Persists every sync run to data/emag/sync-runs.json for history and auditing
 - Sends additional offer constraints automatically (`url`, `min_sale_price`, `max_sale_price`, optional `recommended_price`) to reduce manual work in eMAG offer wizard
 

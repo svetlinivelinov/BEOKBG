@@ -187,6 +187,19 @@ export async function POST(request: Request) {
     const batches = toArrayChunks(mappedProducts, 50);
 
     const syncReport: EmagSyncBatchResult[] = [];
+    const debugFailurePreview: Array<{
+      batch: number;
+      productId: string;
+      model: string;
+      diagnostics: {
+        vat_id: number;
+        category_id: number;
+        imageCount: number;
+        firstImage: string | null;
+      };
+      offerPayload: ReturnType<typeof toProductOfferPayload>;
+      measurementPayload: ReturnType<typeof toMeasurementPayload>;
+    }> = [];
     let syncedProducts = 0;
 
     for (let i = 0; i < batches.length; i += 1) {
@@ -203,6 +216,23 @@ export async function POST(request: Request) {
           status: 'ok'
         });
       } catch (error) {
+        const firstProduct = batch[0];
+        const offerPayload = toProductOfferPayload(firstProduct);
+        const measurementPayload = toMeasurementPayload(firstProduct);
+        debugFailurePreview.push({
+          batch: i + 1,
+          productId: selectedProducts[i * 50]?.id ?? firstProduct.id.toString(),
+          model: selectedProducts[i * 50]?.model ?? firstProduct.name,
+          diagnostics: {
+            vat_id: offerPayload.vat_id,
+            category_id: offerPayload.category_id,
+            imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
+            firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0] : null
+          },
+          offerPayload,
+          measurementPayload
+        });
+
         syncReport.push({
           batch: i + 1,
           products: batch.length,
@@ -236,7 +266,8 @@ export async function POST(request: Request) {
         syncedProducts,
         batches: batches.length,
         failures,
-        report: syncReport
+        report: syncReport,
+        debugFailurePreview: debugFailurePreview.slice(0, 3)
       }
     });
   } catch (error) {
