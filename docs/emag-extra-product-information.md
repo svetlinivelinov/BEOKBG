@@ -66,7 +66,7 @@ In this category only `5704` (Product type) is mandatory, and it is restrictive 
 
 - Local category `trv` (TRV-604, TRV-705WF): `5704` → `Термостатична глава`
 - Local category `thermal-actuator` (RZ-D01.230-NC): `5704` → `Термоелектрически задвижващ механизъм`
-- Local category `hub-controller` (CCT-28-X): `5704` → `Хъб`; product name `Централен контролер`.
+- Local category `hub-controller` (CCT-28-X): `5704` → `Централа`; product name `Централен контролер`.
 
 The family type for colour in this category is `219` («Цвят (visible)», groups by characteristic `5401`).
 

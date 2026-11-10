@@ -2,6 +2,8 @@
 
 This project integrates with eMAG Marketplace API version 4.4.8 using Next.js App Router route handlers.
 
+Setting up eMAG for a new site? Start with [emag-new-site-playbook.md](./emag-new-site-playbook.md): it lists what to read from eMAG first, the payload rules and the error messages with their real causes.
+
 ## Environment Variables
 
 Set the following variables in your environment file.
@@ -70,6 +72,7 @@ All protected routes accept token by one of these methods:
 ### POST /api/emag/sync-products
 
 - Reads all products from data/products/products.json
+- Resolves product image URLs from `/public/images/products/<product-id>` at runtime (same source used by storefront pages), so eMAG sync follows the currently deployed image files
 - Loads localized content from data/products/content.bg.json with field-level fallback to data/products/content.en.json
 - Loads optional product overrides from data/products/emag.overrides.json (or EMAG_OVERRIDES_PATH)
 - Maps products to eMAG offer payload

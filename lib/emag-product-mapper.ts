@@ -58,7 +58,7 @@ const DEFAULT_CATEGORY_CHARACTERISTICS: CharacteristicsConfigByCategory = {
     '5704': 'Термоелектрически задвижващ механизъм'
   },
   'hub-controller': {
-    '5704': 'Централен контролер'
+    '5704': 'Централа'
   }
 };
 
