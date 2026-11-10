@@ -47,7 +47,8 @@ const THERMOSTAT_CHARACTERISTICS: CharacteristicConfigById = {
 };
 
 const DEFAULT_CATEGORY_CHARACTERISTICS: CharacteristicsConfigByCategory = {
-  'room-thermostat': THERMOSTAT_CHARACTERISTICS,
+  // 2538 (connectivity) and 9516 (power supply) are the values entered on the manually completed eMAG offer.
+  'room-thermostat': { ...THERMOSTAT_CHARACTERISTICS, '2538': 'Wi-Fi', '9516': 'Мрежово' },
   'gas-boiler-thermostat': THERMOSTAT_CHARACTERISTICS,
   // Only 5704 is confirmed from the eMAG form; read the category with /api/emag/category-characteristics to see the rest.
   trv: {

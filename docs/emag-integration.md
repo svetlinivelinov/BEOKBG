@@ -78,8 +78,9 @@ All protected routes accept token by one of these methods:
 - Uses description priority: overrides.description -> localized BG description -> generated fallback text
 - Sends batches to /product_offer/save
 - Sends measurements in matching batches to /measurements/save
-- Returns sync report with failed batches
-- On failures, returns `debugFailurePreview` (first failed payload samples with `vat_id`, `category_id`, and image diagnostics)
+- Returns a per-batch sync report. eMAG saves the valid offers of a batch even when some are rejected, so rejected products are listed per product (`rejectedProducts` with the eMAG id, local product id and error texts) and the batch status is `ok`, `partial` or `failed`; `syncedProducts` counts the offers that were saved
+- Sends `measurements/save` only for the products that were accepted
+- On failures, returns `debugFailurePreview` (payload samples of the rejected products with `vat_id`, `category_id`, and image diagnostics)
 - Persists every sync run to data/emag/sync-runs.json for history and auditing
 - Sends additional offer constraints automatically (`url`, `min_sale_price`, `max_sale_price`, optional `recommended_price`) to reduce manual work in eMAG offer wizard
 

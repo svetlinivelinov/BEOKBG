@@ -53,6 +53,11 @@ Defaults match the mandatory characteristics of eMAG category 4330 (`Аксес�
 - `9645` → Suitable for: `Електрически и газови котли`
 - `7597` → Compatible brand: `Универсален`
 
+Room thermostats (`room-thermostat`) also send two optional characteristics taken from the manually completed eMAG offer:
+
+- `2538` → Connectivity: `Wi-Fi`
+- `9516` → Power supply: `Мрежово`
+
 Values must come from the category's allowed values. Use `GET /api/emag/category-characteristics?id=<categoryId>` to list the mandatory characteristics and their allowed values, and override defaults with `EMAG_CHARACTERISTICS_MAP_JSON` when needed.
 
 ### Basic characteristics (TRV category)

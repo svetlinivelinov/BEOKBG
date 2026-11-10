@@ -71,6 +71,70 @@ function getProductOverride(overrides: EmagOverrideIndex, product: ProductBase) 
   return overrides[idKey] ?? overrides[modelKey];
 }
 
+type SyncEntry = {
+  local: ProductForEmag;
+  mapped: ReturnType<typeof mapProductToEmagProduct>;
+};
+
+type DebugFailurePreview = {
+  batch: number;
+  productId: string;
+  model: string;
+  diagnostics: {
+    vat_id: number;
+    category_id: number;
+    imageCount: number;
+    firstImage: string | null;
+  };
+  offerPayload: ReturnType<typeof toProductOfferPayload>;
+  measurementPayload: ReturnType<typeof toMeasurementPayload>;
+};
+
+function toDebugPreview(batch: number, entry: SyncEntry): DebugFailurePreview {
+  const offerPayload = toProductOfferPayload(entry.mapped);
+
+  return {
+    batch,
+    productId: entry.local.id,
+    model: entry.local.model,
+    diagnostics: {
+      vat_id: offerPayload.vat_id,
+      category_id: offerPayload.category_id,
+      imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
+      firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0].url : null
+    },
+    offerPayload,
+    measurementPayload: toMeasurementPayload(entry.mapped)
+  };
+}
+
+// eMAG reports errors as "ERROR: <text> - Product id: <id> | WARNING: ..." in one message. Warnings do not
+// reject a product, so only ERROR parts are collected, grouped by the eMAG product id they name.
+function parseRejectedProducts(message: string): Map<number, string[]> {
+  const rejected = new Map<number, string[]>();
+
+  for (const part of message.split(' | ')) {
+    if (!part.includes('ERROR:')) {
+      continue;
+    }
+
+    const idMatch = part.match(/Product id:\s*(\d+)\s*$/);
+    if (!idMatch) {
+      continue;
+    }
+
+    const text = part
+      .replace(/^eMAG API error for [^:]+:\s*/, '')
+      .replace(/^ERROR:\s*/, '')
+      .replace(/\s*-\s*Product id:\s*\d+\s*$/, '')
+      .trim();
+    const id = Number(idMatch[1]);
+    rejected.set(id, [...(rejected.get(id) ?? []), text]);
+  }
+
+  return rejected;
+}
+
 function findProductByIdOrModel(products: ProductForEmag[], query: string): ProductForEmag | null {
   const normalized = query.trim().toLowerCase();
   if (!normalized) {
@@ -183,68 +247,73 @@ export async function POST(request: Request) {
     }
 
     const client = getEmagClient();
-    const mappedProducts = selectedProducts.map((product) =>
-      mapProductToEmagProduct(product, { override: getProductOverride(overrides, product) })
-    );
-    const batches = toArrayChunks(mappedProducts, 50);
+    const entries: SyncEntry[] = selectedProducts.map((product) => ({
+      local: product,
+      mapped: mapProductToEmagProduct(product, { override: getProductOverride(overrides, product) })
+    }));
+    const batches = toArrayChunks(entries, 50);
 
     const syncReport: EmagSyncBatchResult[] = [];
-    const debugFailurePreview: Array<{
-      batch: number;
-      productId: string;
-      model: string;
-      diagnostics: {
-        vat_id: number;
-        category_id: number;
-        imageCount: number;
-        firstImage: string | null;
-      };
-      offerPayload: ReturnType<typeof toProductOfferPayload>;
-      measurementPayload: ReturnType<typeof toMeasurementPayload>;
-    }> = [];
+    const debugFailurePreview: DebugFailurePreview[] = [];
     let syncedProducts = 0;
 
     for (let i = 0; i < batches.length; i += 1) {
       const batch = batches[i];
+      const batchNumber = i + 1;
+      let rejected = new Map<number, string[]>();
+      let batchError: string | undefined;
 
       try {
-        await client.postSave('/product_offer/save', batch.map(toProductOfferPayload));
-        await client.postSave('/measurements/save', batch.map(toMeasurementPayload));
-        syncedProducts += batch.length;
-
-        syncReport.push({
-          batch: i + 1,
-          products: batch.length,
-          status: 'ok'
-        });
+        await client.postSave('/product_offer/save', batch.map((entry) => toProductOfferPayload(entry.mapped)));
       } catch (error) {
-        const firstProduct = batch[0];
-        const offerPayload = toProductOfferPayload(firstProduct);
-        const measurementPayload = toMeasurementPayload(firstProduct);
-        debugFailurePreview.push({
-          batch: i + 1,
-          productId: selectedProducts[i * 50]?.id ?? firstProduct.id.toString(),
-          model: selectedProducts[i * 50]?.model ?? firstProduct.name,
-          diagnostics: {
-            vat_id: offerPayload.vat_id,
-            category_id: offerPayload.category_id,
-            imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
-            firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0].url : null
-          },
-          offerPayload,
-          measurementPayload
-        });
-
-        syncReport.push({
-          batch: i + 1,
-          products: batch.length,
-          status: 'failed',
-          error: error instanceof Error ? error.message : 'unknown_error'
-        });
+        batchError = error instanceof Error ? error.message : 'unknown_error';
+        rejected = parseRejectedProducts(batchError);
       }
+
+      // eMAG still saves the valid offers of a batch when some are rejected, so only an error without
+      // identifiable rejected products counts as a completely failed batch.
+      if (batchError && rejected.size === 0) {
+        debugFailurePreview.push(toDebugPreview(batchNumber, batch[0]));
+        syncReport.push({ batch: batchNumber, products: batch.length, status: 'failed', error: batchError });
+        continue;
+      }
+
+      const accepted = batch.filter((entry) => !rejected.has(entry.mapped.id));
+      const rejectedEntries = batch.filter((entry) => rejected.has(entry.mapped.id));
+      let measurementError: string | undefined;
+
+      if (accepted.length > 0) {
+        try {
+          await client.postSave('/measurements/save', accepted.map((entry) => toMeasurementPayload(entry.mapped)));
+        } catch (error) {
+          measurementError = error instanceof Error ? error.message : 'measurements_failed';
+        }
+      }
+
+      for (const entry of rejectedEntries.slice(0, 3)) {
+        debugFailurePreview.push(toDebugPreview(batchNumber, entry));
+      }
+
+      syncedProducts += accepted.length;
+      syncReport.push({
+        batch: batchNumber,
+        products: batch.length,
+        status: rejectedEntries.length === 0 && !measurementError ? 'ok' : accepted.length > 0 ? 'partial' : 'failed',
+        savedProducts: accepted.length,
+        ...(rejectedEntries.length > 0
+          ? {
+              rejectedProducts: rejectedEntries.map((entry) => ({
+                id: entry.mapped.id,
+                productId: entry.local.id,
+                errors: rejected.get(entry.mapped.id) ?? []
+              }))
+            }
+          : {}),
+        ...(measurementError ? { measurementError } : {})
+      });
     }
 
-    const failures = syncReport.filter((item) => item.status === 'failed');
+    const failures = syncReport.filter((item) => item.status !== 'ok');
     const completedAt = new Date().toISOString();
     const syncRun = await appendEmagSyncRun({
       startedAt,

@@ -168,8 +168,15 @@ export interface EmagWebhookEvent {
 export interface EmagSyncBatchResult {
   batch: number;
   products: number;
-  status: 'ok' | 'failed';
+  status: 'ok' | 'partial' | 'failed';
   error?: string;
+  savedProducts?: number;
+  rejectedProducts?: Array<{
+    id: number;
+    productId: string | null;
+    errors: string[];
+  }>;
+  measurementError?: string;
 }
 
 export interface EmagSyncRun {
