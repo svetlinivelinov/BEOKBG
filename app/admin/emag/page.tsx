@@ -38,6 +38,13 @@ type EmagSyncRun = {
   report: EmagSyncBatchResult[];
 };
 
+type EmagVatOption = {
+  id: number;
+  name: string | null;
+  value: number | null;
+  raw: Record<string, unknown>;
+};
+
 type ActionKey =
   | 'syncProducts'
   | 'updateStock'
@@ -45,7 +52,8 @@ type ActionKey =
   | 'readOrders'
   | 'readLocalOrders'
   | 'readOrderEvents'
-  | 'readSyncHistory';
+  | 'readSyncHistory'
+  | 'readVatOptions';
 
 const actionConfig: Record<ActionKey, { title: string; endpoint: string; method: 'POST' | 'GET'; payload?: Record<string, unknown> }> = {
   syncProducts: {
@@ -88,6 +96,11 @@ const actionConfig: Record<ActionKey, { title: string; endpoint: string; method:
   readSyncHistory: {
     title: 'Show Sync History',
     endpoint: '/api/emag/sync-runs?limit=100',
+    method: 'GET'
+  },
+  readVatOptions: {
+    title: 'Show VAT Options',
+    endpoint: '/api/emag/vat-options',
     method: 'GET'
   }
 };
@@ -192,6 +205,39 @@ function readSyncRuns(result: ApiResult | null): EmagSyncRun[] {
     .filter((entry): entry is EmagSyncRun => Boolean(entry));
 }
 
+function readVatOptions(result: ApiResult | null): EmagVatOption[] {
+  if (!result?.success) {
+    return [];
+  }
+
+  const data = asRecord(result.data);
+  if (!data) {
+    return [];
+  }
+
+  const options = data.vatOptions;
+  if (!Array.isArray(options)) {
+    return [];
+  }
+
+  return options
+    .map((entry): EmagVatOption | null => {
+      const item = asRecord(entry);
+      if (!item || typeof item.id !== 'number') {
+        return null;
+      }
+
+      return {
+        id: Math.floor(item.id),
+        name: typeof item.name === 'string' ? item.name : null,
+        value: typeof item.value === 'number' ? item.value : null,
+        raw: asRecord(item.raw) ?? {}
+      };
+    })
+    .filter((entry): entry is EmagVatOption => Boolean(entry))
+    .sort((left, right) => left.id - right.id);
+}
+
 function formatDate(value: string): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
@@ -210,6 +256,7 @@ export default function EmagAdminPage() {
   const isBusy = useMemo(() => running !== null, [running]);
   const orderEvents = useMemo(() => readUnifiedEvents(result), [result]);
   const syncRuns = useMemo(() => readSyncRuns(result), [result]);
+  const vatOptions = useMemo(() => readVatOptions(result), [result]);
 
   async function runAction(action: ActionKey): Promise<void> {
     setRunning(action);
@@ -369,6 +416,34 @@ export default function EmagAdminPage() {
                       <td className="px-3 py-2 text-slate-700">
                         {run.requestedIds.length > 0 ? `${run.requestedIds.length} selected IDs` : 'All products'}
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
+
+        {vatOptions.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900">VAT options from eMAG</h2>
+            <p className="mt-1 text-sm text-slate-600">Use the ID column for EMAG_VAT_ID.</p>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-100 text-left text-slate-700">
+                  <tr>
+                    <th className="px-3 py-2">ID</th>
+                    <th className="px-3 py-2">Label</th>
+                    <th className="px-3 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vatOptions.map((item) => (
+                    <tr key={item.id} className="border-t border-slate-200">
+                      <td className="px-3 py-2 font-semibold text-slate-900">{item.id}</td>
+                      <td className="px-3 py-2 text-slate-700">{item.name ?? '-'}</td>
+                      <td className="px-3 py-2 text-slate-700">{item.value ?? '-'}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -41,6 +41,7 @@ Set the following variables in your environment file.
 
 - POST /api/emag/sync-products
 - GET /api/emag/sync-products
+- GET /api/emag/vat-options
 - POST /api/emag/update-stock
 - POST /api/emag/update-price
 - POST /api/emag/orders
@@ -78,6 +79,12 @@ All protected routes accept token by one of these methods:
 - Requires one of `id` or `model` query parameters
 - Returns mapped outbound payload preview (`offerPayload` + `measurementPayload`) without sending to eMAG
 - Includes diagnostics for `vat_id`, `category_id`, and image presence
+
+### GET /api/emag/vat-options
+
+- Protected helper endpoint for VAT diagnostics
+- Calls eMAG `/vat/read` with server credentials
+- Returns normalized VAT options list for admin UI (`id`, `name`, `value`) so `EMAG_VAT_ID` can be selected correctly
 
 ### POST /api/emag/update-stock
 
