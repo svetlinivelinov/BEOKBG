@@ -9,6 +9,12 @@ type VatOption = {
   raw: Record<string, unknown>;
 };
 
+type EmagLikeResponse = {
+  isError?: boolean;
+  messages?: string[];
+  results?: unknown;
+};
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return null;
@@ -69,6 +75,21 @@ function parseVatOptions(results: unknown): VatOption[] {
     .sort((left, right) => left.id - right.id);
 }
 
+function asEmagLikeResponse(value: unknown): EmagLikeResponse {
+  const source = asRecord(value);
+  if (!source) {
+    return {};
+  }
+
+  return {
+    isError: typeof source.isError === 'boolean' ? source.isError : undefined,
+    messages: Array.isArray(source.messages)
+      ? source.messages.filter((item): item is string => typeof item === 'string')
+      : undefined,
+    results: source.results
+  };
+}
+
 export async function GET(request: Request) {
   if (!isEmagAdminAuthorized(request)) {
     return unauthorizedResponse();
@@ -76,16 +97,50 @@ export async function GET(request: Request) {
 
   try {
     const client = getEmagClient();
-    const response = await client.postRead<unknown[]>('/vat/read', {});
-    const vatOptions = parseVatOptions(response.results);
+    const candidates: Array<{ label: string; body: Record<string, unknown> }> = [
+      { label: 'top_level_empty', body: {} },
+      { label: 'data_wrapper_empty', body: { data: {} } }
+    ];
+
+    let pickedLabel = candidates[0].label;
+    let pickedResponse: EmagLikeResponse = {};
+    let vatOptions: VatOption[] = [];
+    const attempts: Array<{ label: string; isError: boolean; messages: string[]; count: number }> = [];
+
+    for (const candidate of candidates) {
+      const raw = await client.post<unknown>('/vat/read', candidate.body);
+      const parsed = asEmagLikeResponse(raw);
+      const options = parseVatOptions(parsed.results);
+      attempts.push({
+        label: candidate.label,
+        isError: Boolean(parsed.isError),
+        messages: parsed.messages ?? [],
+        count: options.length
+      });
+
+      if (options.length > 0) {
+        pickedLabel = candidate.label;
+        pickedResponse = parsed;
+        vatOptions = options;
+        break;
+      }
+
+      if (pickedResponse.results === undefined) {
+        pickedLabel = candidate.label;
+        pickedResponse = parsed;
+        vatOptions = options;
+      }
+    }
 
     return NextResponse.json({
-      success: !response.isError,
+      success: !pickedResponse.isError,
       data: {
+        source: pickedLabel,
+        attempts,
         count: vatOptions.length,
         vatOptions,
-        messages: response.messages ?? [],
-        isError: response.isError
+        messages: pickedResponse.messages ?? [],
+        isError: Boolean(pickedResponse.isError)
       }
     });
   } catch (error) {

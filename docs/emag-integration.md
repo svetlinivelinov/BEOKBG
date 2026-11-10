@@ -84,6 +84,7 @@ All protected routes accept token by one of these methods:
 
 - Protected helper endpoint for VAT diagnostics
 - Calls eMAG `/vat/read` with server credentials
+- Tries both request body shapes (`{}` and `{ "data": {} }`) for compatibility
 - Returns normalized VAT options list for admin UI (`id`, `name`, `value`) so `EMAG_VAT_ID` can be selected correctly
 
 ### POST /api/emag/update-stock
