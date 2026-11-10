@@ -31,6 +31,12 @@ export interface EmagImage {
   url: string;
 }
 
+export interface EmagGpsrParty {
+  name: string;
+  address: string;
+  email: string;
+}
+
 export interface EmagProduct {
   id: number;
   name: string;
@@ -40,6 +46,8 @@ export interface EmagProduct {
   source_language: string;
   description: string;
   brand: string;
+  manufacturer?: EmagGpsrParty[];
+  eu_representative?: EmagGpsrParty[];
   ean: string[];
   images: EmagImage[];
   status: number;
@@ -69,6 +77,8 @@ export interface EmagProductOfferPayload {
   source_language: string;
   description: string;
   brand: string;
+  manufacturer?: EmagGpsrParty[];
+  eu_representative?: EmagGpsrParty[];
   ean: string[];
   images: EmagImage[];
   status: number;

@@ -1,9 +1,12 @@
+import fs from 'fs';
+import path from 'path';
 import { ProductBase } from './products/types';
 import type { ProductContent } from './products/types';
 import type { EmagProductOverride } from './emag-overrides';
 import {
   EmagCharacteristic,
   EmagFamily,
+  EmagGpsrParty,
   EmagImage,
   EmagPriceUpdate,
   EmagProduct,
@@ -15,6 +18,8 @@ import {
 const DEFAULT_SITE_URL = 'https://www.beoksmart.com';
 const FALLBACK_EAN = '0000000000000';
 const FALLBACK_BRAND = 'BEOK';
+// Brand sent to eMAG for every product (all-Latin spelling); EMAG_BRAND or a per-product override can replace it.
+const EMAG_DEFAULT_BRAND = 'BeOk';
 const MAX_EMAG_PRODUCT_ID = 16_777_215;
 type EmagMappableProduct = ProductBase & Partial<ProductContent>;
 type CharacteristicValueByApplication = Partial<Record<ProductBase['application'], string>>;
@@ -33,35 +38,31 @@ type ResolvedFamilyConfig = {
   color?: string;
 };
 
+// Values taken from the eMAG category 4330 form (basic characteristics are mandatory there).
+const THERMOSTAT_CHARACTERISTICS: CharacteristicConfigById = {
+  '5704': 'Термостат',
+  '8434': 'Оптимизиране на отоплителната система',
+  '7597': 'Универсален',
+  '9645': 'Електрически и газови котли'
+};
+
 const DEFAULT_CATEGORY_CHARACTERISTICS: CharacteristicsConfigByCategory = {
-  'room-thermostat': {
-    '5704': 'Термостат',
-    '8434': 'Вътрешна употреба',
-    '7597': 'BEOK',
-    '9645': {
-      electric: 'Електрическо подово отопление',
-      water: 'Водно подово отопление',
-      'gas-boiler': 'Газов котел'
-    }
-  },
-  'gas-boiler-thermostat': {
-    '5704': 'Термостат',
-    '8434': 'Вътрешна употреба',
-    '7597': 'BEOK',
-    '9645': {
-      electric: 'Електрическо подово отопление',
-      water: 'Водно подово отопление',
-      'gas-boiler': 'Газов котел'
-    }
+  'room-thermostat': THERMOSTAT_CHARACTERISTICS,
+  'gas-boiler-thermostat': THERMOSTAT_CHARACTERISTICS,
+  // Only 5704 is confirmed from the eMAG form; read the category with /api/emag/category-characteristics to see the rest.
+  trv: {
+    '5704': 'Термостатична глава'
   }
 };
 
+// eMAG category IDs. 4330 = Аксесоари за термични котли, 2410 = Централи и модули smart home.
+// EMAG_CATEGORY_MAP_JSON overrides single entries.
 const defaultCategoryMap: Record<string, number> = {
-  'room-thermostat': 0,
-  'gas-boiler-thermostat': 0,
-  trv: 0,
-  'hub-controller': 0,
-  'thermal-actuator': 0
+  'room-thermostat': 4330,
+  'gas-boiler-thermostat': 4330,
+  trv: 2410,
+  'hub-controller': 2410,
+  'thermal-actuator': 2410
 };
 
 function normalizeMapKey(value: string): string {
@@ -103,6 +104,22 @@ function toHashedEmagProductId(localId: string): number {
   return (hash >>> 0) % MAX_EMAG_PRODUCT_ID + 1;
 }
 
+function parseProductIdMap(source: Record<string, unknown>): Record<string, number> {
+  const mapped: Record<string, number> = {};
+
+  for (const [key, value] of Object.entries(source)) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric)) {
+      const normalized = Math.floor(numeric);
+      if (normalized >= 1 && normalized <= MAX_EMAG_PRODUCT_ID) {
+        mapped[normalizeMapKey(key)] = normalized;
+      }
+    }
+  }
+
+  return mapped;
+}
+
 function getExplicitProductIdMap(): Record<string, number> {
   const raw = process.env.EMAG_PRODUCT_ID_MAP_JSON?.trim();
   if (!raw) {
@@ -110,33 +127,53 @@ function getExplicitProductIdMap(): Record<string, number> {
   }
 
   try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const mapped: Record<string, number> = {};
-
-    for (const [key, value] of Object.entries(parsed)) {
-      const numeric = Number(value);
-      if (Number.isFinite(numeric)) {
-        const normalized = Math.floor(numeric);
-        if (normalized >= 1 && normalized <= MAX_EMAG_PRODUCT_ID) {
-          mapped[normalizeMapKey(key)] = normalized;
-        }
-      }
-    }
-
-    return mapped;
+    return parseProductIdMap(JSON.parse(raw) as Record<string, unknown>);
   } catch {
     return {};
   }
 }
 
+let cachedFileProductIdMap: Record<string, number> | null = null;
+
+// Permanent seller product IDs live in a committed file, so they never depend on list order or on env state.
+// Changing an ID later makes eMAG create a new product, so only append new products.
+function getFileProductIdMap(): Record<string, number> {
+  if (cachedFileProductIdMap) {
+    return cachedFileProductIdMap;
+  }
+
+  const filePath = path.join(/*turbopackIgnore: true*/ process.cwd(), 'data', 'products', 'emag-product-ids.json');
+  let mapped: Record<string, number> = {};
+
+  try {
+    mapped = parseProductIdMap(JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>);
+  } catch {
+    mapped = {};
+  }
+
+  // Two products sharing one ID would silently overwrite each other on eMAG, so fail loudly instead.
+  const seen = new Map<number, string>();
+  for (const [key, id] of Object.entries(mapped)) {
+    const other = seen.get(id);
+    if (other) {
+      throw new Error(`Duplicate eMAG product id ${id} in emag-product-ids.json for "${other}" and "${key}"`);
+    }
+    seen.set(id, key);
+  }
+
+  cachedFileProductIdMap = mapped;
+  return mapped;
+}
+
 function toEmagProductId(product: Pick<ProductBase, 'id' | 'model'>): number {
   const explicitMap = getExplicitProductIdMap();
+  const fileMap = getFileProductIdMap();
   const idKey = normalizeMapKey(product.id);
   const modelKey = normalizeMapKey(product.model);
-  const explicitId = explicitMap[idKey] ?? explicitMap[modelKey];
+  const mappedId = explicitMap[idKey] ?? explicitMap[modelKey] ?? fileMap[idKey] ?? fileMap[modelKey];
 
-  if (typeof explicitId === 'number' && Number.isFinite(explicitId)) {
-    return explicitId;
+  if (typeof mappedId === 'number' && Number.isFinite(mappedId)) {
+    return mappedId;
   }
 
   return toHashedEmagProductId(product.id);
@@ -199,6 +236,53 @@ function collectImages(product: ProductBase): EmagImage[] {
   }));
 }
 
+// Thermostats are listed on eMAG by what they control, not by model code.
+const NAMED_BY_APPLICATION_CATEGORIES = new Set(['room-thermostat', 'gas-boiler-thermostat']);
+
+const DEFAULT_NAMES_BY_APPLICATION: Record<string, string> = {
+  electric: 'Термостат за електрическо подово отопление',
+  water: 'Термостат за водно подово отопление',
+  'gas-boiler': 'Термостат за газов котел'
+};
+
+const DEFAULT_NAMES_BY_CATEGORY: Record<string, string> = {
+  trv: 'Термостатичен радиаторен вентил',
+  'thermal-actuator': 'Термоелектрически задвижващ механизъм'
+};
+
+// Reads an optional JSON object of string values from the environment and merges it over the defaults.
+function readStringMap(envName: string, defaults: Record<string, string>): Record<string, string> {
+  const merged = { ...defaults };
+  const raw = process.env[envName]?.trim();
+  if (!raw) {
+    return merged;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    for (const [key, value] of Object.entries(parsed)) {
+      if (typeof value === 'string' && value.trim()) {
+        merged[key] = value.trim();
+      }
+    }
+  } catch {
+    return merged;
+  }
+
+  return merged;
+}
+
+// Category names override application names. Overrides: EMAG_NAME_BY_CATEGORY_JSON and
+// EMAG_NAME_BY_APPLICATION_JSON, e.g. {"electric":"...","water":"...","gas-boiler":"..."}.
+function buildProductName(product: Pick<ProductBase, 'category' | 'model' | 'application'>): string {
+  const byCategory = readStringMap('EMAG_NAME_BY_CATEGORY_JSON', DEFAULT_NAMES_BY_CATEGORY)[product.category];
+  const byApplication = NAMED_BY_APPLICATION_CATEGORIES.has(product.category)
+    ? readStringMap('EMAG_NAME_BY_APPLICATION_JSON', DEFAULT_NAMES_BY_APPLICATION)[product.application]
+    : undefined;
+
+  return (byCategory || byApplication || product.model).slice(0, 255);
+}
+
 function mapCategory(category: string): number {
   const categoryMap = getCategoryMap();
   const mapped = categoryMap[category];
@@ -224,6 +308,51 @@ function getDefaultHandlingTime(): number {
 function getDefaultWarehouseId(): number {
   const value = Number(process.env.EMAG_WAREHOUSE_ID ?? '1');
   return Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1;
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_GPSR_PARTIES = 10;
+
+// eMAG requires name, address and email together for every GPSR party.
+function toGpsrParty(entry: unknown): EmagGpsrParty | null {
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+    return null;
+  }
+
+  const source = entry as Record<string, unknown>;
+  const name = typeof source.name === 'string' ? source.name.trim() : '';
+  const address = typeof source.address === 'string' ? source.address.trim() : '';
+  const email = typeof source.email === 'string' ? source.email.trim() : '';
+
+  if (!name || !address || !email) {
+    return null;
+  }
+
+  if (name.length > 200 || address.length > 500 || email.length > 100 || !EMAIL_PATTERN.test(email)) {
+    return null;
+  }
+
+  return { name, address, email };
+}
+
+function getGpsrParties(envName: string): EmagGpsrParty[] | undefined {
+  const raw = process.env[envName]?.trim();
+  if (!raw) {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    const entries: unknown[] = Array.isArray(parsed) ? parsed : [parsed];
+    const parties = entries
+      .map(toGpsrParty)
+      .filter((party): party is EmagGpsrParty => party !== null)
+      .slice(0, MAX_GPSR_PARTIES);
+
+    return parties.length > 0 ? parties : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function getDefaultWarrantyMonths(): number | undefined {
@@ -608,6 +737,8 @@ export function mapProductToEmagProduct(
   const familyConfig = resolveFamilyConfig(product);
   const characteristics = buildCharacteristics(product, familyConfig.color);
   const warranty = getDefaultWarrantyMonths();
+  const manufacturer = getGpsrParties('EMAG_MANUFACTURER_JSON');
+  const euRepresentative = getGpsrParties('EMAG_EU_REPRESENTATIVE_JSON');
   const productEan = typeof override?.ean === 'string'
     ? override.ean.trim()
     : typeof product.ean === 'string'
@@ -617,13 +748,15 @@ export function mapProductToEmagProduct(
 
   return {
     id: toEmagProductId(product),
-    name: product.model,
+    name: buildProductName(product),
     category_id: mapCategory(product.category),
     part_number: product.model,
     url: buildProductUrl(product.id),
     source_language: process.env.EMAG_SOURCE_LANGUAGE?.trim() || 'bg_BG',
     description: buildDescription(product, override?.description),
-    brand: override?.brand?.trim() || process.env.EMAG_BRAND?.trim() || FALLBACK_BRAND,
+    brand: override?.brand?.trim() || process.env.EMAG_BRAND?.trim() || EMAG_DEFAULT_BRAND,
+    ...(manufacturer ? { manufacturer } : {}),
+    ...(euRepresentative ? { eu_representative: euRepresentative } : {}),
     ean: [resolvedEan],
     images: collectImages(product),
     status: 1,
@@ -665,6 +798,8 @@ export function toProductOfferPayload(product: EmagProduct): EmagProductOfferPay
     source_language: product.source_language,
     description: product.description,
     brand: product.brand,
+    manufacturer: product.manufacturer,
+    eu_representative: product.eu_representative,
     ean: product.ean,
     images: product.images,
     status: product.status,

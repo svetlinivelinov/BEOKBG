@@ -64,7 +64,8 @@ type ActionKey =
   | 'readOrderEvents'
   | 'readSyncHistory'
   | 'readVatOptions'
-  | 'readOfferVatSamples';
+  | 'readOfferVatSamples'
+  | 'searchCategories';
 
 const actionConfig: Record<ActionKey, { title: string; endpoint: string; method: 'POST' | 'GET'; payload?: Record<string, unknown> }> = {
   syncProducts: {
@@ -118,8 +119,46 @@ const actionConfig: Record<ActionKey, { title: string; endpoint: string; method:
     title: 'Show Offer VAT Samples',
     endpoint: '/api/emag/offer-vat-samples?limit=100',
     method: 'GET'
+  },
+  searchCategories: {
+    title: 'Find Thermostat Categories',
+    endpoint: `/api/emag/category-search?q=${encodeURIComponent('термостат,thermostat')}`,
+    method: 'GET'
   }
 };
+
+type EmagCategoryMatch = {
+  id: number;
+  name: string;
+  isAllowed: boolean | number | null;
+};
+
+function readCategoryMatches(result: ApiResult | null): EmagCategoryMatch[] {
+  if (!result?.success) {
+    return [];
+  }
+
+  const matches = asRecord(result.data)?.matches;
+  if (!Array.isArray(matches)) {
+    return [];
+  }
+
+  return matches
+    .map((entry): EmagCategoryMatch | null => {
+      const item = asRecord(entry);
+      if (!item || typeof item.id !== 'number' || typeof item.name !== 'string') {
+        return null;
+      }
+
+      const allowed = item.isAllowed;
+      return {
+        id: item.id,
+        name: item.name,
+        isAllowed: typeof allowed === 'boolean' || typeof allowed === 'number' ? allowed : null
+      };
+    })
+    .filter((entry): entry is EmagCategoryMatch => Boolean(entry));
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -309,6 +348,7 @@ export default function EmagAdminPage() {
   const syncRuns = useMemo(() => readSyncRuns(result), [result]);
   const vatOptions = useMemo(() => readVatOptions(result), [result]);
   const offerVatSamples = useMemo(() => readOfferVatSamples(result), [result]);
+  const categoryMatches = useMemo(() => readCategoryMatches(result), [result]);
 
   async function runAction(action: ActionKey): Promise<void> {
     setRunning(action);
@@ -528,6 +568,34 @@ export default function EmagAdminPage() {
                       <td className="px-3 py-2 text-slate-700">{sample.vatId ?? '-'}</td>
                       <td className="px-3 py-2 text-slate-700">{sample.categoryId ?? '-'}</td>
                       <td className="px-3 py-2 text-slate-700">{sample.status ?? '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
+
+        {categoryMatches.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900">Matching eMAG categories</h2>
+            <p className="mt-1 text-sm text-slate-600">Use the ID column for EMAG_CATEGORY_MAP_JSON. Allowed = 1 means your account can publish there.</p>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-100 text-left text-slate-700">
+                  <tr>
+                    <th className="px-3 py-2">ID</th>
+                    <th className="px-3 py-2">Name</th>
+                    <th className="px-3 py-2">Allowed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoryMatches.map((category) => (
+                    <tr key={category.id} className="border-t border-slate-200">
+                      <td className="px-3 py-2 font-semibold text-slate-900">{category.id}</td>
+                      <td className="px-3 py-2 text-slate-700">{category.name}</td>
+                      <td className="px-3 py-2 text-slate-700">{category.isAllowed === null ? '-' : String(category.isAllowed)}</td>
                     </tr>
                   ))}
                 </tbody>

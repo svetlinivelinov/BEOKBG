@@ -46,13 +46,22 @@ For each product offer, the integration sends:
 
 ### Basic characteristics (thermostat categories)
 
-- `5704` → Product type (example: `Термостат`)
-- `8434` → Usage (example: `Вътрешна употреба`)
-- `9645` → Suitable for:
-  - `electric` → `Електрическо подово отопление`
-  - `water` → `Водно подово отопление`
-  - `gas-boiler` → `Газов котел`
-- `7597` → Compatible brand (example: `BEOK`)
+Defaults match the mandatory characteristics of eMAG category 4330 (`Аксесоари за термични котли`):
+
+- `5704` → Product type: `Термостат`
+- `8434` → Usage: `Оптимизиране на отоплителната система`
+- `9645` → Suitable for: `Електрически и газови котли`
+- `7597` → Compatible brand: `Универсален`
+
+Values must come from the category's allowed values. Use `GET /api/emag/category-characteristics?id=<categoryId>` to list the mandatory characteristics and their allowed values, and override defaults with `EMAG_CHARACTERISTICS_MAP_JSON` when needed.
+
+### Basic characteristics (TRV category)
+
+Local category `trv` (TRV-604, TRV-705WF) sends:
+
+- `5704` → Product type: `Термостатична глава`
+
+Only this value is confirmed from the eMAG form. Read the target category with `GET /api/emag/category-characteristics?id=<categoryId>` to see its other mandatory characteristics before the first push, and add them with `EMAG_CHARACTERISTICS_MAP_JSON`.
 
 ### Color characteristic
 

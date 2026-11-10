@@ -1,0 +1,19 @@
+{
+  "tgm50-wifi-ep": 9,
+  "tgm50-wifi-wp": 10,
+  "tgm50b-wifi-ep": 11,
+  "tgm50b-wifi-wp": 12,
+  "tcc31-wifi-ep": 13,
+  "tcc31-wifi-wp": 14,
+  "tgr85-wifi-wpb": 15,
+  "tgr85-wifi-ep": 16,
+  "tcc31-wifi-wpb": 17,
+  "bot-r7w-x-wifi": 18,
+  "bot-r7b-x-wifi": 19,
+  "bot-r8x-wifi": 20,
+  "trv-604": 21,
+  "trv-705wf": 22,
+  "cct-28-x": 23,
+  "bot-r7x-wifi-nr": 24,
+  "rz-d01-230-nc": 25
+}

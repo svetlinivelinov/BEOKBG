@@ -134,7 +134,9 @@ export async function GET(request: Request) {
           vat_id: offerPayload.vat_id,
           category_id: offerPayload.category_id,
           imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
-          firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0].url : null
+          firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0].url : null,
+          manufacturerCount: offerPayload.manufacturer?.length ?? 0,
+          euRepresentativeCount: offerPayload.eu_representative?.length ?? 0
         },
         offerPayload,
         measurementPayload
