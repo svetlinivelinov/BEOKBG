@@ -71,6 +71,88 @@ function getProductOverride(overrides: EmagOverrideIndex, product: ProductBase) 
   return overrides[idKey] ?? overrides[modelKey];
 }
 
+function findProductByIdOrModel(products: ProductForEmag[], query: string): ProductForEmag | null {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+
+  return products.find((product) =>
+    product.id.trim().toLowerCase() === normalized ||
+    product.model.trim().toLowerCase() === normalized
+  ) ?? null;
+}
+
+export async function GET(request: Request) {
+  if (!isEmagAdminAuthorized(request)) {
+    return unauthorizedResponse();
+  }
+
+  const url = new URL(request.url);
+  const productQuery = url.searchParams.get('id') ?? url.searchParams.get('model') ?? '';
+
+  if (!productQuery.trim()) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'missing_product_identifier'
+      },
+      {
+        status: 400
+      }
+    );
+  }
+
+  try {
+    const [products, overrides] = await Promise.all([readProductsForEmagSync(), loadEmagOverrides()]);
+    const selected = findProductByIdOrModel(products, productQuery);
+
+    if (!selected) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'product_not_found'
+        },
+        {
+          status: 404
+        }
+      );
+    }
+
+    const override = getProductOverride(overrides, selected);
+    const mapped = mapProductToEmagProduct(selected, { override });
+    const offerPayload = toProductOfferPayload(mapped);
+    const measurementPayload = toMeasurementPayload(mapped);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        productId: selected.id,
+        model: selected.model,
+        override: override ?? null,
+        diagnostics: {
+          vat_id: offerPayload.vat_id,
+          category_id: offerPayload.category_id,
+          imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
+          firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0] : null
+        },
+        offerPayload,
+        measurementPayload
+      }
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'preview_failed'
+      },
+      {
+        status: 500
+      }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   if (!isEmagAdminAuthorized(request)) {
     return unauthorizedResponse();

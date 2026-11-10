@@ -40,6 +40,7 @@ Set the following variables in your environment file.
 ## Implemented Routes
 
 - POST /api/emag/sync-products
+- GET /api/emag/sync-products
 - POST /api/emag/update-stock
 - POST /api/emag/update-price
 - POST /api/emag/orders
@@ -69,6 +70,13 @@ All protected routes accept token by one of these methods:
 - Returns sync report with failed batches
 - Persists every sync run to data/emag/sync-runs.json for history and auditing
 - Sends additional offer constraints automatically (`url`, `min_sale_price`, `max_sale_price`, optional `recommended_price`) to reduce manual work in eMAG offer wizard
+
+### GET /api/emag/sync-products
+
+- Protected debug preview endpoint
+- Requires one of `id` or `model` query parameters
+- Returns mapped outbound payload preview (`offerPayload` + `measurementPayload`) without sending to eMAG
+- Includes diagnostics for `vat_id`, `category_id`, and image presence
 
 ### POST /api/emag/update-stock
 
