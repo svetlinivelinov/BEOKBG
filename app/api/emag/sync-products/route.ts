@@ -134,7 +134,7 @@ export async function GET(request: Request) {
           vat_id: offerPayload.vat_id,
           category_id: offerPayload.category_id,
           imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
-          firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0] : null
+          firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0].url : null
         },
         offerPayload,
         measurementPayload
@@ -227,7 +227,7 @@ export async function POST(request: Request) {
             vat_id: offerPayload.vat_id,
             category_id: offerPayload.category_id,
             imageCount: Array.isArray(offerPayload.images) ? offerPayload.images.length : 0,
-            firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0] : null
+            firstImage: Array.isArray(offerPayload.images) && offerPayload.images.length > 0 ? offerPayload.images[0].url : null
           },
           offerPayload,
           measurementPayload

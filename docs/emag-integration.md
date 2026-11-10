@@ -36,6 +36,7 @@ Set the following variables in your environment file.
 - EMAG_PUBLIC_SITE_URL: base URL used to convert relative product image paths to absolute URLs
 - EMAG_OVERRIDES_PATH: optional path for product-level eMAG overrides JSON (advanced mode only)
 - EMAG_PRODUCT_ID_MAP_JSON: optional JSON map to pin eMAG numeric IDs by local `id` or `model`
+- EMAG_PRICE_VAT_RATE: VAT rate used to convert the VAT-inclusive `finalPriceEur` into the VAT-exclusive prices eMAG expects (default 0.2; set 0 to send prices unchanged)
 
 ## Implemented Routes
 
@@ -66,6 +67,8 @@ All protected routes accept token by one of these methods:
 - Loads localized content from data/products/content.bg.json with field-level fallback to data/products/content.en.json
 - Loads optional product overrides from data/products/emag.overrides.json (or EMAG_OVERRIDES_PATH)
 - Maps products to eMAG offer payload
+- Sends `images` as objects (`{ "display_type": 1|2, "url": "..." }`) as required by the eMAG API; the first image is the main image (`display_type` 1), the rest are secondary (2)
+- Converts `sale_price`, `min_sale_price`, `max_sale_price` and `recommended_price` to VAT-exclusive values using `EMAG_PRICE_VAT_RATE`
 - Uses description priority: overrides.description -> localized BG description -> generated fallback text
 - Sends batches to /product_offer/save
 - Sends measurements in matching batches to /measurements/save
@@ -86,6 +89,7 @@ All protected routes accept token by one of these methods:
 - Protected helper endpoint for VAT diagnostics
 - Calls eMAG `/vat/read` with server credentials
 - Tries both request body shapes (`{}` and `{ "data": {} }`) for compatibility
+- Accepts `vat_id` or `id` as the identifier field and returns `rawResultsPreview` for each attempt, so the unmodified eMAG response is always visible
 - Returns normalized VAT options list for admin UI (`id`, `name`, `value`) so `EMAG_VAT_ID` can be selected correctly
 
 ### GET /api/emag/offer-vat-samples
@@ -93,6 +97,7 @@ All protected routes accept token by one of these methods:
 - Protected helper endpoint to inspect existing offer VAT usage
 - Calls eMAG `/product_offer/read` and returns sample offers with `vatId`, `categoryId`, and `partNumber`
 - Includes frequency map of returned VAT IDs (`vatIdFrequency`) to quickly identify the active VAT id used on live offers
+- Tries both request body shapes (top-level filters and `{ "data": { ... } }`) and reports each attempt in `attempts`
 
 ### POST /api/emag/update-stock
 
@@ -104,7 +109,7 @@ All protected routes accept token by one of these methods:
 ### POST /api/emag/update-price
 
 - Reads all products from data/products/products.json
-- Maps finalPriceEur to sale_price
+- Maps finalPriceEur to a VAT-exclusive sale_price (see `EMAG_PRICE_VAT_RATE`)
 - Updates prices in batches via /product_offer/save
 
 ### POST /api/emag/orders

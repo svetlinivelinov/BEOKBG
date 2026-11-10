@@ -26,6 +26,11 @@ export interface EmagFamily {
   family_type_id?: number;
 }
 
+export interface EmagImage {
+  display_type: 0 | 1 | 2;
+  url: string;
+}
+
 export interface EmagProduct {
   id: number;
   name: string;
@@ -36,7 +41,7 @@ export interface EmagProduct {
   description: string;
   brand: string;
   ean: string[];
-  images: string[];
+  images: EmagImage[];
   status: number;
   sale_price: number;
   min_sale_price?: number;
@@ -65,7 +70,7 @@ export interface EmagProductOfferPayload {
   description: string;
   brand: string;
   ean: string[];
-  images: string[];
+  images: EmagImage[];
   status: number;
   sale_price: number;
   min_sale_price?: number;

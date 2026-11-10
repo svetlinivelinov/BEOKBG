@@ -85,11 +85,46 @@ export async function GET(request: Request) {
 
   try {
     const client = getEmagClient();
-    const response = await client.postRead<unknown[]>('/product_offer/read', {
-      currentPage: 1,
-      itemsPerPage: safeLimit
-    });
-    const samples = parseOfferVatSamples(response.results);
+    const filters = { currentPage: 1, itemsPerPage: safeLimit };
+    const candidates: Array<{ label: string; body: Record<string, unknown> }> = [
+      { label: 'top_level_filters', body: filters },
+      { label: 'data_wrapper_filters', body: { data: filters } }
+    ];
+
+    const attempts: Array<{ label: string; isError: boolean; messages: string[]; count: number; resultsType: string }> = [];
+    let samples: OfferVatSample[] = [];
+    let pickedLabel = candidates[0].label;
+    let pickedMessages: string[] = [];
+    let pickedIsError = false;
+
+    for (const candidate of candidates) {
+      const raw = asRecord(await client.post<unknown>('/product_offer/read', candidate.body)) ?? {};
+      const results = raw.results;
+      const parsedSamples = parseOfferVatSamples(results);
+      const messages = Array.isArray(raw.messages)
+        ? raw.messages.filter((item): item is string => typeof item === 'string')
+        : [];
+
+      attempts.push({
+        label: candidate.label,
+        isError: Boolean(raw.isError),
+        messages,
+        count: parsedSamples.length,
+        resultsType: Array.isArray(results) ? 'array' : typeof results
+      });
+
+      if (parsedSamples.length > 0 || candidate === candidates[0]) {
+        samples = parsedSamples;
+        pickedLabel = candidate.label;
+        pickedMessages = messages;
+        pickedIsError = Boolean(raw.isError);
+      }
+
+      if (parsedSamples.length > 0) {
+        break;
+      }
+    }
+
     const vatIdFrequency = samples.reduce<Record<string, number>>((acc, item) => {
       const key = item.vatId === null ? 'null' : String(Math.floor(item.vatId));
       acc[key] = (acc[key] ?? 0) + 1;
@@ -97,13 +132,15 @@ export async function GET(request: Request) {
     }, {});
 
     return NextResponse.json({
-      success: !response.isError,
+      success: !pickedIsError,
       data: {
+        source: pickedLabel,
+        attempts,
         count: samples.length,
         samples,
         vatIdFrequency,
-        messages: response.messages ?? [],
-        isError: response.isError
+        messages: pickedMessages,
+        isError: pickedIsError
       }
     });
   } catch (error) {

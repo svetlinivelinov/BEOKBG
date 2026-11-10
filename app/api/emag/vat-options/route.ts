@@ -50,7 +50,7 @@ function parseVatOptions(results: unknown): VatOption[] {
         return null;
       }
 
-      const id = toNumberOrNull(source.id);
+      const id = toNumberOrNull(source.vat_id ?? source.id);
       if (id === null) {
         return null;
       }
@@ -62,7 +62,7 @@ function parseVatOptions(results: unknown): VatOption[] {
           : typeof source.title === 'string'
             ? source.title
             : null;
-      const valueCandidate = source.value ?? source.rate ?? source.vat_value ?? source.percent;
+      const valueCandidate = source.vat_rate ?? source.value ?? source.rate ?? source.vat_value ?? source.percent;
 
       return {
         id: Math.floor(id),
@@ -105,7 +105,14 @@ export async function GET(request: Request) {
     let pickedLabel = candidates[0].label;
     let pickedResponse: EmagLikeResponse = {};
     let vatOptions: VatOption[] = [];
-    const attempts: Array<{ label: string; isError: boolean; messages: string[]; count: number }> = [];
+    const attempts: Array<{
+      label: string;
+      isError: boolean;
+      messages: string[];
+      count: number;
+      resultsType: string;
+      rawResultsPreview: unknown;
+    }> = [];
 
     for (const candidate of candidates) {
       const raw = await client.post<unknown>('/vat/read', candidate.body);
@@ -115,7 +122,9 @@ export async function GET(request: Request) {
         label: candidate.label,
         isError: Boolean(parsed.isError),
         messages: parsed.messages ?? [],
-        count: options.length
+        count: options.length,
+        resultsType: Array.isArray(parsed.results) ? 'array' : typeof parsed.results,
+        rawResultsPreview: Array.isArray(parsed.results) ? parsed.results.slice(0, 20) : parsed.results ?? null
       });
 
       if (options.length > 0) {

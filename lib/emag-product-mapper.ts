@@ -4,6 +4,7 @@ import type { EmagProductOverride } from './emag-overrides';
 import {
   EmagCharacteristic,
   EmagFamily,
+  EmagImage,
   EmagPriceUpdate,
   EmagProduct,
   EmagProductMeasurementPayload,
@@ -77,6 +78,13 @@ function toFiniteNumber(value: unknown, fallback: number): number {
 
 function roundPrice(value: number): number {
   return Math.round(value * 10000) / 10000;
+}
+
+// eMAG expects prices without VAT, while finalPriceEur is the customer price including VAT.
+function toExVatPrice(grossPrice: number): number {
+  const parsedRate = Number(process.env.EMAG_PRICE_VAT_RATE ?? '0.2');
+  const rate = Number.isFinite(parsedRate) && parsedRate >= 0 ? parsedRate : 0.2;
+  return roundPrice(grossPrice / (1 + rate));
 }
 
 function toStockValue(value: unknown): number {
@@ -175,16 +183,20 @@ function toAbsoluteImageUrl(imagePath: string): string {
   return `${resolveSiteUrl()}${normalized}`;
 }
 
-function collectImages(product: ProductBase): string[] {
+function collectImages(product: ProductBase): EmagImage[] {
   const merged = [
-    ...(Array.isArray(product.images) ? product.images : []),
-    product.image || ''
+    product.image || '',
+    ...(Array.isArray(product.images) ? product.images : [])
   ]
     .map((value) => value.trim())
     .filter(Boolean)
     .map(toAbsoluteImageUrl);
 
-  return Array.from(new Set(merged));
+  // eMAG expects image objects; the first one is the main image, the rest are secondary.
+  return Array.from(new Set(merged)).map((url, index) => ({
+    display_type: index === 0 ? 1 : 2,
+    url
+  }));
 }
 
 function mapCategory(category: string): number {
@@ -582,7 +594,7 @@ export function mapProductToEmagProduct(
   options?: { override?: EmagProductOverride }
 ): EmagProduct {
   const warehouseId = getDefaultWarehouseId();
-  const price = roundPrice(toFiniteNumber(product.finalPriceEur, 0));
+  const price = toExVatPrice(toFiniteNumber(product.finalPriceEur, 0));
   const minPriceFactor = getPriceFactor('EMAG_MIN_SALE_PRICE_FACTOR', 0.9);
   const maxPriceFactor = getPriceFactor('EMAG_MAX_SALE_PRICE_FACTOR', 1.1);
   const minSalePrice = roundPrice(Math.max(0.0001, price * minPriceFactor));
@@ -690,7 +702,7 @@ export function mapProductToStockUpdate(product: ProductBase): EmagStockUpdate {
 export function mapProductToPriceUpdate(product: ProductBase): EmagPriceUpdate {
   return {
     id: toEmagProductId(product),
-    sale_price: roundPrice(toFiniteNumber(product.finalPriceEur, 0)),
+    sale_price: toExVatPrice(toFiniteNumber(product.finalPriceEur, 0)),
     currency_type: product.currency || 'EUR'
   };
 }
