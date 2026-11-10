@@ -149,3 +149,23 @@ export interface EmagWebhookEvent {
   eventType: string;
   payload: unknown;
 }
+
+export interface EmagSyncBatchResult {
+  batch: number;
+  products: number;
+  status: 'ok' | 'failed';
+  error?: string;
+}
+
+export interface EmagSyncRun {
+  id: string;
+  startedAt: string;
+  completedAt: string;
+  requestedIds: string[];
+  totalProducts: number;
+  syncedProducts: number;
+  batches: number;
+  success: boolean;
+  failures: EmagSyncBatchResult[];
+  report: EmagSyncBatchResult[];
+}

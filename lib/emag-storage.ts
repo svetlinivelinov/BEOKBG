@@ -1,11 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
-import { EmagOrder, EmagWebhookEvent } from '../types/emag';
+import { EmagOrder, EmagSyncBatchResult, EmagSyncRun, EmagWebhookEvent } from '../types/emag';
 
 const storageDir = path.join(process.cwd(), 'data', 'emag');
 const ordersPath = path.join(storageDir, 'orders.json');
 const webhookEventsPath = path.join(storageDir, 'webhook-events.json');
+const syncRunsPath = path.join(storageDir, 'sync-runs.json');
 
 type StoredEmagOrder = EmagOrder & {
   storedAt: string;
@@ -82,6 +83,45 @@ export async function readStoredEmagOrders(limit = 100): Promise<StoredEmagOrder
 export async function readStoredEmagWebhookEvents(limit = 100): Promise<EmagWebhookEvent[]> {
   const events = await readJsonArray<EmagWebhookEvent>(webhookEventsPath);
   return events.slice(0, Math.max(1, limit));
+}
+
+export async function readStoredEmagSyncRuns(limit = 50): Promise<EmagSyncRun[]> {
+  const runs = await readJsonArray<EmagSyncRun>(syncRunsPath);
+  return runs.slice(0, Math.max(1, limit));
+}
+
+export async function appendEmagSyncRun(input: {
+  startedAt: string;
+  completedAt: string;
+  requestedIds: string[];
+  totalProducts: number;
+  syncedProducts: number;
+  batches: number;
+  success: boolean;
+  failures: EmagSyncBatchResult[];
+  report: EmagSyncBatchResult[];
+  maxItems?: number;
+}): Promise<EmagSyncRun> {
+  const runs = await readJsonArray<EmagSyncRun>(syncRunsPath);
+  const maxItems = Math.max(20, input.maxItems ?? 200);
+
+  const nextRun: EmagSyncRun = {
+    id: randomUUID(),
+    startedAt: input.startedAt,
+    completedAt: input.completedAt,
+    requestedIds: input.requestedIds,
+    totalProducts: input.totalProducts,
+    syncedProducts: input.syncedProducts,
+    batches: input.batches,
+    success: input.success,
+    failures: input.failures,
+    report: input.report
+  };
+
+  const merged = [nextRun, ...runs].slice(0, maxItems);
+  await writeJsonArray(syncRunsPath, merged);
+
+  return nextRun;
 }
 
 export async function appendWebhookEvent(input: {

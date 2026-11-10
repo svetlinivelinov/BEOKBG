@@ -5,8 +5,10 @@ import { isEmagAdminAuthorized, readJsonBody, unauthorizedResponse } from '../..
 import { getEmagClient } from '../../../../lib/emag-client';
 import { loadEmagOverrides } from '../../../../lib/emag-overrides';
 import type { EmagOverrideIndex } from '../../../../lib/emag-overrides';
+import { appendEmagSyncRun } from '../../../../lib/emag-storage';
 import { mapProductToEmagProduct, toMeasurementPayload, toProductOfferPayload } from '../../../../lib/emag-product-mapper';
 import { ProductBase, ProductContent } from '../../../../lib/products/types';
+import type { EmagSyncBatchResult } from '../../../../types/emag';
 
 const productsPath = path.join(process.cwd(), 'data', 'products', 'products.json');
 const contentBgPath = path.join(process.cwd(), 'data', 'products', 'content.bg.json');
@@ -76,6 +78,7 @@ export async function POST(request: Request) {
 
   const payload = (await readJsonBody(request)) as { ids?: string[] } | null;
   const selectedIds = new Set(Array.isArray(payload?.ids) ? payload.ids : []);
+  const startedAt = new Date().toISOString();
 
   try {
     const [products, overrides] = await Promise.all([readProductsForEmagSync(), loadEmagOverrides()]);
@@ -101,7 +104,7 @@ export async function POST(request: Request) {
     );
     const batches = toArrayChunks(mappedProducts, 50);
 
-    const syncReport: Array<{ batch: number; products: number; status: 'ok' | 'failed'; error?: string }> = [];
+    const syncReport: EmagSyncBatchResult[] = [];
     let syncedProducts = 0;
 
     for (let i = 0; i < batches.length; i += 1) {
@@ -128,10 +131,25 @@ export async function POST(request: Request) {
     }
 
     const failures = syncReport.filter((item) => item.status === 'failed');
+    const completedAt = new Date().toISOString();
+    const syncRun = await appendEmagSyncRun({
+      startedAt,
+      completedAt,
+      requestedIds: Array.from(selectedIds),
+      totalProducts: selectedProducts.length,
+      syncedProducts,
+      batches: batches.length,
+      success: failures.length === 0,
+      failures,
+      report: syncReport
+    });
 
     return NextResponse.json({
       success: failures.length === 0,
       data: {
+        syncRunId: syncRun.id,
+        startedAt,
+        completedAt,
         totalProducts: selectedProducts.length,
         syncedProducts,
         batches: batches.length,

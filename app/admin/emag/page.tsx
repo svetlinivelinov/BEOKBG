@@ -18,13 +18,34 @@ type UnifiedOrderEvent = {
   details: Record<string, unknown>;
 };
 
+type EmagSyncBatchResult = {
+  batch: number;
+  products: number;
+  status: 'ok' | 'failed';
+  error?: string;
+};
+
+type EmagSyncRun = {
+  id: string;
+  startedAt: string;
+  completedAt: string;
+  requestedIds: string[];
+  totalProducts: number;
+  syncedProducts: number;
+  batches: number;
+  success: boolean;
+  failures: EmagSyncBatchResult[];
+  report: EmagSyncBatchResult[];
+};
+
 type ActionKey =
   | 'syncProducts'
   | 'updateStock'
   | 'updatePrice'
   | 'readOrders'
   | 'readLocalOrders'
-  | 'readOrderEvents';
+  | 'readOrderEvents'
+  | 'readSyncHistory';
 
 const actionConfig: Record<ActionKey, { title: string; endpoint: string; method: 'POST' | 'GET'; payload?: Record<string, unknown> }> = {
   syncProducts: {
@@ -62,6 +83,11 @@ const actionConfig: Record<ActionKey, { title: string; endpoint: string; method:
   readOrderEvents: {
     title: 'Show Stripe + eMAG Events',
     endpoint: '/api/admin/order-events?limit=300',
+    method: 'GET'
+  },
+  readSyncHistory: {
+    title: 'Show Sync History',
+    endpoint: '/api/emag/sync-runs?limit=100',
     method: 'GET'
   }
 };
@@ -113,6 +139,59 @@ function readUnifiedEvents(result: ApiResult | null): UnifiedOrderEvent[] {
     .filter((entry): entry is UnifiedOrderEvent => Boolean(entry));
 }
 
+function readSyncRuns(result: ApiResult | null): EmagSyncRun[] {
+  if (!result?.success) {
+    return [];
+  }
+
+  const data = asRecord(result.data);
+  if (!data) {
+    return [];
+  }
+
+  const runs = data.runs;
+  if (!Array.isArray(runs)) {
+    return [];
+  }
+
+  return runs
+    .map((entry): EmagSyncRun | null => {
+      const run = asRecord(entry);
+      if (!run) {
+        return null;
+      }
+
+      if (
+        typeof run.id !== 'string' ||
+        typeof run.startedAt !== 'string' ||
+        typeof run.completedAt !== 'string' ||
+        !Array.isArray(run.requestedIds) ||
+        typeof run.totalProducts !== 'number' ||
+        typeof run.syncedProducts !== 'number' ||
+        typeof run.batches !== 'number' ||
+        typeof run.success !== 'boolean' ||
+        !Array.isArray(run.failures) ||
+        !Array.isArray(run.report)
+      ) {
+        return null;
+      }
+
+      return {
+        id: run.id,
+        startedAt: run.startedAt,
+        completedAt: run.completedAt,
+        requestedIds: run.requestedIds.filter((value): value is string => typeof value === 'string'),
+        totalProducts: run.totalProducts,
+        syncedProducts: run.syncedProducts,
+        batches: run.batches,
+        success: run.success,
+        failures: run.failures as EmagSyncBatchResult[],
+        report: run.report as EmagSyncBatchResult[]
+      };
+    })
+    .filter((entry): entry is EmagSyncRun => Boolean(entry));
+}
+
 function formatDate(value: string): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
@@ -130,6 +209,7 @@ export default function EmagAdminPage() {
 
   const isBusy = useMemo(() => running !== null, [running]);
   const orderEvents = useMemo(() => readUnifiedEvents(result), [result]);
+  const syncRuns = useMemo(() => readSyncRuns(result), [result]);
 
   async function runAction(action: ActionKey): Promise<void> {
     setRunning(action);
@@ -242,6 +322,52 @@ export default function EmagAdminPage() {
                         <pre className="max-w-[360px] overflow-auto whitespace-pre-wrap break-words text-xs">
                           {JSON.stringify(event.details, null, 2)}
                         </pre>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
+
+        {syncRuns.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900">Product sync history</h2>
+            <p className="mt-1 text-sm text-slate-600">Stored history of eMAG product push runs.</p>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-100 text-left text-slate-700">
+                  <tr>
+                    <th className="px-3 py-2">Started</th>
+                    <th className="px-3 py-2">Completed</th>
+                    <th className="px-3 py-2">Result</th>
+                    <th className="px-3 py-2">Synced</th>
+                    <th className="px-3 py-2">Batches</th>
+                    <th className="px-3 py-2">Failed Batches</th>
+                    <th className="px-3 py-2">Scope</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {syncRuns.map((run) => (
+                    <tr key={run.id} className="border-t border-slate-200 align-top">
+                      <td className="px-3 py-2 text-slate-700">{formatDate(run.startedAt)}</td>
+                      <td className="px-3 py-2 text-slate-700">{formatDate(run.completedAt)}</td>
+                      <td className="px-3 py-2">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            run.success ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                          }`}
+                        >
+                          {run.success ? 'Success' : 'Failed'}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-slate-700">{run.syncedProducts}/{run.totalProducts}</td>
+                      <td className="px-3 py-2 text-slate-700">{run.batches}</td>
+                      <td className="px-3 py-2 text-slate-700">{run.failures.length}</td>
+                      <td className="px-3 py-2 text-slate-700">
+                        {run.requestedIds.length > 0 ? `${run.requestedIds.length} selected IDs` : 'All products'}
                       </td>
                     </tr>
                   ))}

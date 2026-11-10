@@ -46,6 +46,7 @@ Set the following variables in your environment file.
 - GET /api/emag/orders
 - POST /api/emag/webhook
 - GET /api/emag/webhook
+- GET /api/emag/sync-runs
 - GET /api/admin/order-events
 
 All protected routes accept token by one of these methods:
@@ -66,6 +67,7 @@ All protected routes accept token by one of these methods:
 - Sends batches to /product_offer/save
 - Sends measurements in matching batches to /measurements/save
 - Returns sync report with failed batches
+- Persists every sync run to data/emag/sync-runs.json for history and auditing
 - Sends additional offer constraints automatically (`url`, `min_sale_price`, `max_sale_price`, optional `recommended_price`) to reduce manual work in eMAG offer wizard
 
 ### POST /api/emag/update-stock
@@ -106,6 +108,12 @@ All protected routes accept token by one of these methods:
 - Accepts `order_id` (or `orderId`) query parameter
 - Reads the order by ID from /order/read
 - Saves the order locally and acknowledges it via /order/acknowledge/{orderId}
+
+### GET /api/emag/sync-runs
+
+- Requires the same admin token logic as other protected eMAG admin routes
+- Returns persisted product sync run history
+- Reads from `data/emag/sync-runs.json`
 
 ### GET /api/admin/order-events
 
