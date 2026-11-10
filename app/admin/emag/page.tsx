@@ -45,6 +45,16 @@ type EmagVatOption = {
   raw: Record<string, unknown>;
 };
 
+type EmagOfferVatSample = {
+  id: number;
+  partNumber: string | null;
+  name: string | null;
+  vatId: number | null;
+  categoryId: number | null;
+  status: number | null;
+  raw: Record<string, unknown>;
+};
+
 type ActionKey =
   | 'syncProducts'
   | 'updateStock'
@@ -53,7 +63,8 @@ type ActionKey =
   | 'readLocalOrders'
   | 'readOrderEvents'
   | 'readSyncHistory'
-  | 'readVatOptions';
+  | 'readVatOptions'
+  | 'readOfferVatSamples';
 
 const actionConfig: Record<ActionKey, { title: string; endpoint: string; method: 'POST' | 'GET'; payload?: Record<string, unknown> }> = {
   syncProducts: {
@@ -101,6 +112,11 @@ const actionConfig: Record<ActionKey, { title: string; endpoint: string; method:
   readVatOptions: {
     title: 'Show VAT Options',
     endpoint: '/api/emag/vat-options',
+    method: 'GET'
+  },
+  readOfferVatSamples: {
+    title: 'Show Offer VAT Samples',
+    endpoint: '/api/emag/offer-vat-samples?limit=100',
     method: 'GET'
   }
 };
@@ -238,6 +254,41 @@ function readVatOptions(result: ApiResult | null): EmagVatOption[] {
     .sort((left, right) => left.id - right.id);
 }
 
+function readOfferVatSamples(result: ApiResult | null): EmagOfferVatSample[] {
+  if (!result?.success) {
+    return [];
+  }
+
+  const data = asRecord(result.data);
+  if (!data) {
+    return [];
+  }
+
+  const samples = data.samples;
+  if (!Array.isArray(samples)) {
+    return [];
+  }
+
+  return samples
+    .map((entry): EmagOfferVatSample | null => {
+      const item = asRecord(entry);
+      if (!item || typeof item.id !== 'number') {
+        return null;
+      }
+
+      return {
+        id: Math.floor(item.id),
+        partNumber: typeof item.partNumber === 'string' ? item.partNumber : null,
+        name: typeof item.name === 'string' ? item.name : null,
+        vatId: typeof item.vatId === 'number' ? item.vatId : null,
+        categoryId: typeof item.categoryId === 'number' ? item.categoryId : null,
+        status: typeof item.status === 'number' ? item.status : null,
+        raw: asRecord(item.raw) ?? {}
+      };
+    })
+    .filter((entry): entry is EmagOfferVatSample => Boolean(entry));
+}
+
 function formatDate(value: string): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
@@ -257,6 +308,7 @@ export default function EmagAdminPage() {
   const orderEvents = useMemo(() => readUnifiedEvents(result), [result]);
   const syncRuns = useMemo(() => readSyncRuns(result), [result]);
   const vatOptions = useMemo(() => readVatOptions(result), [result]);
+  const offerVatSamples = useMemo(() => readOfferVatSamples(result), [result]);
 
   async function runAction(action: ActionKey): Promise<void> {
     setRunning(action);
@@ -444,6 +496,38 @@ export default function EmagAdminPage() {
                       <td className="px-3 py-2 font-semibold text-slate-900">{item.id}</td>
                       <td className="px-3 py-2 text-slate-700">{item.name ?? '-'}</td>
                       <td className="px-3 py-2 text-slate-700">{item.value ?? '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
+
+        {offerVatSamples.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900">Offer VAT samples from eMAG</h2>
+            <p className="mt-1 text-sm text-slate-600">Use this table to identify real working VAT IDs from existing offers.</p>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-100 text-left text-slate-700">
+                  <tr>
+                    <th className="px-3 py-2">Offer ID</th>
+                    <th className="px-3 py-2">Part number</th>
+                    <th className="px-3 py-2">VAT ID</th>
+                    <th className="px-3 py-2">Category</th>
+                    <th className="px-3 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {offerVatSamples.map((sample) => (
+                    <tr key={sample.id} className="border-t border-slate-200">
+                      <td className="px-3 py-2 font-semibold text-slate-900">{sample.id}</td>
+                      <td className="px-3 py-2 text-slate-700">{sample.partNumber ?? sample.name ?? '-'}</td>
+                      <td className="px-3 py-2 text-slate-700">{sample.vatId ?? '-'}</td>
+                      <td className="px-3 py-2 text-slate-700">{sample.categoryId ?? '-'}</td>
+                      <td className="px-3 py-2 text-slate-700">{sample.status ?? '-'}</td>
                     </tr>
                   ))}
                 </tbody>

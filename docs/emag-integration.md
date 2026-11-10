@@ -42,6 +42,7 @@ Set the following variables in your environment file.
 - POST /api/emag/sync-products
 - GET /api/emag/sync-products
 - GET /api/emag/vat-options
+- GET /api/emag/offer-vat-samples
 - POST /api/emag/update-stock
 - POST /api/emag/update-price
 - POST /api/emag/orders
@@ -86,6 +87,12 @@ All protected routes accept token by one of these methods:
 - Calls eMAG `/vat/read` with server credentials
 - Tries both request body shapes (`{}` and `{ "data": {} }`) for compatibility
 - Returns normalized VAT options list for admin UI (`id`, `name`, `value`) so `EMAG_VAT_ID` can be selected correctly
+
+### GET /api/emag/offer-vat-samples
+
+- Protected helper endpoint to inspect existing offer VAT usage
+- Calls eMAG `/product_offer/read` and returns sample offers with `vatId`, `categoryId`, and `partNumber`
+- Includes frequency map of returned VAT IDs (`vatIdFrequency`) to quickly identify the active VAT id used on live offers
 
 ### POST /api/emag/update-stock
 
