@@ -257,7 +257,7 @@ const DEFAULT_NAMES_BY_CATEGORY: Record<string, string> = {
   'thermal-actuator': 'Термоелектрически задвижващ механизъм',
   'hub-controller': 'Централен контролер'
 };
-const MODELS_WITH_WIFI_SEARCH_TOKEN = new Set(['TRV-604', 'TRV-705WF', 'CCT-28-X']);
+const MODELS_WITH_WIFI_SEARCH_TOKEN = new Set(['TRV-604', 'TRV-705WF']);
 
 function normalizeText(value: string): string {
   return value.trim().replace(/\s+/g, ' ');

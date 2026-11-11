@@ -20,7 +20,7 @@ const CATEGORY_LABELS: Record<string, { en: string; bg: string }> = {
   },
   trv: {
     en: 'TRV',
-    bg: 'Термостатичен радиаторен вентил'
+    bg: 'WiFi Термостатичен радиаторен вентил'
   }
 };
 
