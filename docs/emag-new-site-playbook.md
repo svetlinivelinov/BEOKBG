@@ -103,7 +103,8 @@ From the v4.4.8 document, `product_offer/save`:
   `min_sale_price`, `max_sale_price`, `vat_id`, `stock`, `handling_time`. `ean` is required where the category
   says so. `warranty` only where mandatory.
 - `part_number` is the manufacturer code (max 25 characters). The **name** must describe the product, for
-  example "Термостат за електрическо подово отопление", not the model code.
+  example "Термостат за електрическо подово отопление BeOk TGM50-WIFI-EP", not only the model code.
+  Include relevant searchable keywords (for example `WIFI`) when they are part of the product positioning.
 - `ean` is an array of strings. Prices are decimals with up to 4 decimals.
 - `currency_type` only if it differs from the marketplace currency.
 - `manufacturer` and `eu_representative` are arrays of `{ name, address, email }` (GPSR). Incomplete entries

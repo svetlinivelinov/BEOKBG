@@ -257,6 +257,50 @@ const DEFAULT_NAMES_BY_CATEGORY: Record<string, string> = {
   'thermal-actuator': 'Термоелектрически задвижващ механизъм',
   'hub-controller': 'Централен контролер'
 };
+const MODELS_WITH_WIFI_SEARCH_TOKEN = new Set(['TRV-604', 'TRV-705WF', 'CCT-28-X']);
+
+function normalizeText(value: string): string {
+  return value.trim().replace(/\s+/g, ' ');
+}
+
+function containsToken(haystack: string, needle: string): boolean {
+  const normalizedHaystack = normalizeText(haystack).toLowerCase();
+  const normalizedNeedle = normalizeText(needle).toLowerCase();
+  return normalizedNeedle.length > 0 && normalizedHaystack.includes(normalizedNeedle);
+}
+
+function appendTokenIfMissing(name: string, token: string): string {
+  const normalizedToken = normalizeText(token);
+  if (!normalizedToken || containsToken(name, normalizedToken)) {
+    return name;
+  }
+
+  return `${name} ${normalizedToken}`;
+}
+
+function inferNamePrefixFromModel(
+  product: Pick<ProductBase, 'category' | 'model'>
+): string | undefined {
+  const normalizedModel = product.model.trim().toUpperCase();
+  if (!normalizedModel) {
+    return undefined;
+  }
+
+  if (product.category === 'room-thermostat' && normalizedModel.endsWith('-WPB')) {
+    return 'Термостат за газов котел и водно подово отопление';
+  }
+
+  return undefined;
+}
+
+function getExtraNameSearchTokens(product: Pick<ProductBase, 'model'>): string[] {
+  const normalizedModel = product.model.trim().toUpperCase();
+  if (!normalizedModel) {
+    return [];
+  }
+
+  return MODELS_WITH_WIFI_SEARCH_TOKEN.has(normalizedModel) ? ['WIFI'] : [];
+}
 
 // Reads an optional JSON object of string values from the environment and merges it over the defaults.
 function readStringMap(envName: string, defaults: Record<string, string>): Record<string, string> {
@@ -287,8 +331,19 @@ function buildProductName(product: Pick<ProductBase, 'category' | 'model' | 'app
   const byApplication = NAMED_BY_APPLICATION_CATEGORIES.has(product.category)
     ? readStringMap('EMAG_NAME_BY_APPLICATION_JSON', DEFAULT_NAMES_BY_APPLICATION)[product.application]
     : undefined;
+  const byModel = inferNamePrefixFromModel(product);
+  const extraSearchTokens = getExtraNameSearchTokens(product);
+  const brand = process.env.EMAG_BRAND?.trim() || EMAG_DEFAULT_BRAND;
+  const model = normalizeText(product.model);
+  let name = normalizeText(byModel || byCategory || byApplication || product.model);
 
-  return (byCategory || byApplication || product.model).slice(0, 255);
+  for (const token of extraSearchTokens) {
+    name = appendTokenIfMissing(name, token);
+  }
+  name = appendTokenIfMissing(name, brand);
+  name = appendTokenIfMissing(name, model);
+
+  return name.slice(0, 255);
 }
 
 function mapCategory(category: string): number {
